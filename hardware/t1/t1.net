@@ -1,0 +1,67 @@
+(export (version D)
+  (design
+    (source F:\appotech\opcode\ubertoothp\hardware\t1.sch)
+    (date "07/11/2016 13:13:19")
+    (tool "Eeschema 4.0.4-stable")
+    (sheet (number 1) (name /) (tstamps /)
+      (title_block
+        (title)
+        (company)
+        (rev)
+        (date)
+        (source t1.sch)
+        (comment (number 1) (value ""))
+        (comment (number 2) (value ""))
+        (comment (number 3) (value ""))
+        (comment (number 4) (value "")))))
+  (components
+    (comp (ref R1)
+      (value R)
+      (footprint Buttons_Switches_SMD:SW_SPST_B3U-3000P)
+      (libsource (lib device) (part R))
+      (sheetpath (names /) (tstamps /))
+      (tstamp 58200731))
+    (comp (ref C1)
+      (value CP)
+      (footprint Air_Coils_SML_NEOSID:Neosid_Air-Coil_SML_6-10turn_HDM0431A-HDM1031A)
+      (libsource (lib device) (part CP))
+      (sheetpath (names /) (tstamps /))
+      (tstamp 58200815)))
+  (libparts
+    (libpart (lib device) (part CP)
+      (description "Polarised capacitor")
+      (footprints
+        (fp CP*)
+        (fp C_Axial*)
+        (fp C_Radial*)
+        (fp TantalC*)
+        (fp C*elec)
+        (fp c_elec*)
+        (fp SMD*_Pol))
+      (fields
+        (field (name Reference) C)
+        (field (name Value) CP))
+      (pins
+        (pin (num 1) (name ~) (type passive))
+        (pin (num 2) (name ~) (type passive))))
+    (libpart (lib device) (part R)
+      (description Resistor)
+      (footprints
+        (fp R_*)
+        (fp Resistor_*))
+      (fields
+        (field (name Reference) R)
+        (field (name Value) R))
+      (pins
+        (pin (num 1) (name ~) (type passive))
+        (pin (num 2) (name ~) (type passive)))))
+  (libraries
+    (library (logical device)
+      (uri "F:\\Program Files\\KiCad\\share\\kicad\\library\\device.lib")))
+  (nets
+    (net (code 1) (name "Net-(C1-Pad1)")
+      (node (ref R1) (pin 1))
+      (node (ref C1) (pin 1)))
+    (net (code 2) (name "Net-(C1-Pad2)")
+      (node (ref R1) (pin 2))
+      (node (ref C1) (pin 2)))))

@@ -1,0 +1,32 @@
+Part Name,Part Number,Description,Qty,Comps
+Antenna_IIFA_cc2420,,"Antenna single ended IIFA, CC2420",1,A1
+CC2430,,Single chip transceiver,1,U1
+CC2591_DATASHEET,,CC2591 w/ datasheet footprint,1,U2
+C_100N_0402_X5R_K_10,,Capacitor 0402,1,C281
+C_10N_0402_X7R_K_25,,Capacitor 0402,2,C251;C351
+C_10P_0402_NP0_J_50,,Capacitor 0402,1,C131
+C_15P_0402_NP0_J_50,,"Capacitor, 0402",2,C431;C441
+C_18P_0402_NP0_J_50,,"Capacitor, 0402",1,C101
+C_1N_0402_NP0_J_50,,Capacitor 0402,4,C12;C102;C132;C161
+C_1P0_0402_NP0_B_50,,"Capacitor, 1p, 0402, NP0, +/-0.1pF 50V",1,C111
+C_1U_0402_X5R_K_6P3,,Capacitor 0402,2,C1;C421
+C_220N_0402_X5R_K_10,,Capacitor 0402,3,C231;C241;C411
+C_27P_0402_NP0_J_50,,Capacitor 0402,1,C211
+C_2P2_0402_NP0_B_50,,"Capacitor, 2.2p, 0402, NP0, +/-0.1pF 50V",1,C113
+C_2U2_0402_X5R_M_4VDC,GRM155R60G225ME15J,Capacitor 0402,1,C71
+C_33P_0402_NP0_J_50,,Capacitor 0402,1,C191
+C_6P8_0402_NP0_J_50,C_6P8_0402_NP0_C_50,"Capacitor, 0402",1,C112
+FIDUCIAL_MARK,,Fiducial mark,3,FM1-3
+L_2N2_0402_C_LQW,,"Inductor, 2.2nH, 0402, Wire-wound type, +/- 0.2nH",1,L111
+L_3N0_0402_S,,Inductor 0402,1,L112
+L_BEAD_102_0402,BLM15HG102SN1D,EMI filter bead,1,L1
+R_0402,,"Resistor 0402, general",2,L21;R81
+R_0_0402_3PORT_1-2,,"0402 3-port footprint, default connection 1-2",1,R1
+R_0_0402_3PORT_2-3,,"0402 3-port footprint, default connection 2-3",1,R111
+R_43K_0402_F,,"Resistor, 0402",1,R261
+R_4K3_0402_G,,Resistor 0402,1,R151
+R_56K_0402_F,,Resistor 0402,1,R221
+SMA_SMD,,"Surface-mount SMA, straight",1,P3
+SMD_SOCKET_2X10,SMD_SOCKET_2x10,"SMD pinrow socket, .050 spacing, SFM-110-02-SM-D-A-K-TR",2,P1-2
+X_32.000/10/15/30/16,,"Crystal, ceramic SMD 3.2x2.5mm",1,X1
+X_32.768/20/50/40/12,,"Crystal, MC-306 SMD",1,X2
