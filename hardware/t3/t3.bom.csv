@@ -1,0 +1,53 @@
+Reference, Value, Footprint, Datasheet
+
+U3,STM32F405RGTx,Housings_QFP:LQFP-64_10x10mm_Pitch0.5mm,
+U2,CC2400,Housings_DFN_QFN:QFN-48-1EP_7x7mm_Pitch0.5mm,
+U1,CC2591,Housings_DFN_QFN:QFN-16-1EP_4x4mm_Pitch0.65mm,
+
+*U4,LM1117-3.3,TO_SOT_Packages_SMD:SOT-223,
+*U5,LM1117-1.8,TO_SOT_Packages_SMD:SOT-223,
+
+*Y1,16MHz,Crystals:Crystal_HC49-U_Vertical,
+*Y2,32.768k,Crystals:Crystal_Round_Horizontal_3mm,
+
+*Q1,9012,TO_SOT_Packages_SMD:SOT-23,
+*D1,D2,D3,D4,D5,LED,Capacitors_SMD:C_0603_HandSoldering,
+
+
+*R8,			4.3k,Capacitors_SMD:C_0603_HandSoldering,
+*R11,		43k,Capacitors_SMD:C_0603_HandSoldering,
+*R17,R18,	22R,Capacitors_SMD:C_0603_HandSoldering,
+*R19,		1.5K,Capacitors_SMD:C_0603_HandSoldering,
+*R15,		2.2k,Capacitors_SMD:C_0603_HandSoldering,
+*R2,R6,R9,R16,		10k,Capacitors_SMD:C_0603_HandSoldering,
+*R7,			100K,Capacitors_SMD:C_0603_HandSoldering,
+*R1,R3,R4,R5,R14,	330,Capacitors_SMD:C_0603_HandSoldering,
+
+*R10,		0R,Capacitors_SMD:C_0603_HandSoldering,
+
+
+
+*C1,C30,  		2.2pf,Capacitors_SMD:C_0603_HandSoldering,
+*C14,C13,		2.2uf,Capacitors_SMD:C_0603_HandSoldering,
+*C9,C8,			22pf,Capacitors_SMD:C_0603_HandSoldering,
+*C2,			18pf,Capacitors_SMD:C_0603_HandSoldering,
+
+*C17,C23,C12,C29,C26,C27,	100nf,Capacitors_SMD:C_0805_HandSoldering,
+*C19,			10nf,Capacitors_SMD:C_0603_HandSoldering,
+*C3,				1pf,Capacitors_SMD:C_0603_HandSoldering,
+*C16,C15,C6,C4,	1nf,Capacitors_SMD:C_0603_HandSoldering,
+*C7,				10pf,Capacitors_SMD:C_0603_HandSoldering,
+
+*C5,				6.8pf,Capacitors_SMD:C_0603_HandSoldering,
+*C18,C20,		68pf,Capacitors_SMD:C_0603_HandSoldering,
+*C21,C22,		27pf,Capacitors_SMD:C_0603_HandSoldering,
+*C11,C10,		6pf,Capacitors_SMD:C_0603_HandSoldering,
+*C28,C24,C25,	10uf,Capacitors_SMD:C_0805_HandSoldering,
+
+*** Lx,1.5nH, 1nH 0402
+*** L2,2.2nH,Capacitors_SMD:C_0603_HandSoldering,
+*** L1,3nH,Capacitors_SMD:C_0603_HandSoldering,
+*L4,1Kohms,Capacitors_SMD:C_0603_HandSoldering,
+
+
+

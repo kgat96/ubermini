@@ -1,4 +1,4 @@
-update=2016/11/18 18:53:54
+update=2016/11/20 19:43:15
 version=1
 last_client=kicad
 [cvpcb]
@@ -41,7 +41,7 @@ LibName28=valves
 [pcbnew]
 version=1
 PageLayoutDescrFile=
-LastNetListRead=t3_1118_n3.net
+LastNetListRead=t3_1120_n3.net
 PadDrill=0.762
 PadDrillOvalY=0.762
 PadSizeH=1.524
