@@ -264,7 +264,7 @@ void cc2400_init()
  * We're bit-banging because:
  *
  * 1. We're using one SPI peripheral for the CC2400's unbuffered data
- *    interace.
+ *    interface.
  * 2. We're saving the second SPI peripheral for an expansion port.
  * 3. The CC2400 needs CSN held low for the entire transaction which the
  *    LPC17xx SPI peripheral won't do without some workaround anyway.
