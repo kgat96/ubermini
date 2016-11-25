@@ -47,7 +47,7 @@ U 1 1 58218126
 P 6400 3000
 F 0 "U2" H 6400 3100 60  0000 C CNN
 F 1 "CC2400" H 6400 2900 60  0000 C CNN
-F 2 "Housings_DFN_QFN:QFN-48-1EP_7x7mm_Pitch0.5mm" H 6400 3000 60  0001 C CNN
+F 2 "t3:cc2400_Soldering" H 6400 3000 60  0001 C CNN
 F 3 "" H 6400 3000 60  0001 C CNN
 	1    6400 3000
 	1    0    0    -1  
@@ -1436,8 +1436,6 @@ F 3 "" H 9600 2800 50  0000 C CNN
 	1    9600 2800
 	0    -1   -1   0   
 $EndComp
-NoConn ~ 12850 7900
-NoConn ~ 12850 8000
 $Comp
 L R R12
 U 1 1 5830C348
@@ -1526,8 +1524,6 @@ Text Label 13250 8800 2    47   Italic 9
 USBEN
 NoConn ~ 4250 7900
 NoConn ~ 4250 8000
-NoConn ~ 4250 8300
-NoConn ~ 4250 8400
 NoConn ~ 4250 8800
 NoConn ~ 4250 9100
 NoConn ~ 4250 9200
@@ -2478,4 +2474,28 @@ Wire Wire Line
 	13550 3000 13900 3000
 Text Label 13900 2550 2    47   Italic 9
 GIO1
+Wire Wire Line
+	4250 8300 3950 8300
+Text Notes 3850 8300 0    60   ~ 0
+!!!
+Text Label 3950 8300 0    39   Italic 8
+SCLK
+Wire Wire Line
+	4250 8400 3950 8400
+Text Notes 3850 8400 0    60   ~ 0
+!!!
+Text Label 3950 8400 0    39   Italic 8
+CSn
+Wire Wire Line
+	12850 7900 13150 7900
+Wire Wire Line
+	12850 8000 13150 8000
+Text Label 13150 7900 2    39   Italic 8
+DCLK
+Text Label 13150 8000 2    39   Italic 8
+DIO
+Text Notes 13150 7900 0    60   ~ 0
+!!!
+Text Notes 13150 8000 0    60   ~ 0
+!!!
 $EndSCHEMATC

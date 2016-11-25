@@ -1,5 +1,5 @@
-update=2016/11/8 16:21:05
-last_client=kicad
+update=Sun Apr 24 11:48:12 2011
+last_client=pcbnew
 [general]
 version=1
 [cvpcb]
@@ -101,13 +101,3 @@ LibName8=valves
 LibName9=led
 LibName10=dip_sockets
 LibName11=ubertooth
-[schematic_editor]
-version=1
-PageLayoutDescrFile=
-PlotDirectoryName=
-SubpartIdSeparator=0
-SubpartFirstId=65
-NetFmtName=
-SpiceForceRefPrefix=0
-SpiceUseNetNumbers=0
-LabSize=60

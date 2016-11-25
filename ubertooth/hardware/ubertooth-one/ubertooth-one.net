@@ -1,1751 +1,1255 @@
-(export (version D)
-  (design
-    (source F:/appotech/opcode/ubertoothp/ubertooth-master/hardware/ubertooth-one/ubertooth-one.sch)
-    (date "07/11/2016 19:34:12")
-    (tool "Eeschema 4.0.4-stable")
-    (sheet (number 1) (name /) (tstamps /)
-      (title_block
-        (title "Ubertooth One")
-        (company "Copyright 2010, 2011 Michael Ossmann")
-        (rev $Rev$)
-        (date "21 apr 2011")
-        (source ubertooth-one.sch)
-        (comment (number 1) (value "License: GPL v2, http://ubertooth.sourceforge.net/"))
-        (comment (number 2) (value ""))
-        (comment (number 3) (value ""))
-        (comment (number 4) (value "")))))
-  (components
-    (comp (ref FB5)
-      (value FILTER)
-      (footprint 0603)
-      (fields
-        (field (name Field1) Murata)
-        (field (name Field2) BLM18TG601TN1D)
-        (field (name Field3) "EMI/RFI Suppressors & Ferrites 600 Ohm 25%"))
-      (libsource (lib device) (part FILTER))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4D86CE24))
-    (comp (ref R17)
-      (value 10k)
-      (footprint 0603)
-      (fields
-        (field (name Field1) Bourns)
-        (field (name Field2) CR0603-JW-103ELF)
-        (field (name Field3) "Thick Film Resistors - SMD 0603 10KOHMS 5% 1/10WATT"))
-      (libsource (lib device) (part R))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4D348CC9))
-    (comp (ref P13)
-      (value DIO)
-      (footprint testpad-50mil)
-      (fields
-        (field (name Field3) DNP))
-      (libsource (lib ubertooth-one-cache) (part CONN_1))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4D1F669F))
-    (comp (ref P12)
-      (value DCLK)
-      (footprint testpad-50mil)
-      (fields
-        (field (name Field3) DNP))
-      (libsource (lib ubertooth-one-cache) (part CONN_1))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4D1F669C))
-    (comp (ref P9)
-      (value GIO6)
-      (footprint testpad-50mil)
-      (fields
-        (field (name Field3) DNP))
-      (libsource (lib ubertooth-one-cache) (part CONN_1))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4D1F527B))
-    (comp (ref P11)
-      (value ATEST2)
-      (footprint testpad-50mil)
-      (fields
-        (field (name Field3) DNP))
-      (libsource (lib ubertooth-one-cache) (part CONN_1))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4D1F522D))
-    (comp (ref P10)
-      (value ATEST1)
-      (footprint testpad-50mil)
-      (fields
-        (field (name Field3) DNP))
-      (libsource (lib ubertooth-one-cache) (part CONN_1))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4D1F521F))
-    (comp (ref P8)
-      (value GIO1)
-      (footprint testpad-50mil)
-      (fields
-        (field (name Field3) DNP))
-      (libsource (lib ubertooth-one-cache) (part CONN_1))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4D1F5211))
-    (comp (ref P7)
-      (value VBUS)
-      (footprint testpad-50mil)
-      (fields
-        (field (name Field3) DNP))
-      (libsource (lib ubertooth-one-cache) (part CONN_1))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4D1F4F1B))
-    (comp (ref P6)
-      (value 3V3)
-      (footprint testpad-50mil)
-      (fields
-        (field (name Field3) DNP))
-      (libsource (lib ubertooth-one-cache) (part CONN_1))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4D1F4F19))
-    (comp (ref P5)
-      (value 1V8)
-      (footprint testpad-50mil)
-      (fields
-        (field (name Field3) DNP))
-      (libsource (lib ubertooth-one-cache) (part CONN_1))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4D1F4F0D))
-    (comp (ref U6)
-      (value IP4220CZ6)
-      (footprint SOT457)
-      (fields
-        (field (name Field1) NXP)
-        (field (name Field2) IP4220CZ6,125)
-        (field (name Field3) "ESD Suppressors USB2.0 ESD PROTECT DUAL"))
-      (libsource (lib ubertooth-symbols) (part IP4220CZ6))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4D1A7557))
-    (comp (ref Q1)
-      (value BC856)
-      (footprint SOT416)
-      (fields
-        (field (name Field1) NXP)
-        (field (name Field2) BC856AT,115)
-        (field (name Field3) "PNP general purpose transistor"))
-      (libsource (lib ubertooth-symbols) (part BC856))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4D1A6C3F))
-    (comp (ref C36)
-      (value 15pF)
-      (footprint 0603)
-      (fields
-        (field (name Field1) Murata)
-        (field (name Field2) GRM1885C1H150JA01D)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0603 15pF 50volts C0G 5%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4D13F702))
-    (comp (ref C35)
-      (value 10nF)
-      (footprint 0603)
-      (fields
-        (field (name Field1) Murata)
-        (field (name Field2) GRM188R71H103KA01D)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0603 0.01uF 50volts X7R 10%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4D13F558))
-    (comp (ref R19)
-      (value 30.1k)
-      (footprint 0603)
-      (fields
-        (field (name Field1) Panasonic)
-        (field (name Field2) ERJ-3EKF3012V)
-        (field (name Field3) "Thick Film Resistors - SMD Thick Film Chip Res 0603 1% Precision"))
-      (libsource (lib device) (part R))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4D13F53C))
-    (comp (ref R18)
-      (value 49.9k)
-      (footprint 0603)
-      (fields
-        (field (name Field1) Panasonic)
-        (field (name Field2) ERJ-3EKF4992V)
-        (field (name Field3) "Thick Film Resistors - SMD Thick Film Chip Res 0603 1% Precision"))
-      (libsource (lib device) (part R))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4D13F530))
-    (comp (ref U7)
-      (value TPS71219)
-      (footprint S-PVSON-N10)
-      (fields
-        (field (name Field1) "Texas Instruments")
-        (field (name Field2) TPS71219DRCT)
-        (field (name Field3) "Low Dropout (LDO) Regulators Dual 250 mA Output UltraLow Noise"))
-      (libsource (lib ubertooth-symbols) (part TPS712XX))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4D13E6B5))
-    (comp (ref J1)
-      (value USB-DEVICE)
-      (footprint USB-A-USAM-04)
-      (fields
-        (field (name Field1) Molex)
-        (field (name Field2) 48037-1000)
-        (field (name Field3) "USB & Firewire Connectors TYPE A RA SHLDED PLG SMT AU"))
-      (libsource (lib ubertooth-symbols) (part USB-DEVICE))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDC097F))
-    (comp (ref FB4)
-      (value FILTER)
-      (footprint 0603bridged)
-      (fields
-        (field (name Field3) DNP))
-      (libsource (lib device) (part FILTER))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB4F38))
-    (comp (ref FB3)
-      (value FILTER)
-      (footprint 0603bridged)
-      (fields
-        (field (name Field3) DNP))
-      (libsource (lib device) (part FILTER))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB4F37))
-    (comp (ref FB2)
-      (value FILTER)
-      (footprint 0603bridged)
-      (fields
-        (field (name Field3) DNP))
-      (libsource (lib device) (part FILTER))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB4F34))
-    (comp (ref FB1)
-      (value FILTER)
-      (footprint 0603bridged)
-      (fields
-        (field (name Field3) DNP))
-      (libsource (lib device) (part FILTER))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB4F2B))
-    (comp (ref C10)
-      (value 10nF)
-      (footprint 0603)
-      (fields
-        (field (name Field3) DNP))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB4F24))
-    (comp (ref C7)
-      (value 10nF)
-      (footprint 0603)
-      (fields
-        (field (name Field3) DNP))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB4F05))
-    (comp (ref C8)
-      (value 1µF)
-      (footprint 0603)
-      (fields
-        (field (name Field3) DNP))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB4EC4))
-    (comp (ref C11)
-      (value 1µF)
-      (footprint 0603)
-      (fields
-        (field (name Field3) DNP))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB4E9D))
-    (comp (ref R3)
-      (value 10k)
-      (footprint 0603)
-      (fields
-        (field (name Field1) Bourns)
-        (field (name Field2) CR0603-JW-103ELF)
-        (field (name Field3) "Thick Film Resistors - SMD 0603 10KOHMS 5% 1/10WATT"))
-      (libsource (lib device) (part R))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB4CA2))
-    (comp (ref C18)
-      (value 2.2µF)
-      (footprint 0603)
-      (fields
-        (field (name Field1) TDK)
-        (field (name Field2) C1608X5R1C225K)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0603 16volts 2.2uF X5R 10%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB4C69))
-    (comp (ref C22)
-      (value 1µF)
-      (footprint 0603)
-      (fields
-        (field (name Field1) TDK)
-        (field (name Field2) C1608X5R1C105K)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0603 1uF 16volts X5R 10%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB4C61))
-    (comp (ref C32)
-      (value 2.2µF)
-      (footprint 0603)
-      (fields
-        (field (name Field1) TDK)
-        (field (name Field2) C1608X5R1C225K)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0603 16volts 2.2uF X5R 10%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB4A37))
-    (comp (ref U1)
-      (value CC2591)
-      (footprint VQFN16)
-      (fields
-        (field (name Field1) "Texas Instruments")
-        (field (name Field2) CC2591RGVR)
-        (field (name Field3) "RF Front End 2.4 GHz"))
-      (libsource (lib ubertooth-symbols) (part CC2591))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CD37CEC))
-    (comp (ref P1)
-      (value SMA-CONN)
-      (footprint SMA-EDGE)
-      (fields
-        (field (name Field1) "Connector City")
-        (field (name Field2) CONREVSMA003.062)
-        (field (name Field3) "RF Connectors RP-SMA Fml Edge Mnt for 0.062 Thick Brd"))
-      (libsource (lib ubertooth-symbols) (part SMA-CONN))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB3CB4))
-    (comp (ref L1)
-      (value 3nH)
-      (footprint 0402)
-      (fields
-        (field (name Field1) Murata)
-        (field (name Field2) LQG15HN3N0S02D)
-        (field (name Field3) "RF Inductor"))
-      (libsource (lib device) (part INDUCTOR))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB393F))
-    (comp (ref C1)
-      (value 2p2)
-      (footprint 0402)
-      (fields
-        (field (name Field1) Murata)
-        (field (name Field2) GRM1555C1H2R2BZ01D)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0402 2.2pF 50volts C0G +/-0.1pF"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB38FC))
-    (comp (ref C3)
-      (value 1pF)
-      (footprint 0402)
-      (fields
-        (field (name Field1) Murata)
-        (field (name Field2) GRM1555C1H1R0BZ01D)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0402 1.0pF 50volts C0G +/-0.1pF"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB38F5))
-    (comp (ref L2)
-      (value 2n2)
-      (footprint 0402)
-      (fields
-        (field (name Field1) Murata)
-        (field (name Field2) LQW15AN2N2C10D)
-        (field (name Field3) "Power Inductors 2.2 NH +-.2NH"))
-      (libsource (lib device) (part INDUCTOR))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB38CC))
-    (comp (ref C5)
-      (value 6p8)
-      (footprint 0402)
-      (fields
-        (field (name Field1) Murata)
-        (field (name Field2) GRM1555C1H6R8CZ01D)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0402 6.8pF 50volts 0.1pF"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB3880))
-    (comp (ref C6)
-      (value 1nF)
-      (footprint 0402)
-      (fields
-        (field (name Field1) Murata)
-        (field (name Field2) GRM1555C1H102JA01D)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0402 1000pF 50volts C0G 5%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB2D0C))
-    (comp (ref C9)
-      (value 10pF)
-      (footprint 0402)
-      (fields
-        (field (name Field1) Murata)
-        (field (name Field2) GRM1555C1H100JZ01D)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0402 10pF 50volts C0G 5%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB2CFF))
-    (comp (ref C2)
-      (value 1nF)
-      (footprint 0402)
-      (fields
-        (field (name Field1) Murata)
-        (field (name Field2) GRM1555C1H102JA01D)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0402 1000pF 50volts C0G 5%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB2CA2))
-    (comp (ref C4)
-      (value 18pF)
-      (footprint 0402)
-      (fields
-        (field (name Field1) Murata)
-        (field (name Field2) GRM1555C1H180JZ01J)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0402 18pF 50volts C0G 5%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB2C94))
-    (comp (ref C14)
-      (value 1nF)
-      (footprint 0402)
-      (fields
-        (field (name Field1) Murata)
-        (field (name Field2) GRM1555C1H102JA01D)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0402 1000pF 50volts C0G 5%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB2C22))
-    (comp (ref C12)
-      (value 1nF)
-      (footprint 0402)
-      (fields
-        (field (name Field1) Murata)
-        (field (name Field2) GRM1555C1H102JA01D)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0402 1000pF 50volts C0G 5%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB2BDD))
-    (comp (ref R1)
-      (value 4k3)
-      (footprint 0402)
-      (fields
-        (field (name Field1) "KOA Speer")
-        (field (name Field2) RK73H1ETTP4301F)
-        (field (name Field3) "Thick Film Resistors - SMD 0402 1/16watt 4.3Kohms 1%"))
-      (libsource (lib device) (part R))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB2AD4))
-    (comp (ref R4)
-      (value 330)
-      (footprint 0603)
-      (fields
-        (field (name Field1) Bourns)
-        (field (name Field2) CR0603-JW-331ELF)
-        (field (name Field3) "Thick Film Resistors - SMD 0603 330OHMS 5% 1/10WATT"))
-      (libsource (lib device) (part R))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB28B9))
-    (comp (ref D1)
-      (value 1V8LED)
-      (footprint 0603D)
-      (fields
-        (field (name Field1) Kingbright)
-        (field (name Field2) APT1608SGC)
-        (field (name Field3) "Standard LED - SMD GREEN WATER CLEAR"))
-      (libsource (lib device) (part LED))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB28B7))
-    (comp (ref R5)
-      (value 470)
-      (footprint 0603)
-      (fields
-        (field (name Field1) Bourns)
-        (field (name Field2) CR0603-JW-471ELF)
-        (field (name Field3) "Thick Film Resistors - SMD 0603 470OHMS 5% 1/10WATT"))
-      (libsource (lib device) (part R))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB26E3))
-    (comp (ref D2)
-      (value TXLED)
-      (footprint 0603D)
-      (fields
-        (field (name Field1) OSRAM)
-        (field (name Field2) "LY L29K-H1K2-26-Z")
-        (field (name Field3) "Standard LED - SMD Yellow, 587nm 28mcd, 2mA"))
-      (libsource (lib device) (part LED))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB26DE))
-    (comp (ref R6)
-      (value 470)
-      (footprint 0603)
-      (fields
-        (field (name Field1) Bourns)
-        (field (name Field2) CR0603-JW-471ELF)
-        (field (name Field3) "Thick Film Resistors - SMD 0603 470OHMS 5% 1/10WATT"))
-      (libsource (lib device) (part R))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB26D9))
-    (comp (ref D3)
-      (value RXLED)
-      (footprint 0603D)
-      (fields
-        (field (name Field1) OSRAM)
-        (field (name Field2) "LO L29K-J2L1-24-Z")
-        (field (name Field3) "Standard LED - SMD Orange, 606nm 14mcd, 2mA"))
-      (libsource (lib device) (part LED))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB26D0))
-    (comp (ref D4)
-      (value USRLED)
-      (footprint 0603D)
-      (fields
-        (field (name Field1) Kingbright)
-        (field (name Field2) APT1608EC)
-        (field (name Field3) "Standard LED - SMD HI EFF RED WTR CLR"))
-      (libsource (lib device) (part LED))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB26AB))
-    (comp (ref R7)
-      (value 330)
-      (footprint 0603)
-      (fields
-        (field (name Field1) Bourns)
-        (field (name Field2) CR0603-JW-331ELF)
-        (field (name Field3) "Thick Film Resistors - SMD 0603 330OHMS 5% 1/10WATT"))
-      (libsource (lib device) (part R))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB2694))
-    (comp (ref P2)
-      (value PROGRAM)
-      (footprint 100MIL-HEADER-1X6-EDGE)
-      (fields
-        (field (name Field3) DNP))
-      (libsource (lib ubertooth-one-cache) (part CONN_6))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB225C))
-    (comp (ref P3)
-      (value JTAG)
-      (footprint 50MIL-HEADER-2X5-TH)
-      (fields
-        (field (name Field3) DNP))
-      (libsource (lib ubertooth-one-cache) (part CONN_5X2))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB2134))
-    (comp (ref D6)
-      (value USBLED)
-      (footprint 0603D)
-      (fields
-        (field (name Field1) Kingbright)
-        (field (name Field2) APT1608EC)
-        (field (name Field3) "Standard LED - SMD HI EFF RED WTR CLR"))
-      (libsource (lib device) (part LED))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB17F8))
-    (comp (ref R15)
-      (value 330)
-      (footprint 0603)
-      (fields
-        (field (name Field1) Bourns)
-        (field (name Field2) CR0603-JW-331ELF)
-        (field (name Field3) "Thick Film Resistors - SMD 0603 330OHMS 5% 1/10WATT"))
-      (libsource (lib device) (part R))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB17E7))
-    (comp (ref D5)
-      (value RSTLED)
-      (footprint 0603D)
-      (fields
-        (field (name Field1) Kingbright)
-        (field (name Field2) APT1608SGC)
-        (field (name Field3) "Standard LED - SMD GREEN WATER CLEAR"))
-      (libsource (lib device) (part LED))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB1751))
-    (comp (ref R8)
-      (value 330)
-      (footprint 0603)
-      (fields
-        (field (name Field1) Bourns)
-        (field (name Field2) CR0603-JW-331ELF)
-        (field (name Field3) "Thick Film Resistors - SMD 0603 330OHMS 5% 1/10WATT"))
-      (libsource (lib device) (part R))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB170B))
-    (comp (ref C29)
-      (value 220pF)
-      (footprint 0603)
-      (fields
-        (field (name Field1) TDK)
-        (field (name Field2) C1608X7R1H221K)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0603 220pF 50volts X7R 10%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB154F))
-    (comp (ref C31)
-      (value 100pF)
-      (footprint 0603)
-      (fields
-        (field (name Field1) TDK)
-        (field (name Field2) C1608C0G1H101J)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0603 100pF 50volts C0G 5%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB155B))
-    (comp (ref R9)
-      (value 10k)
-      (footprint 0603)
-      (fields
-        (field (name Field1) Bourns)
-        (field (name Field2) CR0603-JW-103ELF)
-        (field (name Field3) "Thick Film Resistors - SMD 0603 10KOHMS 5% 1/10WATT"))
-      (libsource (lib device) (part R))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB143F))
-    (comp (ref R11)
-      (value 2k2)
-      (footprint 0603)
-      (fields
-        (field (name Field1) Bourns)
-        (field (name Field2) CR0603-JW-222ELF)
-        (field (name Field3) "Thick Film Resistors - SMD 0603 2.2KOHMS 5% 1/10WATT"))
-      (libsource (lib device) (part R))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB11B7))
-    (comp (ref R14)
-      (value 10k)
-      (footprint 0603)
-      (fields
-        (field (name Field1) Bourns)
-        (field (name Field2) CR0603-JW-103ELF)
-        (field (name Field3) "Thick Film Resistors - SMD 0603 10KOHMS 5% 1/10WATT"))
-      (libsource (lib device) (part R))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB11AC))
-    (comp (ref R16)
-      (value 1k5)
-      (footprint 0603)
-      (fields
-        (field (name Field1) Bourns)
-        (field (name Field2) CR0603-JW-152ELF)
-        (field (name Field3) "Thick Film Resistors - SMD 0603 1.5KOHMS 5% 1/10WATT"))
-      (libsource (lib device) (part R))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB1118))
-    (comp (ref R12)
-      (value 33)
-      (footprint 0603)
-      (fields
-        (field (name Field1) Vishay/Dale)
-        (field (name Field2) CRCW060333R0FKEA)
-        (field (name Field3) "Thick Film Resistors - SMD 0603 1/16watt 33ohms 1% 100ppm"))
-      (libsource (lib device) (part R))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB10C2))
-    (comp (ref R13)
-      (value 33)
-      (footprint 0603)
-      (fields
-        (field (name Field1) Vishay/Dale)
-        (field (name Field2) CRCW060333R0FKEA)
-        (field (name Field3) "Thick Film Resistors - SMD 0603 1/16watt 33ohms 1% 100ppm"))
-      (libsource (lib device) (part R))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB10B7))
-    (comp (ref C34)
-      (value 100nF)
-      (footprint 0603)
-      (fields
-        (field (name Field1) TDK)
-        (field (name Field2) C1608X7R1H104K)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0603 0.1uF 50volts X7R 10%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB0FAF))
-    (comp (ref C33)
-      (value 100nF)
-      (footprint 0603)
-      (fields
-        (field (name Field1) TDK)
-        (field (name Field2) C1608X7R1H104K)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0603 0.1uF 50volts X7R 10%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB0E51))
-    (comp (ref C27)
-      (value 100nF)
-      (footprint 0603)
-      (fields
-        (field (name Field1) TDK)
-        (field (name Field2) C1608X7R1H104K)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0603 0.1uF 50volts X7R 10%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDB0AFB))
-    (comp (ref R10)
-      (value 10k)
-      (footprint 0603)
-      (fields
-        (field (name Field1) Bourns)
-        (field (name Field2) CR0603-JW-103ELF)
-        (field (name Field3) "Thick Film Resistors - SMD 0603 10KOHMS 5% 1/10WATT"))
-      (libsource (lib device) (part R))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDAF3FC))
-    (comp (ref C30)
-      (value 100nF)
-      (footprint 0603)
-      (fields
-        (field (name Field1) TDK)
-        (field (name Field2) C1608X7R1H104K)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0603 0.1uF 50volts X7R 10%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDAF340))
-    (comp (ref P4)
-      (value EXPAND)
-      (footprint PIN_ARRAY_3X2)
-      (fields
-        (field (name Field3) DNP))
-      (libsource (lib ubertooth-one-cache) (part CONN_3X2))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDAF1FD))
-    (comp (ref C28)
-      (value 100nF)
-      (footprint 0603)
-      (fields
-        (field (name Field1) TDK)
-        (field (name Field2) C1608X7R1H104K)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0603 0.1uF 50volts X7R 10%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDAE93A))
-    (comp (ref U4)
-      (value LPC175X)
-      (footprint LQFP80)
-      (fields
-        (field (name Field1) NXP)
-        (field (name Field2) LPC1754FBD80,551)
-        (field (name Field3) "Microcontrollers (MCU) ARM Cortex M3 Micro Controller"))
-      (libsource (lib ubertooth-symbols) (part LPC175X))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CD23A14))
-    (comp (ref C26)
-      (value 100nF)
-      (footprint 0603)
-      (fields
-        (field (name Field1) TDK)
-        (field (name Field2) C1608X7R1H104K)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0603 0.1uF 50volts X7R 10%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDAE56D))
-    (comp (ref L3)
-      (value DNP)
-      (footprint 0402gap)
-      (fields
-        (field (name Field3) DNP))
-      (libsource (lib device) (part INDUCTOR))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDAE2A9))
-    (comp (ref C19)
-      (value 27pF)
-      (footprint 0603)
-      (fields
-        (field (name Field1) TDK)
-        (field (name Field2) C1608C0G1H270J)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0603 27pF 50volts C0G 5%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDAE1CE))
-    (comp (ref C21)
-      (value 27pF)
-      (footprint 0603)
-      (fields
-        (field (name Field1) TDK)
-        (field (name Field2) C1608C0G1H270J)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0603 27pF 50volts C0G 5%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDAE1AC))
-    (comp (ref X1)
-      (value ABMM2)
-      (footprint ABMM2)
-      (fields
-        (field (name Field1) Abracon)
-        (field (name Field2) ABMM2-16.000MHZ-E2-T)
-        (field (name Field3) "Crystals +/-20PPM 16MHz"))
-      (libsource (lib ubertooth-one-cache) (part CRYSTAL))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDAE158))
-    (comp (ref R2)
-      (value 43k)
-      (footprint 0402)
-      (fields
-        (field (name Field1) "KOA Speer")
-        (field (name Field2) RK73H1ETTP4302F)
-        (field (name Field3) "Thick Film Resistors - SMD 0402 1/16watts 43Kohms 1%"))
-      (libsource (lib device) (part R))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDAE066))
-    (comp (ref C20)
-      (value 68pF)
-      (footprint 0402)
-      (fields
-        (field (name Field1) Murata)
-        (field (name Field2) GRM1555C1H680JZ01D)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0402 68PF 50V 5%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDADFEB))
-    (comp (ref C25)
-      (value 100nF)
-      (footprint 0402)
-      (fields
-        (field (name Field1) Murata)
-        (field (name Field2) GRM155R71C104KA88D)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0402 0.1uF 16volts X7R 10%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDADF2A))
-    (comp (ref C24)
-      (value 100nF)
-      (footprint 0402)
-      (fields
-        (field (name Field1) Murata)
-        (field (name Field2) GRM155R71C104KA88D)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0402 0.1uF 16volts X7R 10%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDADF05))
-    (comp (ref C23)
-      (value 68pF)
-      (footprint 0402)
-      (fields
-        (field (name Field1) Murata)
-        (field (name Field2) GRM1555C1H680JZ01D)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0402 68PF 50V 5%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDADD3E))
-    (comp (ref C17)
-      (value 10nF)
-      (footprint 0402)
-      (fields
-        (field (name Field1) Murata)
-        (field (name Field2) GRM155R71E103KA01D)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0402 0.01uF 25volts X7R 10%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDADC3A))
-    (comp (ref C16)
-      (value 100nF)
-      (footprint 0402)
-      (fields
-        (field (name Field1) Murata)
-        (field (name Field2) GRM155R71C104KA88D)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0402 0.1uF 16volts X7R 10%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDADBBE))
-    (comp (ref C15)
-      (value 68pF)
-      (footprint 0402)
-      (fields
-        (field (name Field1) Murata)
-        (field (name Field2) GRM1555C1H680JZ01D)
-        (field (name Field3) "Multilayer Ceramic Capacitors (MLCC) - SMD/SMT 0402 68PF 50V 5%"))
-      (libsource (lib device) (part C))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CDADBB0))
-    (comp (ref U3)
-      (value CC2400)
-      (footprint QFN48)
-      (fields
-        (field (name Field1) "Texas Instruments")
-        (field (name Field2) CC2400-RTB1)
-        (field (name Field3) "RF Receiver Lo-Pwr Sgl-Chip 2.4 GHz ISM Band Trnscvr"))
-      (libsource (lib ubertooth-symbols) (part CC2400))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 4CD3795B)))
-  (libparts
-    (libpart (lib ubertooth-symbols) (part BC856)
-      (docs transistors/bipolar/*.*)
-      (fields
-        (field (name Reference) Q)
-        (field (name Value) BC856))
-      (pins
-        (pin (num 1) (name B) (type input))
-        (pin (num 2) (name E) (type passive))
-        (pin (num 3) (name C) (type passive))))
-    (libpart (lib device) (part C)
-      (description "Unpolarized capacitor")
-      (footprints
-        (fp C?)
-        (fp C_????_*)
-        (fp C_????)
-        (fp SMD*_c)
-        (fp Capacitor*))
-      (fields
-        (field (name Reference) C)
-        (field (name Value) C))
-      (pins
-        (pin (num 1) (name ~) (type passive))
-        (pin (num 2) (name ~) (type passive))))
-    (libpart (lib ubertooth-symbols) (part CC2400)
-      (fields
-        (field (name Reference) U)
-        (field (name Value) CC2400))
-      (pins
-        (pin (num 1) (name VCO_GUARD) (type power_in))
-        (pin (num 2) (name AVDD_VCO) (type power_in))
-        (pin (num 3) (name AVDD_PRE) (type power_in))
-        (pin (num 4) (name AVDD_RF1) (type power_in))
-        (pin (num 5) (name GND) (type power_in))
-        (pin (num 6) (name RF_P) (type BiDi))
-        (pin (num 7) (name TXRX_SWITCH) (type output))
-        (pin (num 8) (name RF_N) (type BiDi))
-        (pin (num 9) (name GND) (type power_in))
-        (pin (num 10) (name AVDD_SW) (type power_in))
-        (pin (num 11) (name NC) (type input))
-        (pin (num 12) (name NC) (type input))
-        (pin (num 13) (name NC) (type input))
-        (pin (num 14) (name AVDD_RF2) (type power_in))
-        (pin (num 15) (name AVDD_IF2) (type power_in))
-        (pin (num 16) (name AVDD_ADC) (type power_in))
-        (pin (num 17) (name DVDD_ADC) (type power_in))
-        (pin (num 18) (name DGND_GUARD) (type power_in))
-        (pin (num 19) (name GUARD) (type power_in))
-        (pin (num 20) (name BT/GR) (type input))
-        (pin (num 21) (name GIO1) (type BiDi))
-        (pin (num 22) (name DGND) (type power_in))
-        (pin (num 23) (name DSUB_PADS) (type power_in))
-        (pin (num 24) (name DSUB_CORE) (type power_in))
-        (pin (num 25) (name DVDD3.3) (type power_in))
-        (pin (num 26) (name DVDD1.8) (type power_in))
-        (pin (num 27) (name RX) (type input))
-        (pin (num 28) (name TX) (type BiDi))
-        (pin (num 29) (name DIO/PKT) (type BiDi))
-        (pin (num 30) (name DCLK/FIFO) (type output))
-        (pin (num 31) (name CSn) (type input))
-        (pin (num 32) (name SCLK) (type input))
-        (pin (num 33) (name SI) (type input))
-        (pin (num 34) (name SO) (type output))
-        (pin (num 35) (name GIO6) (type output))
-        (pin (num 36) (name NC) (type input))
-        (pin (num 37) (name NC) (type input))
-        (pin (num 38) (name NC) (type input))
-        (pin (num 39) (name NC) (type input))
-        (pin (num 40) (name NC) (type input))
-        (pin (num 41) (name AVDD_XOSC) (type power_in))
-        (pin (num 42) (name XOSC16_Q2) (type output))
-        (pin (num 43) (name XOSC16_Q1) (type input))
-        (pin (num 44) (name AVDD_IF1) (type power_in))
-        (pin (num 45) (name R_BIAS) (type output))
-        (pin (num 46) (name ATEST2) (type BiDi))
-        (pin (num 47) (name ATEST1) (type BiDi))
-        (pin (num 48) (name AVDD_CHP) (type power_in))
-        (pin (num 49) (name AGND) (type power_in))))
-    (libpart (lib ubertooth-symbols) (part CC2591)
-      (fields
-        (field (name Reference) U)
-        (field (name Value) CC2591))
-      (pins
-        (pin (num 1) (name AVDD_PA1) (type power_in))
-        (pin (num 2) (name RF_N) (type BiDi))
-        (pin (num 3) (name TXRX) (type input))
-        (pin (num 4) (name RF_P) (type BiDi))
-        (pin (num 5) (name PAEN) (type input))
-        (pin (num 6) (name EN) (type input))
-        (pin (num 7) (name HGM) (type input))
-        (pin (num 8) (name GND) (type power_in))
-        (pin (num 9) (name GND) (type power_in))
-        (pin (num 10) (name AVDD_PA2) (type power_in))
-        (pin (num 11) (name ANT) (type BiDi))
-        (pin (num 12) (name GND) (type power_in))
-        (pin (num 13) (name AVDD_LNA) (type power_in))
-        (pin (num 14) (name GND) (type power_in))
-        (pin (num 15) (name BIAS) (type output))
-        (pin (num 16) (name AVDD_BIAS) (type power_in))
-        (pin (num 17) (name GND) (type power_in))))
-    (libpart (lib ubertooth-one-cache) (part CONN_1)
-      (fields
-        (field (name Reference) P)
-        (field (name Value) CONN_1))
-      (pins
-        (pin (num 1) (name 1) (type passive))))
-    (libpart (lib ubertooth-one-cache) (part CONN_3X2)
-      (fields
-        (field (name Reference) P)
-        (field (name Value) CONN_3X2))
-      (pins
-        (pin (num 1) (name 1) (type passive))
-        (pin (num 2) (name 2) (type passive))
-        (pin (num 3) (name 3) (type passive))
-        (pin (num 4) (name 4) (type passive))
-        (pin (num 5) (name 5) (type passive))
-        (pin (num 6) (name 6) (type passive))))
-    (libpart (lib ubertooth-one-cache) (part CONN_5X2)
-      (fields
-        (field (name Reference) P)
-        (field (name Value) CONN_5X2))
-      (pins
-        (pin (num 1) (name ~) (type passive))
-        (pin (num 2) (name ~) (type passive))
-        (pin (num 3) (name ~) (type passive))
-        (pin (num 4) (name ~) (type passive))
-        (pin (num 5) (name ~) (type passive))
-        (pin (num 6) (name ~) (type passive))
-        (pin (num 7) (name ~) (type passive))
-        (pin (num 8) (name ~) (type passive))
-        (pin (num 9) (name ~) (type passive))
-        (pin (num 10) (name ~) (type passive))))
-    (libpart (lib ubertooth-one-cache) (part CONN_6)
-      (fields
-        (field (name Reference) P)
-        (field (name Value) CONN_6))
-      (pins
-        (pin (num 1) (name 1) (type passive))
-        (pin (num 2) (name 2) (type passive))
-        (pin (num 3) (name 3) (type passive))
-        (pin (num 4) (name 4) (type passive))
-        (pin (num 5) (name 5) (type passive))
-        (pin (num 6) (name 6) (type passive))))
-    (libpart (lib ubertooth-one-cache) (part CRYSTAL)
-      (fields
-        (field (name Reference) X)
-        (field (name Value) CRYSTAL))
-      (pins
-        (pin (num 1) (name 1) (type passive))
-        (pin (num 2) (name 2) (type passive))))
-    (libpart (lib device) (part FILTER)
-      (description "Filtre EMI")
-      (fields
-        (field (name Reference) FB)
-        (field (name Value) FILTER))
-      (pins
-        (pin (num 1) (name 1) (type passive))
-        (pin (num 2) (name 2) (type passive))))
-    (libpart (lib device) (part INDUCTOR)
-      (footprints
-        (fp Choke_*)
-        (fp *Coil*))
-      (fields
-        (field (name Reference) L)
-        (field (name Value) INDUCTOR))
-      (pins
-        (pin (num 1) (name 1) (type passive))
-        (pin (num 2) (name 2) (type passive))))
-    (libpart (lib ubertooth-symbols) (part IP4220CZ6)
-      (fields
-        (field (name Reference) U)
-        (field (name Value) IP4220CZ6))
-      (pins
-        (pin (num 1) (name ESD1) (type input))
-        (pin (num 2) (name GND) (type power_in))
-        (pin (num 3) (name ESD2) (type input))
-        (pin (num 4) (name ESD3) (type input))
-        (pin (num 5) (name VP) (type power_in))
-        (pin (num 6) (name ESD4) (type input))))
-    (libpart (lib device) (part LED)
-      (footprints
-        (fp LED-*)
-        (fp LED_*))
-      (fields
-        (field (name Reference) D)
-        (field (name Value) LED))
-      (pins
-        (pin (num 1) (name K) (type passive))
-        (pin (num 2) (name A) (type passive))))
-    (libpart (lib ubertooth-symbols) (part LPC175X)
-      (fields
-        (field (name Reference) U)
-        (field (name Value) LPC175X))
-      (pins
-        (pin (num 1) (name TDO/SWO) (type output))
-        (pin (num 2) (name TDI) (type input))
-        (pin (num 3) (name TMS/SWDIO) (type BiDi))
-        (pin (num 4) (name TRST) (type input))
-        (pin (num 5) (name TCK/SWDCLK) (type input))
-        (pin (num 6) (name P0[26]/AD0[3]/AOUT/RXD3) (type BiDi))
-        (pin (num 7) (name P0[25]/AD0[2]/I2SRX_SDA/TXD3) (type BiDi))
-        (pin (num 8) (name VDDA) (type power_in))
-        (pin (num 9) (name VSSA) (type power_in))
-        (pin (num 10) (name VREFP) (type input))
-        (pin (num 11) (name RSTOUT) (type output))
-        (pin (num 12) (name VREFN) (type input))
-        (pin (num 13) (name RTCX1) (type input))
-        (pin (num 14) (name RESET) (type input))
-        (pin (num 15) (name RTCX2) (type output))
-        (pin (num 16) (name VBAT) (type power_in))
-        (pin (num 17) (name P1[31]/SCK1/AD0[5]) (type BiDi))
-        (pin (num 18) (name P1[30]/VBUS/AD0[4]) (type BiDi))
-        (pin (num 19) (name XTAL1) (type input))
-        (pin (num 20) (name XTAL2) (type output))
-        (pin (num 21) (name "VDD(3V3)") (type power_in))
-        (pin (num 22) (name P0[29]/USB_D+) (type BiDi))
-        (pin (num 23) (name P0[30]/USB_D-) (type BiDi))
-        (pin (num 24) (name VSS) (type power_in))
-        (pin (num 25) (name P1[18]/USB_UP_LED/PWM1[1]/CAP1[0]) (type BiDi))
-        (pin (num 26) (name P1[19]/MCOA0/USB_PPWR/CAP1[1]) (type BiDi))
-        (pin (num 27) (name P1[20]/MCI0/PWM1[2]/SCK0) (type BiDi))
-        (pin (num 28) (name P1[22]/MCOB0/USB_PWRD/MAT1[0]) (type BiDi))
-        (pin (num 29) (name P1[23]/MCI1/PWM1[4]/MISO0) (type BiDi))
-        (pin (num 30) (name P1[24]/MCI2/PWM1[5]/MOSI0) (type BiDi))
-        (pin (num 31) (name P1[25]/MCOA1/MAT1[1]) (type BiDi))
-        (pin (num 32) (name P1[26]/MCOB1/PWM1[6]/CAP0[0]) (type BiDi))
-        (pin (num 33) (name VSS) (type power_in))
-        (pin (num 34) (name "VDD(REG)(3V3)") (type power_in))
-        (pin (num 35) (name P1[28]/MCOA2/PCAP1[0]/MAT0[0]) (type BiDi))
-        (pin (num 36) (name P1[29]/MCOB2/PCAP1[1]/MAT0[1]) (type BiDi))
-        (pin (num 37) (name P0[0]/RD1/TXD3/SDA1) (type BiDi))
-        (pin (num 38) (name P0[1]/TD1/RXD3/SCL1) (type BiDi))
-        (pin (num 39) (name P0[10]/TXD2/SDA2/MAT3[0]) (type BiDi))
-        (pin (num 40) (name P0[11]/RXD2/SCL2/MAT3[1]) (type BiDi))
-        (pin (num 41) (name P2[10]/EINT0/NMI) (type BiDi))
-        (pin (num 42) (name "VDD(3V3)") (type power_in))
-        (pin (num 43) (name VSS) (type power_in))
-        (pin (num 44) (name P0[22]/RTS1/TD1) (type BiDi))
-        (pin (num 45) (name P0[18]/DCD1/MOSI0/MOSI) (type BiDi))
-        (pin (num 46) (name P0[17]/CTS1/MISO0/MISO) (type BiDi))
-        (pin (num 47) (name P0[15]/TXD1/SCK0/SCK) (type BiDi))
-        (pin (num 48) (name P0[16]/RXD1/SSEL0/SSEL) (type BiDi))
-        (pin (num 49) (name P2[9]/USB_CONNECT/RXD2) (type BiDi))
-        (pin (num 50) (name P2[8]/TD2/TXD2) (type BiDi))
-        (pin (num 51) (name P2[7]/RD2/RTS1) (type BiDi))
-        (pin (num 52) (name P2[6]/PCAP1[0]/RI1/TRACECLK) (type BiDi))
-        (pin (num 53) (name P2[5]/PWM1[6]/DTR1/TRACEDATA[0]) (type BiDi))
-        (pin (num 54) (name P2[4]/PWM1[5]/DSR1/TRACEDATA[1]) (type BiDi))
-        (pin (num 55) (name P2[3]/PWM1[4]/DCD1/TRACEDATA[2]) (type BiDi))
-        (pin (num 56) (name "VDD(3V3)") (type power_in))
-        (pin (num 57) (name VSS) (type power_in))
-        (pin (num 58) (name P2[2]/PWM1[3]/CTS1/TRACEDATA[3]) (type BiDi))
-        (pin (num 59) (name P2[1]/PWM1[2]/RXD1) (type BiDi))
-        (pin (num 60) (name P2[0]/PWM1[1]/TXD1) (type BiDi))
-        (pin (num 61) (name P0[9]/I2STX_SDA/MOSI1/MAT2[3]) (type BiDi))
-        (pin (num 62) (name P0[8]/I2STX_WS/MISO1/MAT2[2]) (type BiDi))
-        (pin (num 63) (name P0[7]/I2STX_CLK/SCK1/MAT2[1]) (type BiDi))
-        (pin (num 64) (name P0[6]/I2SRX_SDA/SSEL1/MAT2[0]) (type BiDi))
-        (pin (num 65) (name P4[28]/RX_MCLK/MAT2[0]/TXD3) (type BiDi))
-        (pin (num 66) (name VSS) (type power_in))
-        (pin (num 67) (name "VDD(REG)(3V3)") (type power_in))
-        (pin (num 68) (name P4[29]/TX_MCLK/MAT2[1]/RXD3) (type BiDi))
-        (pin (num 69) (name P1[15]/ENET_REF_CLK) (type BiDi))
-        (pin (num 70) (name P1[14]/ENET_RX_ER) (type BiDi))
-        (pin (num 71) (name P1[10]/ENET_RXD1) (type BiDi))
-        (pin (num 72) (name P1[9]/ENET_RXD0) (type BiDi))
-        (pin (num 73) (name P1[8]/ENET_CRS) (type BiDi))
-        (pin (num 74) (name P1[4]/ENET_TX_EN) (type BiDi))
-        (pin (num 75) (name P1[1]/ENET_TXD1) (type BiDi))
-        (pin (num 76) (name P1[0]/ENET_TXD0) (type BiDi))
-        (pin (num 77) (name "VDD(3V3)") (type power_in))
-        (pin (num 78) (name VSS) (type power_in))
-        (pin (num 79) (name P0[2]/TXD0/AD0[7]) (type BiDi))
-        (pin (num 80) (name P0[3]/RXD0/AD0[6]) (type BiDi))))
-    (libpart (lib device) (part R)
-      (description Resistor)
-      (footprints
-        (fp R_*)
-        (fp Resistor_*))
-      (fields
-        (field (name Reference) R)
-        (field (name Value) R))
-      (pins
-        (pin (num 1) (name ~) (type passive))
-        (pin (num 2) (name ~) (type passive))))
-    (libpart (lib ubertooth-symbols) (part SMA-CONN)
-      (fields
-        (field (name Reference) P)
-        (field (name Value) SMA-CONN))
-      (pins
-        (pin (num 1) (name RF) (type BiDi))
-        (pin (num 2) (name GND) (type power_in))
-        (pin (num 3) (name GND) (type power_in))
-        (pin (num 4) (name GND) (type power_in))
-        (pin (num 5) (name GND) (type power_in))))
-    (libpart (lib ubertooth-symbols) (part TPS712XX)
-      (fields
-        (field (name Reference) U)
-        (field (name Value) TPS712XX))
-      (pins
-        (pin (num 0) (name ~) (type power_in))
-        (pin (num 1) (name IN) (type power_in))
-        (pin (num 2) (name NC) (type input))
-        (pin (num 3) (name OUT1) (type power_out))
-        (pin (num 4) (name OUT2) (type power_out))
-        (pin (num 5) (name GND) (type power_in))
-        (pin (num 6) (name NR) (type passive))
-        (pin (num 7) (name FB2/NC) (type passive))
-        (pin (num 8) (name EN2) (type input))
-        (pin (num 9) (name FB1/NC) (type passive))
-        (pin (num 10) (name EN1) (type input))))
-    (libpart (lib ubertooth-symbols) (part USB-DEVICE)
-      (fields
-        (field (name Reference) J)
-        (field (name Value) USB-DEVICE))
-      (pins
-        (pin (num 1) (name VBUS) (type power_out))
-        (pin (num 2) (name D-) (type BiDi))
-        (pin (num 3) (name D+) (type BiDi))
-        (pin (num 4) (name GND) (type power_out)))))
-  (libraries
-    (library (logical ubertooth-symbols)
-      (uri F:\appotech\opcode\ubertoothp\ubertooth-master\hardware\kicad\ubertooth-symbols.lib))
-    (library (logical device)
-      (uri "F:\\Program Files\\KiCad\\share\\kicad\\library\\device.lib"))
-    (library (logical ubertooth-one-cache)
-      (uri F:\appotech\opcode\ubertoothp\ubertooth-master\hardware\ubertooth-one\ubertooth-one-cache.lib)))
-  (nets
-    (net (code 1) (name "Net-(R5-Pad2)")
-      (node (ref R5) (pin 2)))
-    (net (code 2) (name "Net-(R4-Pad1)")
-      (node (ref R4) (pin 1)))
-    (net (code 3) (name "Net-(R4-Pad2)")
-      (node (ref R4) (pin 2)))
-    (net (code 4) (name "Net-(D1-Pad1)")
-      (node (ref D1) (pin 1)))
-    (net (code 5) (name "Net-(R5-Pad1)")
-      (node (ref R5) (pin 1)))
-    (net (code 6) (name "Net-(D2-Pad1)")
-      (node (ref D2) (pin 1)))
-    (net (code 7) (name "Net-(R6-Pad1)")
-      (node (ref R6) (pin 1)))
-    (net (code 8) (name "Net-(R6-Pad2)")
-      (node (ref R6) (pin 2)))
-    (net (code 9) (name "Net-(D3-Pad1)")
-      (node (ref D3) (pin 1)))
-    (net (code 10) (name "Net-(D4-Pad1)")
-      (node (ref D4) (pin 1)))
-    (net (code 11) (name "Net-(C14-Pad1)")
-      (node (ref C14) (pin 1)))
-    (net (code 12) (name "Net-(C6-Pad1)")
-      (node (ref C6) (pin 1)))
-    (net (code 13) (name "Net-(C6-Pad2)")
-      (node (ref C6) (pin 2)))
-    (net (code 14) (name "Net-(C9-Pad1)")
-      (node (ref C9) (pin 1)))
-    (net (code 15) (name "Net-(C9-Pad2)")
-      (node (ref C9) (pin 2)))
-    (net (code 16) (name "Net-(C2-Pad1)")
-      (node (ref C2) (pin 1)))
-    (net (code 17) (name "Net-(C2-Pad2)")
-      (node (ref C2) (pin 2)))
-    (net (code 18) (name "Net-(C4-Pad1)")
-      (node (ref C4) (pin 1)))
-    (net (code 19) (name "Net-(C4-Pad2)")
-      (node (ref C4) (pin 2)))
-    (net (code 20) (name "Net-(R7-Pad1)")
-      (node (ref R7) (pin 1)))
-    (net (code 21) (name "Net-(C14-Pad2)")
-      (node (ref C14) (pin 2)))
-    (net (code 22) (name "Net-(C12-Pad1)")
-      (node (ref C12) (pin 1)))
-    (net (code 23) (name "Net-(C12-Pad2)")
-      (node (ref C12) (pin 2)))
-    (net (code 24) (name "Net-(R1-Pad1)")
-      (node (ref R1) (pin 1)))
-    (net (code 25) (name "Net-(R1-Pad2)")
-      (node (ref R1) (pin 2)))
-    (net (code 26) (name "Net-(U4-Pad30)")
-      (node (ref U4) (pin 30)))
-    (net (code 27) (name "Net-(U4-Pad31)")
-      (node (ref U4) (pin 31)))
-    (net (code 28) (name "Net-(U4-Pad32)")
-      (node (ref U4) (pin 32)))
-    (net (code 29) (name "Net-(U4-Pad35)")
-      (node (ref U4) (pin 35)))
-    (net (code 30) (name "Net-(U4-Pad36)")
-      (node (ref U4) (pin 36)))
-    (net (code 31) (name "Net-(U4-Pad37)")
-      (node (ref U4) (pin 37)))
-    (net (code 32) (name "Net-(U4-Pad38)")
-      (node (ref U4) (pin 38)))
-    (net (code 33) (name "Net-(U4-Pad39)")
-      (node (ref U4) (pin 39)))
-    (net (code 34) (name "Net-(U4-Pad40)")
-      (node (ref U4) (pin 40)))
-    (net (code 35) (name "Net-(D6-Pad2)")
-      (node (ref D6) (pin 2)))
-    (net (code 36) (name "Net-(R15-Pad1)")
-      (node (ref R15) (pin 1)))
-    (net (code 37) (name "Net-(R15-Pad2)")
-      (node (ref R15) (pin 2)))
-    (net (code 38) (name "Net-(D5-Pad1)")
-      (node (ref D5) (pin 1)))
-    (net (code 39) (name "Net-(U4-Pad29)")
-      (node (ref U4) (pin 29)))
-    (net (code 40) (name "Net-(R8-Pad1)")
-      (node (ref R8) (pin 1)))
-    (net (code 41) (name "Net-(R8-Pad2)")
-      (node (ref R8) (pin 2)))
-    (net (code 42) (name "Net-(C29-Pad1)")
-      (node (ref C29) (pin 1)))
-    (net (code 43) (name "Net-(C29-Pad2)")
-      (node (ref C29) (pin 2)))
-    (net (code 44) (name "Net-(R7-Pad2)")
-      (node (ref R7) (pin 2)))
-    (net (code 45) (name "Net-(U4-Pad76)")
-      (node (ref U4) (pin 76)))
-    (net (code 46) (name "Net-(U4-Pad4)")
-      (node (ref U4) (pin 4)))
-    (net (code 47) (name /ISP)
-      (node (ref P2) (pin 2))
-      (node (ref U4) (pin 41)))
-    (net (code 48) (name "Net-(P2-Pad3)")
-      (node (ref P2) (pin 3)))
-    (net (code 49) (name "Net-(P2-Pad4)")
-      (node (ref P2) (pin 4))
-      (node (ref U4) (pin 80)))
-    (net (code 50) (name "Net-(P3-Pad7)")
-      (node (ref P3) (pin 7)))
-    (net (code 51) (name "Net-(P3-Pad4)")
-      (node (ref U4) (pin 5))
-      (node (ref P3) (pin 4)))
-    (net (code 52) (name "Net-(P3-Pad6)")
-      (node (ref P3) (pin 6))
-      (node (ref U4) (pin 1)))
-    (net (code 53) (name "Net-(P3-Pad8)")
-      (node (ref P3) (pin 8))
-      (node (ref U4) (pin 2)))
-    (net (code 54) (name "Net-(U4-Pad26)")
-      (node (ref U4) (pin 26)))
-    (net (code 55) (name "Net-(U4-Pad27)")
-      (node (ref U4) (pin 27)))
-    (net (code 56) (name "Net-(U4-Pad28)")
-      (node (ref U4) (pin 28)))
-    (net (code 57) (name "Net-(C10-Pad2)")
-      (node (ref C10) (pin 2)))
-    (net (code 58) (name "Net-(C10-Pad1)")
-      (node (ref C10) (pin 1)))
-    (net (code 59) (name "Net-(C7-Pad1)")
-      (node (ref C7) (pin 1)))
-    (net (code 60) (name "Net-(C7-Pad2)")
-      (node (ref C7) (pin 2)))
-    (net (code 61) (name "Net-(C8-Pad1)")
-      (node (ref C8) (pin 1)))
-    (net (code 62) (name "Net-(C8-Pad2)")
-      (node (ref C8) (pin 2)))
-    (net (code 63) (name "Net-(C11-Pad1)")
-      (node (ref C11) (pin 1)))
-    (net (code 64) (name "Net-(C11-Pad2)")
-      (node (ref C11) (pin 2)))
-    (net (code 65) (name "Net-(R3-Pad1)")
-      (node (ref R3) (pin 1)))
-    (net (code 66) (name "Net-(R3-Pad2)")
-      (node (ref R3) (pin 2)))
-    (net (code 67) (name "Net-(C18-Pad1)")
-      (node (ref C18) (pin 1)))
-    (net (code 68) (name "Net-(C18-Pad2)")
-      (node (ref C18) (pin 2)))
-    (net (code 69) (name "Net-(C22-Pad1)")
-      (node (ref C22) (pin 1)))
-    (net (code 70) (name "Net-(C35-Pad1)")
-      (node (ref C35) (pin 1)))
-    (net (code 71) (name "Net-(C35-Pad2)")
-      (node (ref C35) (pin 2)))
-    (net (code 72) (name "Net-(R19-Pad1)")
-      (node (ref R19) (pin 1)))
-    (net (code 73) (name "Net-(R19-Pad2)")
-      (node (ref R19) (pin 2)))
-    (net (code 74) (name "Net-(R18-Pad1)")
-      (node (ref R18) (pin 1)))
-    (net (code 75) (name "Net-(R18-Pad2)")
-      (node (ref R18) (pin 2)))
-    (net (code 76) (name "Net-(U7-Pad2)")
-      (node (ref U7) (pin 2)))
-    (net (code 77) (name "Net-(U7-Pad9)")
-      (node (ref U7) (pin 9)))
-    (net (code 78) (name "Net-(C22-Pad2)")
-      (node (ref C22) (pin 2)))
-    (net (code 79) (name "Net-(U7-Pad6)")
-      (node (ref U7) (pin 6)))
-    (net (code 80) (name "Net-(U4-Pad52)")
-      (node (ref U4) (pin 52)))
-    (net (code 81) (name "Net-(C1-Pad1)")
-      (node (ref C1) (pin 1)))
-    (net (code 82) (name "Net-(C1-Pad2)")
-      (node (ref C1) (pin 2)))
-    (net (code 83) (name "Net-(C3-Pad1)")
-      (node (ref C3) (pin 1)))
-    (net (code 84) (name "Net-(C3-Pad2)")
-      (node (ref C3) (pin 2)))
-    (net (code 85) (name "Net-(L1-Pad2)")
-      (node (ref L2) (pin 1))
-      (node (ref P1) (pin 1))
-      (node (ref L1) (pin 2)))
-    (net (code 86) (name "Net-(L2-Pad2)")
-      (node (ref L2) (pin 2)))
-    (net (code 87) (name "Net-(C5-Pad1)")
-      (node (ref C5) (pin 1)))
-    (net (code 88) (name "Net-(C5-Pad2)")
-      (node (ref C5) (pin 2)))
-    (net (code 89) (name "Net-(C32-Pad1)")
-      (node (ref C32) (pin 1)))
-    (net (code 90) (name "Net-(C32-Pad2)")
-      (node (ref C32) (pin 2)))
-    (net (code 91) (name "Net-(U6-Pad3)")
-      (node (ref U6) (pin 3)))
-    (net (code 92) (name "Net-(U6-Pad1)")
-      (node (ref U6) (pin 1)))
-    (net (code 93) (name "Net-(L3-Pad2)")
-      (node (ref L3) (pin 2))
-      (node (ref U3) (pin 8))
-      (node (ref U1) (pin 2)))
-    (net (code 94) (name "Net-(L3-Pad1)")
-      (node (ref U1) (pin 4))
-      (node (ref U3) (pin 6))
-      (node (ref L3) (pin 1)))
-    (net (code 95) (name GND)
-      (node (ref U4) (pin 57))
-      (node (ref U4) (pin 66))
-      (node (ref U4) (pin 24))
-      (node (ref U4) (pin 43))
-      (node (ref U4) (pin 33))
-      (node (ref U3) (pin 24))
-      (node (ref U3) (pin 5))
-      (node (ref U3) (pin 49))
-      (node (ref U3) (pin 18))
-      (node (ref U3) (pin 22))
-      (node (ref U3) (pin 23))
-      (node (ref U3) (pin 9))
-      (node (ref P4) (pin 1))
-      (node (ref U6) (pin 2))
-      (node (ref U7) (pin 5))
-      (node (ref P1) (pin 5))
-      (node (ref P1) (pin 4))
-      (node (ref P1) (pin 3))
-      (node (ref P1) (pin 2))
-      (node (ref U7) (pin 0))
-      (node (ref J1) (pin 4))
-      (node (ref FB2) (pin 2))
-      (node (ref FB4) (pin 2))
-      (node (ref P3) (pin 9))
-      (node (ref P3) (pin 5))
-      (node (ref P3) (pin 3))
-      (node (ref U1) (pin 17))
-      (node (ref U1) (pin 14))
-      (node (ref U1) (pin 12))
-      (node (ref U1) (pin 9))
-      (node (ref U1) (pin 8))
-      (node (ref L1) (pin 1))
-      (node (ref D4) (pin 2))
-      (node (ref D3) (pin 2))
-      (node (ref D2) (pin 2))
-      (node (ref D1) (pin 2))
-      (node (ref D5) (pin 2))
-      (node (ref P2) (pin 1))
-      (node (ref U4) (pin 78)))
-    (net (code 96) (name "Net-(U1-Pad11)")
-      (node (ref U1) (pin 11)))
-    (net (code 97) (name "Net-(U1-Pad15)")
-      (node (ref U1) (pin 15)))
-    (net (code 98) (name "Net-(C25-Pad2)")
-      (node (ref C25) (pin 2)))
-    (net (code 99) (name "Net-(U3-Pad43)")
-      (node (ref X1) (pin 1))
-      (node (ref U3) (pin 43)))
-    (net (code 100) (name "Net-(R2-Pad1)")
-      (node (ref R2) (pin 1)))
-    (net (code 101) (name "Net-(R2-Pad2)")
-      (node (ref R2) (pin 2)))
-    (net (code 102) (name "Net-(C20-Pad1)")
-      (node (ref C20) (pin 1)))
-    (net (code 103) (name "Net-(C20-Pad2)")
-      (node (ref C20) (pin 2)))
-    (net (code 104) (name "Net-(C25-Pad1)")
-      (node (ref C25) (pin 1)))
-    (net (code 105) (name "Net-(C21-Pad2)")
-      (node (ref C21) (pin 2)))
-    (net (code 106) (name "Net-(C24-Pad1)")
-      (node (ref C24) (pin 1)))
-    (net (code 107) (name "Net-(C24-Pad2)")
-      (node (ref C24) (pin 2)))
-    (net (code 108) (name "Net-(C23-Pad1)")
-      (node (ref C23) (pin 1)))
-    (net (code 109) (name "Net-(C23-Pad2)")
-      (node (ref C23) (pin 2)))
-    (net (code 110) (name "Net-(C17-Pad1)")
-      (node (ref C17) (pin 1)))
-    (net (code 111) (name "Net-(C17-Pad2)")
-      (node (ref C17) (pin 2)))
-    (net (code 112) (name "Net-(P4-Pad5)")
-      (node (ref U4) (pin 48))
-      (node (ref P4) (pin 5)))
-    (net (code 113) (name "Net-(P2-Pad5)")
-      (node (ref P2) (pin 5))
-      (node (ref U4) (pin 79)))
-    (net (code 114) (name "Net-(C16-Pad1)")
-      (node (ref C16) (pin 1)))
-    (net (code 115) (name "Net-(C26-Pad1)")
-      (node (ref C26) (pin 1)))
-    (net (code 116) (name "Net-(C26-Pad2)")
-      (node (ref C26) (pin 2)))
-    (net (code 117) (name "Net-(C19-Pad1)")
-      (node (ref C19) (pin 1)))
-    (net (code 118) (name "Net-(C19-Pad2)")
-      (node (ref C19) (pin 2)))
-    (net (code 119) (name "Net-(C21-Pad1)")
-      (node (ref C21) (pin 1)))
-    (net (code 120) (name "Net-(U3-Pad42)")
-      (node (ref U3) (pin 42))
-      (node (ref X1) (pin 2)))
-    (net (code 121) (name "Net-(U3-Pad13)")
-      (node (ref U3) (pin 13)))
-    (net (code 122) (name "Net-(U3-Pad36)")
-      (node (ref U3) (pin 36)))
-    (net (code 123) (name "Net-(U3-Pad37)")
-      (node (ref U3) (pin 37)))
-    (net (code 124) (name "Net-(U3-Pad38)")
-      (node (ref U3) (pin 38)))
-    (net (code 125) (name "Net-(U3-Pad39)")
-      (node (ref U3) (pin 39)))
-    (net (code 126) (name "Net-(C16-Pad2)")
-      (node (ref C16) (pin 2)))
-    (net (code 127) (name "Net-(C15-Pad1)")
-      (node (ref C15) (pin 1)))
-    (net (code 128) (name "Net-(C15-Pad2)")
-      (node (ref C15) (pin 2)))
-    (net (code 129) (name "Net-(U3-Pad40)")
-      (node (ref U3) (pin 40)))
-    (net (code 130) (name "Net-(U3-Pad12)")
-      (node (ref U3) (pin 12)))
-    (net (code 131) (name "Net-(U3-Pad11)")
-      (node (ref U3) (pin 11)))
-    (net (code 132) (name "Net-(U1-Pad3)")
-      (node (ref U1) (pin 3))
-      (node (ref U3) (pin 7)))
-    (net (code 133) (name "Net-(U3-Pad20)")
-      (node (ref U4) (pin 71))
-      (node (ref U3) (pin 20)))
-    (net (code 134) (name /GIO1)
-      (node (ref U3) (pin 21))
-      (node (ref P8) (pin 1)))
-    (net (code 135) (name "Net-(P4-Pad3)")
-      (node (ref P4) (pin 3))
-      (node (ref U4) (pin 44)))
-    (net (code 136) (name "Net-(C27-Pad1)")
-      (node (ref C27) (pin 1)))
-    (net (code 137) (name "Net-(C27-Pad2)")
-      (node (ref C27) (pin 2)))
-    (net (code 138) (name "Net-(U4-Pad55)")
-      (node (ref U4) (pin 55)))
-    (net (code 139) (name "Net-(R10-Pad1)")
-      (node (ref R10) (pin 1)))
-    (net (code 140) (name "Net-(R10-Pad2)")
-      (node (ref R10) (pin 2)))
-    (net (code 141) (name "Net-(C30-Pad1)")
-      (node (ref C30) (pin 1)))
-    (net (code 142) (name "Net-(C30-Pad2)")
-      (node (ref C30) (pin 2)))
-    (net (code 143) (name "Net-(P4-Pad2)")
-      (node (ref P4) (pin 2))
-      (node (ref U4) (pin 47)))
-    (net (code 144) (name "Net-(C28-Pad1)")
-      (node (ref C28) (pin 1)))
-    (net (code 145) (name "Net-(C28-Pad2)")
-      (node (ref C28) (pin 2)))
-    (net (code 146) (name "Net-(P3-Pad2)")
-      (node (ref P3) (pin 2))
-      (node (ref U4) (pin 3)))
-    (net (code 147) (name /ATEST2)
-      (node (ref U3) (pin 46))
-      (node (ref U4) (pin 6))
-      (node (ref P11) (pin 1)))
-    (net (code 148) (name /ATEST1)
-      (node (ref U3) (pin 47))
-      (node (ref P10) (pin 1))
-      (node (ref U4) (pin 7)))
-    (net (code 149) (name "Net-(R12-Pad1)")
-      (node (ref R12) (pin 1)))
-    (net (code 150) (name "Net-(C31-Pad1)")
-      (node (ref C31) (pin 1)))
-    (net (code 151) (name "Net-(C31-Pad2)")
-      (node (ref C31) (pin 2)))
-    (net (code 152) (name "Net-(U4-Pad17)")
-      (node (ref U4) (pin 17)))
-    (net (code 153) (name "Net-(R9-Pad1)")
-      (node (ref R9) (pin 1)))
-    (net (code 154) (name "Net-(R9-Pad2)")
-      (node (ref R9) (pin 2)))
-    (net (code 155) (name /USB_CONNECT)
-      (node (ref U4) (pin 49)))
-    (net (code 156) (name "Net-(R11-Pad1)")
-      (node (ref R11) (pin 1)))
-    (net (code 157) (name "Net-(R11-Pad2)")
-      (node (ref R11) (pin 2)))
-    (net (code 158) (name "Net-(R14-Pad1)")
-      (node (ref R14) (pin 1)))
-    (net (code 159) (name "Net-(R14-Pad2)")
-      (node (ref R14) (pin 2)))
-    (net (code 160) (name "Net-(R16-Pad1)")
-      (node (ref R16) (pin 1)))
-    (net (code 161) (name "Net-(R16-Pad2)")
-      (node (ref R16) (pin 2)))
-    (net (code 162) (name /VDDA)
-      (node (ref U4) (pin 8))
-      (node (ref FB1) (pin 1)))
-    (net (code 163) (name "Net-(R12-Pad2)")
-      (node (ref R12) (pin 2)))
-    (net (code 164) (name "Net-(R13-Pad1)")
-      (node (ref R13) (pin 1)))
-    (net (code 165) (name "Net-(R13-Pad2)")
-      (node (ref R13) (pin 2)))
-    (net (code 166) (name "Net-(C34-Pad1)")
-      (node (ref C34) (pin 1)))
-    (net (code 167) (name "Net-(C34-Pad2)")
-      (node (ref C34) (pin 2)))
-    (net (code 168) (name "Net-(U4-Pad13)")
-      (node (ref U4) (pin 13)))
-    (net (code 169) (name "Net-(U4-Pad15)")
-      (node (ref U4) (pin 15)))
-    (net (code 170) (name "Net-(U4-Pad20)")
-      (node (ref U4) (pin 20)))
-    (net (code 171) (name "Net-(C33-Pad1)")
-      (node (ref C33) (pin 1)))
-    (net (code 172) (name "Net-(C33-Pad2)")
-      (node (ref C33) (pin 2)))
-    (net (code 173) (name /SCLK)
-      (node (ref U4) (pin 54))
-      (node (ref U3) (pin 32)))
-    (net (code 174) (name "Net-(U4-Pad74)")
-      (node (ref U4) (pin 74)))
-    (net (code 175) (name "Net-(U4-Pad25)")
-      (node (ref U4) (pin 25)))
-    (net (code 176) (name "Net-(P4-Pad6)")
-      (node (ref U4) (pin 45))
-      (node (ref P4) (pin 6)))
-    (net (code 177) (name "Net-(U4-Pad64)")
-      (node (ref U4) (pin 64))
-      (node (ref U4) (pin 65)))
-    (net (code 178) (name "Net-(U4-Pad73)")
-      (node (ref U4) (pin 73)))
-    (net (code 179) (name "Net-(P4-Pad4)")
-      (node (ref P4) (pin 4))
-      (node (ref U4) (pin 46)))
-    (net (code 180) (name /VSSA)
-      (node (ref U4) (pin 9))
-      (node (ref FB2) (pin 1)))
-    (net (code 181) (name /VREFP)
-      (node (ref U4) (pin 10))
-      (node (ref FB3) (pin 1)))
-    (net (code 182) (name /HGM)
-      (node (ref U1) (pin 7))
-      (node (ref U4) (pin 50)))
-    (net (code 183) (name "Net-(U4-Pad11)")
-      (node (ref U4) (pin 11)))
-    (net (code 184) (name /VREFN)
-      (node (ref FB4) (pin 1))
-      (node (ref U4) (pin 12)))
-    (net (code 185) (name "Net-(U4-Pad22)")
-      (node (ref U4) (pin 22)))
-    (net (code 186) (name "Net-(U4-Pad23)")
-      (node (ref U4) (pin 23)))
-    (net (code 187) (name "Net-(U4-Pad19)")
-      (node (ref U4) (pin 19)))
-    (net (code 188) (name "Net-(Q1-Pad3)")
-      (node (ref Q1) (pin 3)))
-    (net (code 189) (name "Net-(U3-Pad45)")
-      (node (ref U3) (pin 45)))
-    (net (code 190) (name 3V3)
-      (node (ref FB5) (pin 2))
-      (node (ref U1) (pin 16))
-      (node (ref U7) (pin 4))
-      (node (ref U1) (pin 10))
-      (node (ref U1) (pin 13))
-      (node (ref U1) (pin 1))
-      (node (ref P6) (pin 1)))
-    (net (code 191) (name +1.8V)
-      (node (ref U3) (pin 1))
-      (node (ref U3) (pin 10))
-      (node (ref U3) (pin 15))
-      (node (ref U3) (pin 2))
-      (node (ref U3) (pin 3))
-      (node (ref U3) (pin 26))
-      (node (ref U3) (pin 44))
-      (node (ref U3) (pin 14))
-      (node (ref P5) (pin 1))
-      (node (ref U3) (pin 4))
-      (node (ref U3) (pin 19))
-      (node (ref U3) (pin 48))
-      (node (ref U3) (pin 16))
-      (node (ref U3) (pin 41))
-      (node (ref U7) (pin 3))
-      (node (ref U3) (pin 17)))
-    (net (code 192) (name 3V3D)
-      (node (ref U4) (pin 16))
-      (node (ref FB5) (pin 1))
-      (node (ref U4) (pin 56))
-      (node (ref P3) (pin 1))
-      (node (ref U4) (pin 21))
-      (node (ref D6) (pin 1))
-      (node (ref Q1) (pin 2))
-      (node (ref U4) (pin 34))
-      (node (ref U4) (pin 77))
-      (node (ref U4) (pin 67))
-      (node (ref U4) (pin 42))
-      (node (ref FB3) (pin 2))
-      (node (ref FB1) (pin 2)))
-    (net (code 193) (name "Net-(P2-Pad6)")
-      (node (ref P2) (pin 6))
-      (node (ref P3) (pin 10))
-      (node (ref U4) (pin 14)))
-    (net (code 194) (name /VBUS)
-      (node (ref U7) (pin 8))
-      (node (ref U7) (pin 1))
-      (node (ref U4) (pin 18))
-      (node (ref J1) (pin 1))
-      (node (ref P7) (pin 1))
-      (node (ref U6) (pin 5)))
-    (net (code 195) (name "Net-(J1-Pad3)")
-      (node (ref U6) (pin 4))
-      (node (ref J1) (pin 3)))
-    (net (code 196) (name "Net-(J1-Pad2)")
-      (node (ref U6) (pin 6))
-      (node (ref J1) (pin 2)))
-    (net (code 197) (name "Net-(U7-Pad7)")
-      (node (ref U7) (pin 7)))
-    (net (code 198) (name "Net-(U4-Pad72)")
-      (node (ref U4) (pin 72))
-      (node (ref U7) (pin 10)))
-    (net (code 199) (name "Net-(C36-Pad1)")
-      (node (ref C36) (pin 1)))
-    (net (code 200) (name "Net-(C36-Pad2)")
-      (node (ref C36) (pin 2)))
-    (net (code 201) (name "Net-(R17-Pad1)")
-      (node (ref R17) (pin 1)))
-    (net (code 202) (name "Net-(R17-Pad2)")
-      (node (ref R17) (pin 2)))
-    (net (code 203) (name /EN)
-      (node (ref U1) (pin 6))
-      (node (ref U1) (pin 5))
-      (node (ref U4) (pin 51)))
-    (net (code 204) (name /RX)
-      (node (ref U3) (pin 27))
-      (node (ref U4) (pin 69)))
-    (net (code 205) (name /TX)
-      (node (ref U3) (pin 28))
-      (node (ref U4) (pin 68)))
-    (net (code 206) (name /CSn)
-      (node (ref U4) (pin 53))
-      (node (ref U3) (pin 31)))
-    (net (code 207) (name /SI)
-      (node (ref U3) (pin 33))
-      (node (ref U4) (pin 60)))
-    (net (code 208) (name /SO)
-      (node (ref U3) (pin 34))
-      (node (ref U4) (pin 59)))
-    (net (code 209) (name /DIO)
-      (node (ref P13) (pin 1))
-      (node (ref U4) (pin 62))
-      (node (ref U4) (pin 61))
-      (node (ref U3) (pin 29)))
-    (net (code 210) (name /DCLK)
-      (node (ref U4) (pin 63))
-      (node (ref P12) (pin 1))
-      (node (ref U3) (pin 30)))
-    (net (code 211) (name /GIO6)
-      (node (ref U4) (pin 58))
-      (node (ref U3) (pin 35))
-      (node (ref P9) (pin 1)))
-    (net (code 212) (name "Net-(Q1-Pad1)")
-      (node (ref Q1) (pin 1)))
-    (net (code 213) (name "Net-(U3-Pad25)")
-      (node (ref U3) (pin 25))
-      (node (ref U4) (pin 70)))
-    (net (code 214) (name "Net-(U4-Pad75)")
-      (node (ref U4) (pin 75)))))
+# EESchema Netlist Version 1.1 created  Thu Apr 21 20:46:28 2011
+(
+ ( /4D86CE24 0603  FB5 FILTER {Lib=FILTER}
+  (    1 3V3D )
+  (    2 3V3 )
+ )
+ ( /4D348CC9 0603  R17 10k {Lib=R}
+  (    1 /EN )
+  (    2 GND )
+ )
+ ( /4D1F669F testpad-50mil  P13 DIO {Lib=CONN_1}
+  (    1 /DIO )
+ )
+ ( /4D1F669C testpad-50mil  P12 DCLK {Lib=CONN_1}
+  (    1 /DCLK )
+ )
+ ( /4D1F527B testpad-50mil  P9 GIO6 {Lib=CONN_1}
+  (    1 /GIO6 )
+ )
+ ( /4D1F522D testpad-50mil  P11 ATEST2 {Lib=CONN_1}
+  (    1 /ATEST2 )
+ )
+ ( /4D1F521F testpad-50mil  P10 ATEST1 {Lib=CONN_1}
+  (    1 /ATEST1 )
+ )
+ ( /4D1F5211 testpad-50mil  P8 GIO1 {Lib=CONN_1}
+  (    1 /GIO1 )
+ )
+ ( /4D1F4F1B testpad-50mil  P7 VBUS {Lib=CONN_1}
+  (    1 /VBUS )
+ )
+ ( /4D1F4F19 testpad-50mil  P6 3V3 {Lib=CONN_1}
+  (    1 3V3 )
+ )
+ ( /4D1F4F0D testpad-50mil  P5 1V8 {Lib=CONN_1}
+  (    1 +1.8V )
+ )
+ ( /4D1A7557 SOT457  U6 IP4220CZ6 {Lib=IP4220CZ6}
+  (    1 ? )
+  (    2 GND )
+  (    3 ? )
+  (    4 N-000094 )
+  (    5 /VBUS )
+  (    6 N-000095 )
+ )
+ ( /4D1A6C3F SOT416  Q1 BC856 {Lib=BC856}
+  (    1 N-000067 )
+  (    2 3V3D )
+  (    3 N-000068 )
+ )
+ ( /4D13F702 0603  C36 15pF {Lib=C}
+  (    1 3V3 )
+  (    2 N-000096 )
+ )
+ ( /4D13F558 0603  C35 10nF {Lib=C}
+  (    1 N-000031 )
+  (    2 GND )
+ )
+ ( /4D13F53C 0603  R19 30.1k {Lib=R}
+  (    1 N-000096 )
+  (    2 GND )
+ )
+ ( /4D13F530 0603  R18 49.9k {Lib=R}
+  (    1 3V3 )
+  (    2 N-000096 )
+ )
+ ( /4D13E6B5 S-PVSON-N10  U7 TPS71219 {Lib=TPS712XX}
+  (    0 GND )
+  (    1 /VBUS )
+  (    2 ? )
+  (    3 +1.8V )
+  (    4 3V3 )
+  (    5 GND )
+  (    6 N-000031 )
+  (    7 N-000096 )
+  (    8 /VBUS )
+  (    9 ? )
+  (   10 N-000097 )
+ )
+ ( /4CDC097F USB-A-USAM-04  J1 USB-DEVICE {Lib=USB-DEVICE}
+  (    1 /VBUS )
+  (    2 N-000095 )
+  (    3 N-000094 )
+  (    4 GND )
+ )
+ ( /4CDB4F38 0603bridged  FB4 FILTER {Lib=FILTER}
+  (    1 /VREFN )
+  (    2 GND )
+ )
+ ( /4CDB4F37 0603bridged  FB3 FILTER {Lib=FILTER}
+  (    1 /VREFP )
+  (    2 3V3D )
+ )
+ ( /4CDB4F34 0603bridged  FB2 FILTER {Lib=FILTER}
+  (    1 /VSSA )
+  (    2 GND )
+ )
+ ( /4CDB4F2B 0603bridged  FB1 FILTER {Lib=FILTER}
+  (    1 /VDDA )
+  (    2 3V3D )
+ )
+ ( /4CDB4F24 0603  C10 10nF {Lib=C}
+  (    1 /VREFN )
+  (    2 /VREFP )
+ )
+ ( /4CDB4F05 0603  C7 10nF {Lib=C}
+  (    1 /VSSA )
+  (    2 /VDDA )
+ )
+ ( /4CDB4EC4 0603  C8 1µF {Lib=C}
+  (    1 /VSSA )
+  (    2 /VDDA )
+ )
+ ( /4CDB4E9D 0603  C11 1µF {Lib=C}
+  (    1 /VREFN )
+  (    2 /VREFP )
+ )
+ ( /4CDB4CA2 0603  R3 10k {Lib=R}
+  (    1 GND )
+  (    2 N-000097 )
+ )
+ ( /4CDB4C69 0603  C18 2.2µF {Lib=C}
+  (    1 +1.8V )
+  (    2 GND )
+ )
+ ( /4CDB4C61 0603  C22 1µF {Lib=C}
+  (    1 /VBUS )
+  (    2 GND )
+ )
+ ( /4CDB4A37 0603  C32 2.2µF {Lib=C}
+  (    1 3V3 )
+  (    2 GND )
+ )
+ ( /4CD37CEC VQFN16  U1 CC2591 {Lib=CC2591}
+  (    1 3V3 )
+  (    2 N-000037 )
+  (    3 N-000056 )
+  (    4 N-000038 )
+  (    5 /EN )
+  (    6 /EN )
+  (    7 /HGM )
+  (    8 GND )
+  (    9 GND )
+  (   10 3V3 )
+  (   11 N-000039 )
+  (   12 GND )
+  (   13 3V3 )
+  (   14 GND )
+  (   15 N-000040 )
+  (   16 3V3 )
+  (   17 GND )
+ )
+ ( /4CDB3CB4 SMA-EDGE  P1 SMA-CONN {Lib=SMA-CONN}
+  (    1 N-000033 )
+  (    2 GND )
+  (    3 GND )
+  (    4 GND )
+  (    5 GND )
+ )
+ ( /4CDB393F 0402  L1 3nH {Lib=INDUCTOR}
+  (    1 GND )
+  (    2 N-000033 )
+ )
+ ( /4CDB38FC 0402  C1 2p2 {Lib=C}
+  (    1 GND )
+  (    2 N-000033 )
+ )
+ ( /4CDB38F5 0402  C3 1pF {Lib=C}
+  (    1 GND )
+  (    2 N-000034 )
+ )
+ ( /4CDB38CC 0402  L2 2n2 {Lib=INDUCTOR}
+  (    1 N-000033 )
+  (    2 N-000034 )
+ )
+ ( /4CDB3880 0402  C5 6p8 {Lib=C}
+  (    1 N-000039 )
+  (    2 N-000034 )
+ )
+ ( /4CDB2D0C 0402  C6 1nF {Lib=C}
+  (    1 3V3 )
+  (    2 GND )
+ )
+ ( /4CDB2CFF 0402  C9 10pF {Lib=C}
+  (    1 3V3 )
+  (    2 GND )
+ )
+ ( /4CDB2CA2 0402  C2 1nF {Lib=C}
+  (    1 GND )
+  (    2 3V3 )
+ )
+ ( /4CDB2C94 0402  C4 18pF {Lib=C}
+  (    1 GND )
+  (    2 3V3 )
+ )
+ ( /4CDB2C22 0402  C14 1nF {Lib=C}
+  (    1 3V3 )
+  (    2 GND )
+ )
+ ( /4CDB2BDD 0402  C12 1nF {Lib=C}
+  (    1 3V3 )
+  (    2 GND )
+ )
+ ( /4CDB2AD4 0402  R1 4k3 {Lib=R}
+  (    1 N-000040 )
+  (    2 GND )
+ )
+ ( /4CDB28B9 0603  R4 330 {Lib=R}
+  (    1 N-000001 )
+  (    2 N-000097 )
+ )
+ ( /4CDB28B7 0603D  D1 1V8LED {Lib=LED}
+  (    1 N-000001 )
+  (    2 GND )
+ )
+ ( /4CDB26E3 0603  R5 470 {Lib=R}
+  (    1 N-000002 )
+  (    2 N-000072 )
+ )
+ ( /4CDB26DE 0603D  D2 TXLED {Lib=LED}
+  (    1 N-000002 )
+  (    2 GND )
+ )
+ ( /4CDB26D9 0603  R6 470 {Lib=R}
+  (    1 N-000003 )
+  (    2 N-000074 )
+ )
+ ( /4CDB26D0 0603D  D3 RXLED {Lib=LED}
+  (    1 N-000003 )
+  (    2 GND )
+ )
+ ( /4CDB26AB 0603D  D4 USRLED {Lib=LED}
+  (    1 N-000017 )
+  (    2 GND )
+ )
+ ( /4CDB2694 0603  R7 330 {Lib=R}
+  (    1 N-000017 )
+  (    2 N-000018 )
+ )
+ ( /4CDB225C 100MIL-HEADER-1X6-EDGE  P2 PROGRAM {Lib=CONN_6}
+  (    1 GND )
+  (    2 /ISP )
+  (    3 ? )
+  (    4 N-000023 )
+  (    5 N-000047 )
+  (    6 N-000092 )
+ )
+ ( /4CDB2134 50MIL-HEADER-2X5-TH  P3 JTAG {Lib=CONN_5X2}
+  (    1 3V3D )
+  (    2 N-000063 )
+  (    3 GND )
+  (    4 N-000025 )
+  (    5 GND )
+  (    6 N-000062 )
+  (    7 ? )
+  (    8 N-000026 )
+  (    9 GND )
+  (   10 N-000092 )
+ )
+ ( /4CDB17F8 0603D  D6 USBLED {Lib=LED}
+  (    1 3V3D )
+  (    2 N-000015 )
+ )
+ ( /4CDB17E7 0603  R15 330 {Lib=R}
+  (    1 N-000015 )
+  (    2 N-000075 )
+ )
+ ( /4CDB1751 0603D  D5 RSTLED {Lib=LED}
+  (    1 N-000016 )
+  (    2 GND )
+ )
+ ( /4CDB170B 0603  R8 330 {Lib=R}
+  (    1 N-000016 )
+  (    2 N-000084 )
+ )
+ ( /4CDB154F 0603  C29 220pF {Lib=C}
+  (    1 N-000088 )
+  (    2 GND )
+ )
+ ( /4CDB155B 0603  C31 100pF {Lib=C}
+  (    1 /GIO1 )
+  (    2 N-000088 )
+ )
+ ( /4CDB143F 0603  R9 10k {Lib=R}
+  (    1 3V3D )
+  (    2 N-000092 )
+ )
+ ( /4CDB11B7 0603  R11 2k2 {Lib=R}
+  (    1 N-000067 )
+  (    2 /USB_CONNECT )
+ )
+ ( /4CDB11AC 0603  R14 10k {Lib=R}
+  (    1 N-000067 )
+  (    2 3V3D )
+ )
+ ( /4CDB1118 0603  R16 1k5 {Lib=R}
+  (    1 N-000068 )
+  (    2 N-000094 )
+ )
+ ( /4CDB10C2 0603  R12 33 {Lib=R}
+  (    1 N-000095 )
+  (    2 N-000087 )
+ )
+ ( /4CDB10B7 0603  R13 33 {Lib=R}
+  (    1 N-000094 )
+  (    2 N-000086 )
+ )
+ ( /4CDB0FAF 0603  C34 100nF {Lib=C}
+  (    1 3V3D )
+  (    2 GND )
+ )
+ ( /4CDB0E51 0603  C33 100nF {Lib=C}
+  (    1 3V3D )
+  (    2 GND )
+ )
+ ( /4CDB0AFB 0603  C27 100nF {Lib=C}
+  (    1 3V3D )
+  (    2 GND )
+ )
+ ( /4CDAF3FC 0603  R10 10k {Lib=R}
+  (    1 /ISP )
+  (    2 3V3D )
+ )
+ ( /4CDAF340 0603  C30 100nF {Lib=C}
+  (    1 GND )
+  (    2 3V3D )
+ )
+ ( /4CDAF1FD PIN_ARRAY_3X2  P4 EXPAND {Lib=CONN_3X2}
+  (    1 GND )
+  (    2 N-000060 )
+  (    3 N-000061 )
+  (    4 N-000078 )
+  (    5 N-000046 )
+  (    6 N-000076 )
+ )
+ ( /4CDAE93A 0603  C28 100nF {Lib=C}
+  (    1 3V3D )
+  (    2 GND )
+ )
+ ( /4CD23A14 LQFP80  U4 LPC175X {Lib=LPC175X}
+  (    1 N-000062 )
+  (    2 N-000026 )
+  (    3 N-000063 )
+  (    4 ? )
+  (    5 N-000025 )
+  (    6 /ATEST2 )
+  (    7 /ATEST1 )
+  (    8 /VDDA )
+  (    9 /VSSA )
+  (   10 /VREFP )
+  (   11 N-000084 )
+  (   12 /VREFN )
+  (   13 ? )
+  (   14 N-000092 )
+  (   15 ? )
+  (   16 3V3D )
+  (   17 ? )
+  (   18 /VBUS )
+  (   19 N-000088 )
+  (   20 ? )
+  (   21 3V3D )
+  (   22 N-000086 )
+  (   23 N-000087 )
+  (   24 GND )
+  (   25 N-000075 )
+  (   26 ? )
+  (   27 ? )
+  (   28 ? )
+  (   29 ? )
+  (   30 ? )
+  (   31 ? )
+  (   32 ? )
+  (   33 GND )
+  (   34 3V3D )
+  (   35 ? )
+  (   36 ? )
+  (   37 ? )
+  (   38 ? )
+  (   39 ? )
+  (   40 ? )
+  (   41 /ISP )
+  (   42 3V3D )
+  (   43 GND )
+  (   44 N-000061 )
+  (   45 N-000076 )
+  (   46 N-000078 )
+  (   47 N-000060 )
+  (   48 N-000046 )
+  (   49 /USB_CONNECT )
+  (   50 /HGM )
+  (   51 /EN )
+  (   52 ? )
+  (   53 /CSn )
+  (   54 /SCLK )
+  (   55 ? )
+  (   56 3V3D )
+  (   57 GND )
+  (   58 /GIO6 )
+  (   59 /SO )
+  (   60 /SI )
+  (   61 /DIO )
+  (   62 /DIO )
+  (   63 /DCLK )
+  (   64 N-000077 )
+  (   65 N-000077 )
+  (   66 GND )
+  (   67 3V3D )
+  (   68 /TX )
+  (   69 /RX )
+  (   70 N-000045 )
+  (   71 N-000057 )
+  (   72 N-000097 )
+  (   73 N-000072 )
+  (   74 N-000074 )
+  (   75 N-000018 )
+  (   76 ? )
+  (   77 3V3D )
+  (   78 GND )
+  (   79 N-000047 )
+  (   80 N-000023 )
+ )
+ ( /4CDAE56D 0603  C26 100nF {Lib=C}
+  (    1 GND )
+  (    2 3V3D )
+ )
+ ( /4CDAE2A9 0402gap  L3 DNP {Lib=INDUCTOR}
+  (    1 N-000038 )
+  (    2 N-000037 )
+ )
+ ( /4CDAE1CE 0603  C19 27pF {Lib=C}
+  (    1 N-000042 )
+  (    2 GND )
+ )
+ ( /4CDAE1AC 0603  C21 27pF {Lib=C}
+  (    1 N-000043 )
+  (    2 GND )
+ )
+ ( /4CDAE158 ABMM2  X1 ABMM2 {Lib=CRYSTAL}
+  (    1 N-000042 )
+  (    2 N-000043 )
+ )
+ ( /4CDAE066 0402  R2 43k {Lib=R}
+  (    1 GND )
+  (    2 N-000044 )
+ )
+ ( /4CDADFEB 0402  C20 68pF {Lib=C}
+  (    1 GND )
+  (    2 +1.8V )
+ )
+ ( /4CDADF2A 0402  C25 100nF {Lib=C}
+  (    1 GND )
+  (    2 N-000045 )
+ )
+ ( /4CDADF05 0402  C24 100nF {Lib=C}
+  (    1 GND )
+  (    2 +1.8V )
+ )
+ ( /4CDADD3E 0402  C23 68pF {Lib=C}
+  (    1 +1.8V )
+  (    2 GND )
+ )
+ ( /4CDADC3A 0402  C17 10nF {Lib=C}
+  (    1 +1.8V )
+  (    2 GND )
+ )
+ ( /4CDADBBE 0402  C16 100nF {Lib=C}
+  (    1 +1.8V )
+  (    2 GND )
+ )
+ ( /4CDADBB0 0402  C15 68pF {Lib=C}
+  (    1 +1.8V )
+  (    2 GND )
+ )
+ ( /4CD3795B QFN48  U3 CC2400 {Lib=CC2400}
+  (    1 +1.8V )
+  (    2 +1.8V )
+  (    3 +1.8V )
+  (    4 +1.8V )
+  (    5 GND )
+  (    6 N-000038 )
+  (    7 N-000056 )
+  (    8 N-000037 )
+  (    9 GND )
+  (   10 +1.8V )
+  (   11 ? )
+  (   12 ? )
+  (   13 ? )
+  (   14 +1.8V )
+  (   15 +1.8V )
+  (   16 +1.8V )
+  (   17 +1.8V )
+  (   18 GND )
+  (   19 +1.8V )
+  (   20 N-000057 )
+  (   21 /GIO1 )
+  (   22 GND )
+  (   23 GND )
+  (   24 GND )
+  (   25 N-000045 )
+  (   26 +1.8V )
+  (   27 /RX )
+  (   28 /TX )
+  (   29 /DIO )
+  (   30 /DCLK )
+  (   31 /CSn )
+  (   32 /SCLK )
+  (   33 /SI )
+  (   34 /SO )
+  (   35 /GIO6 )
+  (   36 ? )
+  (   37 ? )
+  (   38 ? )
+  (   39 ? )
+  (   40 ? )
+  (   41 +1.8V )
+  (   42 N-000043 )
+  (   43 N-000042 )
+  (   44 +1.8V )
+  (   45 N-000044 )
+  (   46 /ATEST2 )
+  (   47 /ATEST1 )
+  (   48 +1.8V )
+  (   49 GND )
+ )
+)
+*
+{ Allowed footprints by component:
+$component R17
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component C36
+ SM*
+ C?
+ C1-1
+$endlist
+$component C35
+ SM*
+ C?
+ C1-1
+$endlist
+$component R19
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R18
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component C10
+ SM*
+ C?
+ C1-1
+$endlist
+$component C7
+ SM*
+ C?
+ C1-1
+$endlist
+$component C8
+ SM*
+ C?
+ C1-1
+$endlist
+$component C11
+ SM*
+ C?
+ C1-1
+$endlist
+$component R3
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component C18
+ SM*
+ C?
+ C1-1
+$endlist
+$component C22
+ SM*
+ C?
+ C1-1
+$endlist
+$component C32
+ SM*
+ C?
+ C1-1
+$endlist
+$component C1
+ SM*
+ C?
+ C1-1
+$endlist
+$component C3
+ SM*
+ C?
+ C1-1
+$endlist
+$component C5
+ SM*
+ C?
+ C1-1
+$endlist
+$component C6
+ SM*
+ C?
+ C1-1
+$endlist
+$component C9
+ SM*
+ C?
+ C1-1
+$endlist
+$component C2
+ SM*
+ C?
+ C1-1
+$endlist
+$component C4
+ SM*
+ C?
+ C1-1
+$endlist
+$component C14
+ SM*
+ C?
+ C1-1
+$endlist
+$component C12
+ SM*
+ C?
+ C1-1
+$endlist
+$component R1
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R4
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component D1
+ LED-3MM
+ LED-5MM
+ LED-10MM
+ LED-0603
+ LED-0805
+ LED-1206
+ LEDV
+$endlist
+$component R5
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component D2
+ LED-3MM
+ LED-5MM
+ LED-10MM
+ LED-0603
+ LED-0805
+ LED-1206
+ LEDV
+$endlist
+$component R6
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component D3
+ LED-3MM
+ LED-5MM
+ LED-10MM
+ LED-0603
+ LED-0805
+ LED-1206
+ LEDV
+$endlist
+$component D4
+ LED-3MM
+ LED-5MM
+ LED-10MM
+ LED-0603
+ LED-0805
+ LED-1206
+ LEDV
+$endlist
+$component R7
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component D6
+ LED-3MM
+ LED-5MM
+ LED-10MM
+ LED-0603
+ LED-0805
+ LED-1206
+ LEDV
+$endlist
+$component R15
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component D5
+ LED-3MM
+ LED-5MM
+ LED-10MM
+ LED-0603
+ LED-0805
+ LED-1206
+ LEDV
+$endlist
+$component R8
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component C29
+ SM*
+ C?
+ C1-1
+$endlist
+$component C31
+ SM*
+ C?
+ C1-1
+$endlist
+$component R9
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R11
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R14
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R16
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R12
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R13
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component C34
+ SM*
+ C?
+ C1-1
+$endlist
+$component C33
+ SM*
+ C?
+ C1-1
+$endlist
+$component C27
+ SM*
+ C?
+ C1-1
+$endlist
+$component R10
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component C30
+ SM*
+ C?
+ C1-1
+$endlist
+$component C28
+ SM*
+ C?
+ C1-1
+$endlist
+$component C26
+ SM*
+ C?
+ C1-1
+$endlist
+$component C19
+ SM*
+ C?
+ C1-1
+$endlist
+$component C21
+ SM*
+ C?
+ C1-1
+$endlist
+$component R2
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component C20
+ SM*
+ C?
+ C1-1
+$endlist
+$component C25
+ SM*
+ C?
+ C1-1
+$endlist
+$component C24
+ SM*
+ C?
+ C1-1
+$endlist
+$component C23
+ SM*
+ C?
+ C1-1
+$endlist
+$component C17
+ SM*
+ C?
+ C1-1
+$endlist
+$component C16
+ SM*
+ C?
+ C1-1
+$endlist
+$component C15
+ SM*
+ C?
+ C1-1
+$endlist
+$endfootprintlist
+}
+{ Pin List by Nets
+Net 1 "" ""
+ D1 1
+ R4 1
+Net 2 "" ""
+ D2 1
+ R5 1
+Net 3 "" ""
+ R6 1
+ D3 1
+Net 15 "" ""
+ R15 1
+ D6 2
+Net 16 "" ""
+ D5 1
+ R8 1
+Net 17 "" ""
+ D4 1
+ R7 1
+Net 18 "" ""
+ U4 75
+ R7 2
+Net 21 "/ISP" "ISP"
+ R10 1
+ P2 2
+ U4 41
+Net 23 "" ""
+ P2 4
+ U4 80
+Net 25 "" ""
+ P3 4
+ U4 5
+Net 26 "" ""
+ P3 8
+ U4 2
+Net 31 "" ""
+ U7 6
+ C35 1
+Net 33 "" ""
+ C1 2
+ L1 2
+ L2 1
+ P1 1
+Net 34 "" ""
+ C3 2
+ C5 2
+ L2 2
+Net 37 "" ""
+ U3 8
+ U1 2
+ L3 2
+Net 38 "" ""
+ U3 6
+ U1 4
+ L3 1
+Net 39 "" ""
+ C5 1
+ U1 11
+Net 40 "" ""
+ U1 15
+ R1 1
+Net 41 "GND" "GND"
+ U4 78
+ U3 23
+ U4 33
+ U4 43
+ U3 22
+ C26 1
+ C19 2
+ C34 2
+ U4 24
+ C28 2
+ P4 1
+ C30 1
+ U3 24
+ U3 18
+ U3 49
+ C17 2
+ U4 57
+ C16 2
+ C15 2
+ U3 5
+ U3 9
+ C33 2
+ C27 2
+ U4 66
+ R17 2
+ U6 2
+ C32 2
+ C22 2
+ C3 1
+ C1 1
+ L1 1
+ C9 2
+ C6 2
+ R2 1
+ C21 2
+ U1 17
+ U1 14
+ U1 12
+ U1 9
+ U1 8
+ C2 1
+ D5 2
+ P3 3
+ P3 5
+ P3 9
+ U7 0
+ R19 2
+ J1 4
+ C35 2
+ C18 2
+ FB4 2
+ FB2 2
+ R3 1
+ D2 2
+ D1 2
+ C29 2
+ P1 5
+ P1 4
+ P1 3
+ P1 2
+ D4 2
+ P2 1
+ D3 2
+ U7 5
+ C24 1
+ R1 2
+ C12 2
+ C20 1
+ C25 1
+ C14 2
+ C23 2
+ C4 1
+Net 42 "" ""
+ U3 43
+ X1 1
+ C19 1
+Net 43 "" ""
+ X1 2
+ C21 1
+ U3 42
+Net 44 "" ""
+ U3 45
+ R2 2
+Net 45 "" ""
+ U3 25
+ U4 70
+ C25 2
+Net 46 "" ""
+ P4 5
+ U4 48
+Net 47 "" ""
+ U4 79
+ P2 5
+Net 56 "" ""
+ U1 3
+ U3 7
+Net 57 "" ""
+ U4 71
+ U3 20
+Net 58 "/GIO1" "GIO1"
+ U3 21
+ C31 1
+ P8 1
+Net 60 "" ""
+ P4 2
+ U4 47
+Net 61 "" ""
+ U4 44
+ P4 3
+Net 62 "" ""
+ P3 6
+ U4 1
+Net 63 "" ""
+ P3 2
+ U4 3
+Net 64 "/ATEST2" "ATEST2"
+ U4 6
+ U3 46
+ P11 1
+Net 66 "/USB_CONNECT" "USB_CONNECT"
+ U4 49
+ R11 2
+Net 67 "" ""
+ Q1 1
+ R14 1
+ R11 1
+Net 68 "" ""
+ R16 1
+ Q1 3
+Net 72 "" ""
+ U4 73
+ R5 2
+Net 73 "/SCLK" "SCLK"
+ U3 32
+ U4 54
+Net 74 "" ""
+ R6 2
+ U4 74
+Net 75 "" ""
+ R15 2
+ U4 25
+Net 76 "" ""
+ P4 6
+ U4 45
+Net 77 "" ""
+ U4 65
+ U4 64
+Net 78 "" ""
+ P4 4
+ U4 46
+Net 79 "/ATEST1" "ATEST1"
+ U3 47
+ U4 7
+ P10 1
+Net 80 "/VDDA" "VDDA"
+ U4 8
+ C7 2
+ FB1 1
+ C8 2
+Net 81 "/VSSA" "VSSA"
+ FB2 1
+ C8 1
+ C7 1
+ U4 9
+Net 82 "/VREFP" "VREFP"
+ C10 2
+ C11 2
+ U4 10
+ FB3 1
+Net 83 "/HGM" "HGM"
+ U1 7
+ U4 50
+Net 84 "" ""
+ R8 2
+ U4 11
+Net 85 "/VREFN" "VREFN"
+ C11 1
+ C10 1
+ U4 12
+ FB4 1
+Net 86 "" ""
+ U4 22
+ R13 2
+Net 87 "" ""
+ U4 23
+ R12 2
+Net 88 "" ""
+ C29 1
+ C31 2
+ U4 19
+Net 89 "3V3" "3V3"
+ C36 1
+ P6 1
+ C12 1
+ C14 1
+ C2 2
+ FB5 2
+ C4 2
+ C9 1
+ C6 1
+ U7 4
+ U1 16
+ U1 13
+ U1 10
+ U1 1
+ C32 1
+ R18 1
+Net 90 "+1.8V" "+1.8V"
+ P5 1
+ U7 3
+ C17 1
+ C23 1
+ C24 2
+ U3 14
+ U3 44
+ U3 15
+ U3 16
+ U3 26
+ U3 17
+ U3 48
+ U3 19
+ C20 2
+ C16 1
+ C15 1
+ U3 1
+ U3 2
+ U3 3
+ U3 4
+ U3 10
+ U3 41
+ C18 1
+Net 91 "3V3D" "3V3D"
+ U4 77
+ U4 67
+ U4 56
+ U4 16
+ U4 34
+ C33 1
+ FB3 2
+ C34 1
+ R14 2
+ R9 1
+ C28 1
+ U4 21
+ U4 42
+ FB5 1
+ C26 2
+ C30 2
+ R10 2
+ FB1 2
+ D6 1
+ C27 1
+ P3 1
+ Q1 2
+Net 92 "" ""
+ R9 2
+ P2 6
+ U4 14
+ P3 10
+Net 93 "/VBUS" "VBUS"
+ U7 8
+ U7 1
+ U6 5
+ J1 1
+ P7 1
+ U4 18
+ C22 1
+Net 94 "" ""
+ J1 3
+ U6 4
+ R16 2
+ R13 1
+Net 95 "" ""
+ R12 1
+ J1 2
+ U6 6
+Net 96 "" ""
+ C36 2
+ R18 2
+ R19 1
+ U7 7
+Net 97 "" ""
+ U4 72
+ U7 10
+ R4 2
+ R3 2
+Net 98 "/EN" "EN"
+ R17 1
+ U4 51
+ U1 6
+ U1 5
+Net 99 "/RX" "RX"
+ U4 69
+ U3 27
+Net 100 "/TX" "TX"
+ U4 68
+ U3 28
+Net 101 "/CSn" "CSn"
+ U4 53
+ U3 31
+Net 102 "/SI" "SI"
+ U4 60
+ U3 33
+Net 103 "/SO" "SO"
+ U3 34
+ U4 59
+Net 104 "/DIO" "DIO"
+ U3 29
+ U4 61
+ U4 62
+ P13 1
+Net 105 "/DCLK" "DCLK"
+ U4 63
+ U3 30
+ P12 1
+Net 106 "/GIO6" "GIO6"
+ U4 58
+ P9 1
+ U3 35
+}
+#End
