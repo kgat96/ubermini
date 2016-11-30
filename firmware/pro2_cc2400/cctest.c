@@ -35,78 +35,57 @@ static void usart_setup(void)
     gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9);
     gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO10);
 
-    /* Setup USART1 TX pin as alternate function. */
+    /* Setup USART1 TX/RX pin as alternate function. */
     gpio_set_af(GPIOA, GPIO_AF7, GPIO9);   // tx
     gpio_set_af(GPIOA, GPIO_AF7, GPIO10);  // rx
 }
 
 static void gpio_setup(void)
 {
-    /* Enable GPIOA clock. */
-    /* Manually: */
-    /* RCC_AHB1ENR |= RCC_AHB1ENR_IOPAEN; */
-    /* Using API functions: */
+    //gpio_mode_setup(GPIOA, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO_ALL);
+    //gpio_mode_setup(GPIOB, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO_ALL);
+    //gpio_mode_setup(GPIOC, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO_ALL);
+
+    //gpio_clear(GPIOA, GPIO_ALL);
+    //gpio_clear(GPIOB, GPIO_ALL);
+    //gpio_clear(GPIOC, GPIO_ALL);
+
+    /* Enable GPIO clock. */
     rcc_periph_clock_enable(RCC_GPIOC);
 
     /* Set GPIO5 (in GPIO port A) to 'output push-pull'. */
-    /* Manually: */
-    /* GPIOA_CRH = (GPIO_CNF_OUTPUT_PUSHPULL << (((8 - 8) * 4) + 2)); */
-    /* GPIOA_CRH |= (GPIO_MODE_OUTPUT_2_MHZ << ((8 - 8) * 4)); */
-    /* Using API functions: */
     gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO8);
-    gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO7);
+    //gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO7);
+
 }
 
 int main(void)
 {
-	int i;
+    int i;
 
-	usart_setup();
+    gpio_setup();
 
-	gpio_setup();
+    usart_setup();
 
-	gpio_clear(GPIOC, GPIO7);
+    //gpio_clear(GPIOC, GPIO7);
 
-	/* Blink the LED (PC8) on the board. */
-	while (1) {
-		/* Manually: */
-		/* GPIOA_BSRR = GPIO5; */		/* LED off */
-		/* for (i = 0; i < 1000000; i++) */	/* Wait a bit. */
-		/*	__asm__("nop"); */
-		/* GPIOA_BRR = GPIO5; */		/* LED on */
-		/* for (i = 0; i < 1000000; i++) */	/* Wait a bit. */
-		/*	__asm__("nop"); */
+    /* Blink the LED (PC8) on the board. */
+    while (1) {
+        /* Manually: */
+        /* Using API functions gpio_set()/gpio_clear(): */
+        /* gpio_set(GPIOA, GPIO5); *//* LED off */
 
-		/* Using API functions gpio_set()/gpio_clear(): */
-		/* gpio_set(GPIOA, GPIO5); */	/* LED off */
-		/* for (i = 0; i < 1000000; i++) */	/* Wait a bit. */
-		/*	__asm__("nop"); */
-		/* gpio_clear(GPIOA, GPIO5); */	/* LED on */
-		/* for (i = 0; i < 1000000; i++) */	/* Wait a bit. */
-		/*	__asm__("nop"); */
+        usart_send_blocking(USART1, 'A');
 
-	    usart_send_blocking(USART1, 'A');
+        /* Using API function gpio_toggle(): */
+        gpio_toggle(GPIOC, GPIO8); /* LED on/off */
 
-		/* Using API function gpio_toggle(): */
-		gpio_toggle(GPIOC, GPIO8);	/* LED on/off */
+        for (i = 0; i < 1000000; i++) { /* Wait a bit. */
+            __asm__("nop");
+        }
 
-		for (i = 0; i < 1000000; i++) {	/* Wait a bit. */
-			__asm__("nop");
-		}
-	}
+    }
 
-	return 0;
+    return 0;
 }
 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 

@@ -885,7 +885,7 @@ static void cc2400_rx()
 		//      |  | |   +-----------> sync word: 8 MSB bits of SYNC_WORD
 		//      |  | +---------------> 2 preamble bytes of 01010101
 		//      |  +-----------------> not packet mode
-			//      +--------------------> un-buffered mode
+	    //      +--------------------> un-buffered mode
 		cc2400_set(FSDIV,   channel - 1); // 1 MHz IF
 		cc2400_set(MDMCTRL, mdmctrl);
 	}
