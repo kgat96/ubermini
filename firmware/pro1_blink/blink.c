@@ -54,7 +54,8 @@ static void gpio_setup(void)
     /* GPIOA_CRH |= (GPIO_MODE_OUTPUT_2_MHZ << ((8 - 8) * 4)); */
     /* Using API functions: */
     gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO8);
-    gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO7);
+    //gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO7);
+	gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0);
 }
 
 int main(void)
@@ -65,7 +66,7 @@ int main(void)
 
 	gpio_setup();
 
-	gpio_clear(GPIOC, GPIO7);
+	//gpio_clear(GPIOC, GPIO7);
 
 	/* Blink the LED (PC8) on the board. */
 	while (1) {
@@ -85,10 +86,11 @@ int main(void)
 		/* for (i = 0; i < 1000000; i++) */	/* Wait a bit. */
 		/*	__asm__("nop"); */
 
-	    usart_send_blocking(USART1, 'A');
+	    usart_send_blocking(USART1, 'D');
 
 		/* Using API function gpio_toggle(): */
 		gpio_toggle(GPIOC, GPIO8);	/* LED on/off */
+		gpio_toggle(GPIOC, GPIO0);	/* LED on/off */
 
 		for (i = 0; i < 1000000; i++) {	/* Wait a bit. */
 			__asm__("nop");

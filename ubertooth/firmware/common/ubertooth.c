@@ -489,7 +489,7 @@ void clock_start()
 	/* switch to main oscillator */
 	CLKSRCSEL = 1;
 
-	/* configure PLL0 */
+	/* configure PLL0 Fcco = 400MHz */
 	PLL0CFG = (MSEL0 << 0) | (NSEL0 << 16);
 	PLL0FEED_SEQUENCE;
 
@@ -498,7 +498,7 @@ void clock_start()
 	PLL0FEED_SEQUENCE;
 	while (!(PLL0STAT & PLL0STAT_PLLE0_STAT));
 
-	/* set CPU clock divider */
+	/* set CPU clock divider cclk 400/(3+1) */
 	CCLKCFG = CCLKSEL;
 
 	/* connect PLL0 */
