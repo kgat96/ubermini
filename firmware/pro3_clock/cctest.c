@@ -12,6 +12,12 @@
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/usart.h>
 
+#include <libopencm3/cm3/nvic.h>
+#include <libopencm3/stm32/exti.h>
+#include <libopencm3/stm32/timer.h>
+
+//#include <libopencmsis/core_cm3.h>
+
 #include "cc.h"
 
 typedef unsigned int u32;
@@ -190,14 +196,16 @@ static void gpio_setup(void)
     rcc_periph_clock_enable(RCC_GPIOB);
     rcc_periph_clock_enable(RCC_GPIOC);
 
+#if 0
     // don't set swd
-    gpio_mode_setup(GPIOA, GPIO_MODE_INPUT, GPIO_PUPD_PULLDOWN, ~(GPIO13 | GPIO14));
+    gpio_mode_setup(GPIOA, GPIO_MODE_INPUT, GPIO_PUPD_PULLDOWN, GPIO9 | GPIO10);
     gpio_mode_setup(GPIOB, GPIO_MODE_INPUT, GPIO_PUPD_PULLDOWN, GPIO_ALL);
     gpio_mode_setup(GPIOC, GPIO_MODE_INPUT, GPIO_PUPD_PULLDOWN, GPIO_ALL);
 
-    gpio_clear(GPIOA, GPIO_ALL);
+    gpio_clear(GPIOA, GPIO9 | GPIO10);
     gpio_clear(GPIOB, GPIO_ALL);
     gpio_clear(GPIOC, GPIO_ALL);
+#endif
 
     /* Set GPIO5 (in GPIO port A) to 'output push-pull'. */
     gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLDOWN, GPIO8);
@@ -221,6 +229,9 @@ static void gpio_setup(void)
             PIN_TX | PIN_CC3V3 | PIN_RX | PIN_BTGR);
     gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP,
             PIN_USRLED | PIN_RXLED | PIN_TXLED | PIN_CSN | PIN_SCLK | PIN_PAEN | PIN_HGM);
+
+    // debug gpio 4
+    gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLDOWN, GPIO15);
 
 
 
@@ -338,10 +349,15 @@ static void cc_reset(void)
     while (cc_get(MAIN) != 0x8000);
 }
 
+#include <libopencm3/cm3/assert.h>
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/pwr.h>
+#include <libopencm3/stm32/flash.h>
 
-//{ /* 168MHz */
+//const struct rcc_clock_scale rcc_160mhz = {
+//    /* 160MHz */
 //    .pllm = 16,
-//    .plln = 336,
+//    .plln = 320,
 //    .pllp = 2,
 //    .pllq = 7,
 //    .pllr = 0,
@@ -350,10 +366,11 @@ static void cc_reset(void)
 //    .ppre2 = RCC_CFGR_PPRE_DIV_2,
 //    .flash_config = FLASH_ACR_ICE | FLASH_ACR_DCE |
 //            FLASH_ACR_LATENCY_5WS,
-//    .ahb_frequency  = 168000000,
-//    .apb1_frequency = 42000000,
-//    .apb2_frequency = 84000000,
-//}
+//    .ahb_frequency  = 320000000,
+//    .apb1_frequency = 40000000,
+//    .apb2_frequency = 80000000,
+//};
+
 
 static void clock_init(void)
 {
@@ -364,27 +381,144 @@ static void clock_init(void)
     /* Select HSI as SYSCLK source. */
     rcc_set_sysclk_source(RCC_CFGR_SW_HSI);
 
+    kputs("RCC HSI STABLE\n");
+
     /* configure CCxx00 oscillator
      * output carrier sense on GIO1,
      * output 16MHz GIO6 */
     cc_reset();
-    cc_set(IOCFG, (GIO_CLK_16M << 9) | (GIO_CARRIER_SENSE_N << 3));
+    //cc_set(IOCFG, (GIO_CLK_16M << 9) | (GIO_CARRIER_SENSE_N << 3));
     cc_strobe(SXOSCON);
     while (!(cc_status() & XOSC16M_STABLE));
 
+    kputs("XOSC16M STABLE\n");
+
     /* Enable external high-speed oscillator 16MHz. */
-    rcc_clock_setup_hse_3v3(&rcc_hse_16mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
+    rcc_clock_setup_hse_3v3(&rcc_hse_16mhz_3v3[RCC_CLOCK_3V3_120MHZ]);
 
+}
 
+static void tim_setup(void)
+{
+    /* Enable TIM2 clock. */
+    rcc_periph_clock_enable(RCC_TIM2);
 
+    /* Enable TIM2 interrupt. */
+    nvic_enable_irq(NVIC_TIM2_IRQ);
 
+    /* Reset TIM2 peripheral. */
+    timer_reset(TIM2);
 
+    /* Timer global mode:
+     * - No divider
+     * - Alignment edge
+     * - Direction up
+     */
+    timer_set_mode(TIM2, TIM_CR1_CKD_CK_INT,
+               TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
 
+    /* Reset prescaler value.
+     * Running the clock at 5kHz.
+     */
+    /*
+     * On STM32F4 the timers are not running directly from pure APB1 or
+     * APB2 clock busses.  The APB1 and APB2 clocks used for timers might
+     * be the double of the APB1 and APB2 clocks.  This depends on the
+     * setting in DCKCFGR register. By default the behaviour is the
+     * following: If the Prescaler APBx is greater than 1 the derived timer
+     * APBx clocks will be double of the original APBx frequencies. Only if
+     * the APBx prescaler is set to 1 the derived timer APBx will equal the
+     * original APBx frequencies.
+     *
+     * In our case here the APB1 is devided by 4 system frequency and APB2
+     * divided by 2. This means APB1 timer will be 2 x APB1 and APB2 will
+     * be 2 x APB2. So when we try to calculate the prescaler value we have
+     * to use rcc_apb1_freqency * 2!!!
+     *
+     * For additional information see reference manual for the stm32f4
+     * familiy of chips. Page 204 and 213
+     */
+    timer_set_prescaler(TIM2, ((rcc_apb1_frequency * 2) / 10000000) - 1);
 
+    /* Enable preload. */
+    timer_disable_preload(TIM2);
+
+    /* Continous mode. */
+    timer_continuous_mode(TIM2);
+
+    /* Period. */
+    timer_set_period(TIM2, 3276800000 - 1);
+
+    /* Disable outputs. */
+    timer_disable_oc_output(TIM2, TIM_OC1);
+    timer_disable_oc_output(TIM2, TIM_OC2);
+    timer_disable_oc_output(TIM2, TIM_OC3);
+    timer_disable_oc_output(TIM2, TIM_OC4);
+
+    /* -- OC1 configuration -- */
+#if 0
+    /* Configure global mode of line 1. */
+    timer_disable_oc_clear(TIM2, TIM_OC1);
+    timer_disable_oc_preload(TIM2, TIM_OC1);
+    timer_set_oc_slow_mode(TIM2, TIM_OC1);
+    timer_set_oc_mode(TIM2, TIM_OC1, TIM_OCM_FROZEN);
+
+    /* Set the capture compare value for OC1. */
+    timer_set_oc_value(TIM2, TIM_OC1, 1000);
+
+    /* Enable commutation interrupt. */
+    timer_enable_irq(TIM2, TIM_DIER_CC1IE);
+#endif
+    /* ---- */
+
+    /* ARR reload enable. */
+    timer_disable_preload(TIM2);
+
+    /* Counter enable. */
+    timer_enable_counter(TIM2);
+
+    /* Enable commutation interrupt. */
+    timer_enable_irq(TIM2, TIM_DIER_UIE);
 }
 
 int main(void)
 {
+    /* Enable internal high-speed oscillator. */
+    //rcc_osc_on(RCC_HSI);
+    //rcc_wait_for_osc_ready(RCC_HSI);
+
+
+    if (0) {
+
+        gpio_setup();
+
+
+        /* Enable external high-speed oscillator 16MHz. */
+        rcc_clock_setup_hse_3v3(&rcc_hse_16mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
+
+        rcc_periph_clock_enable(RCC_GPIOC);
+
+        gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLDOWN, GPIO8);
+
+        while (1) {
+            /* Manually: */
+            /* Using API functions gpio_set()/gpio_clear(): */
+            /* Using API function gpio_toggle(): */
+
+            usart_setup();
+
+            kputs("\nTest start\n");
+
+            gpio_set(GPIOC, GPIO0); /* LED on/off */
+            gpio_set(GPIOC, GPIO8); /* LED on/off */
+            delay();
+            gpio_clear(GPIOC, GPIO0); /* LED on/off */
+            gpio_clear(GPIOC, GPIO8); /* LED on/off */
+            delay();
+
+        }
+    }
+
     gpio_setup();
 
     usart_setup();
@@ -397,8 +531,6 @@ int main(void)
 
     TXLED_SET;
 
-//  cc_reset();
-//  while (cc_get(AGCCTRL) != 0xf700);
     clock_init();
 
     /* Setup USART1 parameters. */
@@ -408,8 +540,11 @@ int main(void)
 
     USRLED_SET;
 
+    tim_setup();
+
     /* Blink the LED (PC8) on the board. */
     while (1) {
+        //kputc('a');
         /* Manually: */
         /* Using API functions gpio_set()/gpio_clear(): */
         /* Using API function gpio_toggle(): */
@@ -424,5 +559,23 @@ int main(void)
     }
 
     return 0;
+}
+
+#define CLK100NS TIM_CNT(TIM2)
+volatile u8 clkn_high;
+#define CLKN ((clkn_high << 20) | (CLK100NS / 3125))
+
+/* clkn_high is incremented each time CLK100NS rolls over */
+void tim2_isr(void)
+{
+    //kputs("tim2_isr\n");
+
+    if (TIM_SR(TIM2) & TIM_SR_UIF) {
+        /* Clear compare interrupt flag. */
+        TIM_SR(TIM2) = ~TIM_SR_UIF;
+        ++clkn_high;
+        gpio_toggle(GPIOC, GPIO8);
+    }
+
 }
 

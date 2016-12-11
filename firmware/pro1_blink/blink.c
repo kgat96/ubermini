@@ -51,10 +51,32 @@ static void gpio_setup(void)
 	gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0);
 }
 
+#include <libopencm3/stm32/flash.h>
+
+const struct rcc_clock_scale rcc_160mhz = {
+    /* 160MHz */
+    .pllm = 16,
+    .plln = 320,
+    .pllp = 2,
+    .pllq = 7,
+    .pllr = 0,
+    .hpre = RCC_CFGR_HPRE_DIV_NONE,
+    .ppre1 = RCC_CFGR_PPRE_DIV_4,
+    .ppre2 = RCC_CFGR_PPRE_DIV_2,
+    .flash_config = FLASH_ACR_ICE | FLASH_ACR_DCE |
+            FLASH_ACR_LATENCY_5WS,
+    .ahb_frequency  = 320000000,
+    .apb1_frequency = 40000000,
+    .apb2_frequency = 80000000,
+};
+
 int main(void)
 {
 	int i;
-
+	
+	/* Enable external high-speed oscillator 16MHz. */
+    //rcc_clock_setup_hse_3v3(&rcc_hse_16mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
+    rcc_clock_setup_hse_3v3(&rcc_160mhz);
 	usart_setup();
 
 	gpio_setup();
