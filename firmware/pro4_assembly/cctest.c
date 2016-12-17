@@ -598,9 +598,15 @@ static void cc_rx(void)
         /* oops */
         return;
     }
+
     while (!(cc_status() & XOSC16M_STABLE));
+
     cc_strobe(SFSON);
-    while (!(cc_status() & FS_LOCK));
+
+    while (!(cc_status() & FS_LOCK)) {
+        kputhex(cc_status(), 2); kputc(' '); delay();
+    }
+
     cc_strobe(SRX);
 
     PAEN_SET;
@@ -645,7 +651,7 @@ int main(void)
 
 
     /* Enable EXTI0 interrupt. */
-    nvic_enable_irq(NVIC_EXTI15_10_IRQ);
+    //nvic_enable_irq(NVIC_EXTI15_10_IRQ);
 
     /* Set GPIOB 13 to 'input float'. */
     gpio_mode_setup(GPIOB, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, GPIO13);
