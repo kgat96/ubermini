@@ -206,6 +206,8 @@ static void gpio_setup(void)
     gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP,
             PIN_USRLED | PIN_RXLED | PIN_TXLED | PIN_CSN | PIN_SCLK | PIN_PAEN | PIN_HGM);
 
+    BTGR_CLR; TX_CLR; RX_CLR;
+
     // set debug gpio 5 PD2
     gpio_mode_setup(GPIOD, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, GPIO2);
     // set debug gpio 3 PB8
@@ -215,6 +217,7 @@ static void gpio_setup(void)
     // set debug gpio 1 PB6
     gpio_mode_setup(GPIOB, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, GPIO6);
 
+#if 1
     /*
      * Chart of the various SPI ports (1 - 6) and where their pins can be:
      *
@@ -235,9 +238,12 @@ static void gpio_setup(void)
      */
 
     // SPI3 configure
+    gpio_mode_setup(GPIOB, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, GPIO0);
+    gpio_mode_setup(GPIOB, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, GPIO1);
+
     // set debug gpio 4 PA15 to NSS(cs)
-    //gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_PULLUP, GPIO15);
-    //gpio_set_af(GPIOA, GPIO_AF6, GPIO15);
+    gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_PULLUP, GPIO15);
+    gpio_set_af(GPIOA, GPIO_AF6, GPIO15);
     // set spi sck PB3
     gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_PULLUP, GPIO3);
     gpio_set_af(GPIOB, GPIO_AF6, GPIO3);
@@ -251,9 +257,12 @@ static void gpio_setup(void)
     rcc_periph_clock_enable(RCC_SPI3);
 
     // slave mode, 8 bit, one line only,
-    SPI_CR1(SPI3) = SPI_CR1_BIDIMODE_1LINE_BIDIR |
-                    SPI_CR1_SSM | SPI_CR1_SPE |
-                    SPI_CR1_CPHA | SPI_CR1_CPOL;
+    //SPI3_CR1 = SPI_CR1_BIDIMODE_1LINE_BIDIR |
+    //                SPI_CR1_SSM | SPI_CR1_CPHA | SPI_CR1_CPOL;
+    SPI3_CR1 =  SPI_CR1_SSM | SPI_CR1_CPHA | SPI_CR1_CPOL;
+    // RX dma mode
+    SPI_CR2(SPI3) |= 1;
+#endif
 
 }
 
@@ -365,6 +374,8 @@ static void cc_reset(void)
     while (cc_get(MAIN) != 0x0000);
     cc_set(MAIN, 0x8000);
     while (cc_get(MAIN) != 0x8000);
+
+    cc_set(MAIN, 0x8002);
 }
 
 #include <libopencm3/cm3/assert.h>
@@ -460,21 +471,20 @@ static void clock_init(void)
      * output carrier sense on GIO1,
      * output 16MHz GIO6 */
 
-    cc_reset();
-
-    cc_set(MAIN, 0x8002);
+    cc_strobe(SXOSCOFF);
 
     cc_set(IOCFG, (GIO_CLK_16M << 9) | (GIO_CARRIER_SENSE_N << 3));
 
     cc_strobe(SXOSCON);
+
     while (!(cc_status() & XOSC16M_STABLE));
 
-    kputs("XOSC12M STABLE\n");
+    kputs("XOSC16M STABLE\n");
 
     delay(); // why ???
     /* Enable external high-speed oscillator 16MHz. */
     rcc_osc_bypass_enable(RCC_HSE);
-    rcc_clock_setup_hse_3v3(&rcc_hse_16mhz_3v3[RCC_CLOCK_3V3_120MHZ]);
+    rcc_clock_setup_hse_3v3(&rcc_hse_16mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
 }
 
 static void tim_setup(void)
@@ -569,6 +579,21 @@ enum modulations {
     MOD_NONE          = 3
 };
 
+/* DMA buffers */
+#define DMA_SIZE 50
+u8 rxbuf1[DMA_SIZE];
+u8 rxbuf2[DMA_SIZE];
+
+/* rx terminal count and error interrupt counters */
+volatile u32 rx_tc;
+volatile u32 rx_err;
+
+/*
+ * The active buffer is the one with an active DMA transfer.
+ * The idle buffer is the one we can read/write between transfers.
+ */
+u8 *active_rxbuf = &rxbuf1[0];
+u8 *idle_rxbuf = &rxbuf2[0];
 
 volatile u32 mode = MODE_IDLE;
 volatile u32 requested_mode = MODE_IDLE;
@@ -599,12 +624,23 @@ static void cc_rx(void)
         return;
     }
 
+    //cc_set(FSCTRL, 0xa);
+
+    cc_strobe(SXOSCON);
+
     while (!(cc_status() & XOSC16M_STABLE));
 
     cc_strobe(SFSON);
 
     while (!(cc_status() & FS_LOCK)) {
-        kputhex(cc_status(), 2); kputc(' '); delay();
+        kputhex(cc_status(), 2); kputc(' ');
+        kputhex(cc_get(MAIN), 4);kputc(' ');
+        kputhex(cc_get(FSDIV), 4);kputc(' ');
+        kputhex(cc_get(FSCTRL), 4); kputs("\n");
+
+        //cc_strobe(SRFOFF);
+        delay();
+        //cc_strobe(SFSON);
     }
 
     cc_strobe(SRX);
@@ -613,6 +649,73 @@ static void cc_rx(void)
     HGM_SET;
 }
 
+#include <libopencm3/stm32/dma.h>
+
+#define UES_DMA_STREAM DMA_STREAM0
+#define UES_DMA_CONUR  DMA1
+
+static void dma_setup(void)
+{
+    /* DAC channel 1 uses DMA controller 1 Stream 5 Channel 7. */
+    /* Enable DMA1 clock and IRQ */
+    rcc_periph_clock_enable(RCC_DMA1);
+    nvic_enable_irq(NVIC_DMA1_STREAM0_IRQ);
+
+    dma_stream_reset(UES_DMA_CONUR, UES_DMA_STREAM);
+    dma_set_priority(UES_DMA_CONUR, UES_DMA_STREAM, DMA_SxCR_PL_LOW);
+    dma_set_memory_size(UES_DMA_CONUR, UES_DMA_STREAM, DMA_SxCR_MSIZE_8BIT);
+    dma_set_peripheral_size(UES_DMA_CONUR, UES_DMA_STREAM, DMA_SxCR_PSIZE_8BIT);
+    dma_enable_memory_increment_mode(UES_DMA_CONUR, UES_DMA_STREAM);
+    dma_enable_circular_mode(UES_DMA_CONUR, UES_DMA_STREAM);
+    dma_set_transfer_mode(UES_DMA_CONUR, UES_DMA_STREAM, DMA_SxCR_DIR_PERIPHERAL_TO_MEM);
+
+    /* The register to target is the DAC1 8-bit right justified data register */
+    dma_set_peripheral_address(UES_DMA_CONUR, UES_DMA_STREAM, (uint32_t) &SPI3_DR);
+    /* The array v[] is filled with the waveform data to be output */
+    dma_set_memory_address(UES_DMA_CONUR, UES_DMA_STREAM, (uint32_t) rxbuf1);
+    dma_set_memory_address_1(UES_DMA_CONUR, UES_DMA_STREAM, (uint32_t) rxbuf2);
+    dma_set_number_of_data(UES_DMA_CONUR, UES_DMA_STREAM, DMA_SIZE);
+
+    dma_channel_select(UES_DMA_CONUR, UES_DMA_STREAM, DMA_SxCR_CHSEL_0);
+    dma_enable_double_buffer_mode(UES_DMA_CONUR, UES_DMA_STREAM);
+
+    dma_enable_transfer_complete_interrupt(UES_DMA_CONUR, UES_DMA_STREAM);
+    dma_enable_transfer_error_interrupt(UES_DMA_CONUR, UES_DMA_STREAM);
+
+    dma_enable_stream(UES_DMA_CONUR, UES_DMA_STREAM);
+
+
+}
+
+/* an ugly but effective way to identify a GIAC (inquiry packet) */
+static int find_giac(u8 *buf)
+{
+    int i, j;
+    const uint8_t giac[8][7] = {
+            {0x47, 0x5c, 0x58, 0xcc, 0x73, 0x34, 0x5e},
+            {0x8e, 0xb8, 0xb1, 0x98, 0xe6, 0x68, 0xbc},
+            {0x11, 0xd7, 0x16, 0x33, 0x1c, 0xcd, 0x17},
+            {0x23, 0xae, 0x2c, 0x66, 0x39, 0x9a, 0x2f},
+            {0x75, 0xc5, 0x8c, 0xc7, 0x33, 0x45, 0xe7},
+            {0xeb, 0x8b, 0x19, 0x8e, 0x66, 0x8b, 0xce},
+            {0x1d, 0x71, 0x63, 0x31, 0xcc, 0xd1, 0x79},
+            {0x3a, 0xe2, 0xc6, 0x63, 0x99, 0xa2, 0xf3}};
+
+    for (i = 0; i < (DMA_SIZE - 6); i++)
+            for (j = 0; j < 8; j++)
+                if (buf[i] == giac[j][0]
+                        && buf[i + 1] == giac[j][1]
+                        && buf[i + 2] == giac[j][2]
+                        && buf[i + 3] == giac[j][3]
+                        && buf[i + 4] == giac[j][4]
+                        && buf[i + 5] == giac[j][5]
+                        && buf[i + 6] == giac[j][6])
+                    return 1;
+
+    return 0;
+}
+
+int num_giacs = 0;
 
 int main(void)
 {
@@ -631,7 +734,14 @@ int main(void)
 
     RXLED_SET;
 
+    cc_reset();
+
     cc_init();
+
+    if (cc_get(AGCCTRL) != 0xf700) {
+        kputs("RF chip error!\n");
+        while(1);
+    }
 
     TXLED_SET;
 
@@ -641,15 +751,50 @@ int main(void)
     usart_set_baudrate(USART1, 115200);
 
     //kputhex(RCC_CR, 8);
-    kputs(" cr clock init done!\n");
+    kputs("cchip clock init done!\n");
 
     USRLED_SET;
 
-    tim_setup();
+    //tim_setup();
+
+    dma_setup();
+
+    rx_tc = 0;
+    rx_err = 0;
+
+    SPI_CR1(SPI3) |= SPI_CR1_SPE;
 
     cc_rx();
 
+    kputs("start find giac ...\n");
 
+    while (num_giacs < 20) {
+
+        while ((rx_tc == 0) && (rx_err == 0));
+
+        if (rx_err)
+            RXLED_CLR;
+
+        if (rx_tc) {
+            //kputc('>');
+//            kputhex(idle_rxbuf[0],2);
+//            kputhex(idle_rxbuf[1],2);
+//            kputhex(idle_rxbuf[2],2);
+//            kputhex(idle_rxbuf[3],2);
+            if (find_giac(idle_rxbuf)) {
+                USRLED_SET;
+                gpio_toggle(GPIOB, GPIO15); /* LED on/off */
+                kputc('*');
+            }
+        }
+
+        rx_tc = 0;
+        rx_err = 0;
+    }
+
+    kputs("find 20 inquiry packet done!\n");
+
+#if 0
     /* Enable EXTI0 interrupt. */
     //nvic_enable_irq(NVIC_EXTI15_10_IRQ);
 
@@ -665,10 +810,11 @@ int main(void)
 //    exti_select_source(EXTI15, GPIOA);
 //    exti_set_trigger(EXTI15, EXTI_TRIGGER_FALLING);
 //    exti_enable_request(EXTI15);
-
+#endif
     /* Blink the LED (PC8) on the board. */
     while (1) {
-        //kputc('a');
+        kputhex(SPI3_SR, 2);
+        kputc(' ');
         /* Manually: */
         /* Using API functions gpio_set()/gpio_clear(): */
         /* Using API function gpio_toggle(): */
@@ -726,5 +872,33 @@ void tim2_isr(void)
         gpio_toggle(GPIOC, GPIO8);
     }
 
+}
+
+/*--------------------------------------------------------------------*/
+/* The ISR simply provides a test output for a CRO trigger */
+
+void dma1_stream0_isr(void)
+{
+    if (dma_get_interrupt_flag(UES_DMA_CONUR, UES_DMA_STREAM, DMA_TCIF)) {
+        dma_clear_interrupt_flags(UES_DMA_CONUR, UES_DMA_STREAM, DMA_TCIF);
+        gpio_toggle(GPIOC, GPIO7);
+
+        if (DMA_SCR(UES_DMA_CONUR, UES_DMA_STREAM) & DMA_SxCR_CT) {
+            active_rxbuf = &rxbuf2[0];
+            idle_rxbuf = &rxbuf1[0];
+        } else {
+            active_rxbuf = &rxbuf1[0];
+            idle_rxbuf = &rxbuf2[0];
+        }
+
+        rx_tc ++;
+
+    } else if (dma_get_interrupt_flag(UES_DMA_CONUR, UES_DMA_STREAM, DMA_TEIF)) {
+        dma_clear_interrupt_flags(UES_DMA_CONUR, UES_DMA_STREAM, DMA_TEIF);
+        gpio_toggle(GPIOC, GPIO6);
+        kputc('t');
+
+        ++rx_err;
+    }
 }
 
