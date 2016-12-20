@@ -77,6 +77,7 @@ int main(void)
 	/* Enable external high-speed oscillator 16MHz. */
     //rcc_clock_setup_hse_3v3(&rcc_hse_16mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
     rcc_clock_setup_hse_3v3(&rcc_160mhz);
+
 	usart_setup();
 
 	gpio_setup();
