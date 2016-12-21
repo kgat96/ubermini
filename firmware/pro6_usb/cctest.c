@@ -526,14 +526,14 @@ int main(void)
     kputs("stm32 clock init done!\n");
 
     rcc_periph_clock_enable(RCC_GPIOA);
-    rcc_periph_clock_enable(RCC_OTGHS);
+    rcc_periph_clock_enable(RCC_OTGFS);
 
     /* USB pins */
     gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO11 | GPIO12 );
 
     gpio_set_af(GPIOA, GPIO_AF10, GPIO11 | GPIO12 );
 
-    usbd_dev = usbd_init(&otghs_usb_driver, &dev, &config, usb_strings, 3,
+    usbd_dev = usbd_init(&otgfs_usb_driver, &dev, &config, usb_strings, 3,
                 usbd_control_buffer, sizeof(usbd_control_buffer));
 
     usbd_register_set_config_callback(usbd_dev, cdcacm_set_config);
