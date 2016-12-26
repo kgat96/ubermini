@@ -297,14 +297,13 @@ static void clock_init(void)
 
 #include <libopencm3/usb/usbd.h>
 #include <libopencm3/usb/cdc.h>
-#include <libopencm3/usb/hid.h>
 #include <libopencm3/cm3/scb.h>
 
 static const struct usb_device_descriptor dev = {
     .bLength = USB_DT_DEVICE_SIZE,
     .bDescriptorType = USB_DT_DEVICE,
     .bcdUSB = 0x0200,
-    .bDeviceClass = 0,
+    .bDeviceClass = USB_CLASS_CDC,
     .bDeviceSubClass = 0,
     .bDeviceProtocol = 0,
     .bMaxPacketSize0 = 64,
@@ -325,7 +324,7 @@ static const struct usb_device_descriptor dev = {
 static const struct usb_endpoint_descriptor comm_endp[] = {{
     .bLength = USB_DT_ENDPOINT_SIZE,
     .bDescriptorType = USB_DT_ENDPOINT,
-    .bEndpointAddress = 0x81,
+    .bEndpointAddress = 0x83,
     .bmAttributes = USB_ENDPOINT_ATTR_INTERRUPT,
     .wMaxPacketSize = 16,
     .bInterval = 255,
@@ -347,65 +346,39 @@ static const struct usb_endpoint_descriptor data_endp[] = {{
     .bInterval = 1,
 } };
 
-static const uint8_t hid_report_descriptor[] = {
-    0x05, 0x01, /* USAGE_PAGE (Generic Desktop)         */
-    0x09, 0x02, /* USAGE (Mouse)                        */
-    0xa1, 0x01, /* COLLECTION (Application)             */
-    0x09, 0x01, /*   USAGE (Pointer)                    */
-    0xa1, 0x00, /*   COLLECTION (Physical)              */
-    0x05, 0x09, /*     USAGE_PAGE (Button)              */
-    0x19, 0x01, /*     USAGE_MINIMUM (Button 1)         */
-    0x29, 0x03, /*     USAGE_MAXIMUM (Button 3)         */
-    0x15, 0x00, /*     LOGICAL_MINIMUM (0)              */
-    0x25, 0x01, /*     LOGICAL_MAXIMUM (1)              */
-    0x95, 0x03, /*     REPORT_COUNT (3)                 */
-    0x75, 0x01, /*     REPORT_SIZE (1)                  */
-    0x81, 0x02, /*     INPUT (Data,Var,Abs)             */
-    0x95, 0x01, /*     REPORT_COUNT (1)                 */
-    0x75, 0x05, /*     REPORT_SIZE (5)                  */
-    0x81, 0x01, /*     INPUT (Cnst,Ary,Abs)             */
-    0x05, 0x01, /*     USAGE_PAGE (Generic Desktop)     */
-    0x09, 0x30, /*     USAGE (X)                        */
-    0x09, 0x31, /*     USAGE (Y)                        */
-    0x09, 0x38, /*     USAGE (Wheel)                    */
-    0x15, 0x81, /*     LOGICAL_MINIMUM (-127)           */
-    0x25, 0x7f, /*     LOGICAL_MAXIMUM (127)            */
-    0x75, 0x08, /*     REPORT_SIZE (8)                  */
-    0x95, 0x03, /*     REPORT_COUNT (3)                 */
-    0x81, 0x06, /*     INPUT (Data,Var,Rel)             */
-    0xc0,       /*   END_COLLECTION                     */
-    0x09, 0x3c, /*   USAGE (Motion Wakeup)              */
-    0x05, 0xff, /*   USAGE_PAGE (Vendor Defined Page 1) */
-    0x09, 0x01, /*   USAGE (Vendor Usage 1)             */
-    0x15, 0x00, /*   LOGICAL_MINIMUM (0)                */
-    0x25, 0x01, /*   LOGICAL_MAXIMUM (1)                */
-    0x75, 0x01, /*   REPORT_SIZE (1)                    */
-    0x95, 0x02, /*   REPORT_COUNT (2)                   */
-    0xb1, 0x22, /*   FEATURE (Data,Var,Abs,NPrf)        */
-    0x75, 0x06, /*   REPORT_SIZE (6)                    */
-    0x95, 0x01, /*   REPORT_COUNT (1)                   */
-    0xb1, 0x01, /*   FEATURE (Cnst,Ary,Abs)             */
-    0xc0        /* END_COLLECTION                       */
-};
-
 static const struct {
-    struct usb_hid_descriptor hid_descriptor;
-    struct {
-        uint8_t bReportDescriptorType;
-        uint16_t wDescriptorLength;
-    } __attribute__((packed)) hid_report;
-} __attribute__((packed)) hid_function = {
-    .hid_descriptor = {
-        .bLength = sizeof(hid_function),
-        .bDescriptorType = USB_DT_HID,
-        .bcdHID = 0x0100,
-        .bCountryCode = 0,
-        .bNumDescriptors = 1,
+    struct usb_cdc_header_descriptor header;
+    struct usb_cdc_call_management_descriptor call_mgmt;
+    struct usb_cdc_acm_descriptor acm;
+    struct usb_cdc_union_descriptor cdc_union;
+} __attribute__((packed)) cdcacm_functional_descriptors = {
+    .header = {
+        .bFunctionLength = sizeof(struct usb_cdc_header_descriptor),
+        .bDescriptorType = CS_INTERFACE,
+        .bDescriptorSubtype = USB_CDC_TYPE_HEADER,
+        .bcdCDC = 0x0110,
     },
-    .hid_report = {
-        .bReportDescriptorType = USB_DT_REPORT,
-        .wDescriptorLength = sizeof(hid_report_descriptor),
+    .call_mgmt = {
+        .bFunctionLength =
+            sizeof(struct usb_cdc_call_management_descriptor),
+        .bDescriptorType = CS_INTERFACE,
+        .bDescriptorSubtype = USB_CDC_TYPE_CALL_MANAGEMENT,
+        .bmCapabilities = 0,
+        .bDataInterface = 1,
     },
+    .acm = {
+        .bFunctionLength = sizeof(struct usb_cdc_acm_descriptor),
+        .bDescriptorType = CS_INTERFACE,
+        .bDescriptorSubtype = USB_CDC_TYPE_ACM,
+        .bmCapabilities = 0,
+    },
+    .cdc_union = {
+        .bFunctionLength = sizeof(struct usb_cdc_union_descriptor),
+        .bDescriptorType = CS_INTERFACE,
+        .bDescriptorSubtype = USB_CDC_TYPE_UNION,
+        .bControlInterface = 0,
+        .bSubordinateInterface0 = 1,
+     }
 };
 
 static const struct usb_interface_descriptor comm_iface[] = {{
@@ -414,15 +387,15 @@ static const struct usb_interface_descriptor comm_iface[] = {{
     .bInterfaceNumber = 0,
     .bAlternateSetting = 0,
     .bNumEndpoints = 1,
-    .bInterfaceClass = USB_CLASS_HID,
-    .bInterfaceSubClass = 1, /* boot */
-    .bInterfaceProtocol = 2, /* mouse */
+    .bInterfaceClass = USB_CLASS_CDC,
+    .bInterfaceSubClass = USB_CDC_SUBCLASS_ACM,
+    .bInterfaceProtocol = USB_CDC_PROTOCOL_AT,
     .iInterface = 0,
 
     .endpoint = comm_endp,
 
-    .extra = &hid_function,
-    .extralen = sizeof(hid_function)
+    .extra = &cdcacm_functional_descriptors,
+    .extralen = sizeof(cdcacm_functional_descriptors)
 } };
 
 static const struct usb_interface_descriptor data_iface[] = {{
@@ -454,7 +427,7 @@ static const struct usb_config_descriptor config = {
     .bNumInterfaces = 2,
     .bConfigurationValue = 1,
     .iConfiguration = 0,
-    .bmAttributes = 0xc0,
+    .bmAttributes = 0x80,
     .bMaxPower = 0x32,
 
     .interface = ifaces,
@@ -469,30 +442,44 @@ static const char * usb_strings[] = {
 /* Buffer to be used for control requests. */
 uint8_t usbd_control_buffer[128];
 
-static int hid_control_request(usbd_device *usbd_dev, struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
-            void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
+static int cdcacm_control_request(usbd_device *usbd_dev,
+    struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
+    void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
 {
     (void)complete;
+    (void)buf;
     (void)usbd_dev;
 
-    kputs("cp:");kputhex(req->bRequest, 2);
+    kputs("cp:");kputhex(req->bRequest, 2);kputhex(req->bmRequestType, 2);
+    kputhex(req->wValue, 2);kputhex(req->wIndex, 2);
+    //kputhex(*len, 2);
 
-    if (req->bRequest==0x33) {
-        uint8_t da[4] = {0, 0, 0, 0};
-        usbd_ep_write_packet(usbd_dev, 0x81, da, 4);
+//    kputhex(*buf[0], 2);
+//    kputhex(*buf[1], 2);
+//    kputhex(*buf[2], 2);
+//    kputhex(*buf[3], 2);
+//    kputhex(*buf[4], 2);
+//    kputhex(*buf[5], 2);
+//    kputhex(*buf[6], 2);
+
+    switch (req->bRequest) {
+    case USB_CDC_REQ_SET_CONTROL_LINE_STATE: {
+        /*
+         * This Linux cdc_acm driver requires this to be implemented
+         * even though it's optional in the CDC spec, and we don't
+         * advertise it in the ACM functional descriptor.
+         */
+        return 1;
+        }
+    case USB_CDC_REQ_SET_LINE_CODING:
+        if (*len < sizeof(struct usb_cdc_line_coding)) {
+            return 1;
+        }
+
         return 1;
     }
 
-    if ((req->bmRequestType != 0x81) ||
-       (req->bRequest != USB_REQ_GET_DESCRIPTOR) ||
-       (req->wValue != 0x2200))
-        return 0;
-
-    /* Handle the HID report descriptor. */
-    *buf = (uint8_t *)hid_report_descriptor;
-    *len = sizeof(hid_report_descriptor);
-
-    return 1;
+    return 0;
 }
 
 static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
@@ -515,15 +502,12 @@ static void cdcacm_set_config(usbd_device *usbd_dev, uint16_t wValue)
     usbd_ep_setup(usbd_dev, 0x01, USB_ENDPOINT_ATTR_BULK, 64,
             cdcacm_data_rx_cb);
     usbd_ep_setup(usbd_dev, 0x82, USB_ENDPOINT_ATTR_BULK, 64, NULL);
-    usbd_ep_setup(usbd_dev, 0x81, USB_ENDPOINT_ATTR_INTERRUPT, 16, NULL);
+    usbd_ep_setup(usbd_dev, 0x83, USB_ENDPOINT_ATTR_INTERRUPT, 16, NULL);
 
     usbd_register_control_callback( usbd_dev,
-            USB_REQ_TYPE_STANDARD | USB_REQ_TYPE_INTERFACE,
+                USB_REQ_TYPE_CLASS | USB_REQ_TYPE_INTERFACE,
                 USB_REQ_TYPE_TYPE | USB_REQ_TYPE_RECIPIENT,
-                hid_control_request);
-
-    usbd_register_control_callback( usbd_dev, USB_REQ_TYPE_VENDOR ,
-            USB_REQ_TYPE_TYPE, hid_control_request);
+                cdcacm_control_request);
 }
 
 int main(void)
