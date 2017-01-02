@@ -184,7 +184,7 @@ static const char * usb_strings[] = {
 /* Buffer to be used for control requests. */
 uint8_t usbd_control_buffer[128];
 
-uint8_t en_ww = 0;
+vu8 en_ww = 0;
 
 static int hid_control_request(usbd_device *usbd_dev, struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
             void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
@@ -192,13 +192,19 @@ static int hid_control_request(usbd_device *usbd_dev, struct usb_setup_data *req
     (void)complete;
     (void)usbd_dev;
 
-    kputs("cp:");kputhex(req->bRequest, 2);
+    //kputs("cp:");kputhex(req->bRequest, 2);
 
     if (req->bRequest==0x33 || req->bRequest==0x22) {
         if(req->bRequest==0x22) {
             en_ww = 1;
-            usb_debug("ep wwww ....\n");
+            usb_debug("bRequest 0x22\n");
         }
+
+        if(req->bRequest==0x33) {
+            en_ww = 0;
+            usb_debug("bRequest 0x33\n");
+        }
+
         uint8_t da[4] = {0, 0, 0, 0};
         usbd_ep_write_packet(usbd_dev, 0x81, da, 4);
         return 1;
@@ -234,9 +240,8 @@ static void hci_data_tx_cb(usbd_device *usbd_dev, uint8_t ep)
     (void)ep;
     (void)usbd_dev;
 
-    kputs("epin\n");
+    //usb_putchar('i');
 }
-
 
 static void hci_set_config(usbd_device *usbd_dev, uint16_t wValue)
 {
@@ -271,18 +276,8 @@ void usb_setup(void)
 int usb_write_packet(u8* buf, int len)
 {
     if (en_ww) {
-        int r = 0;
         //en_ww = 0;
-
-        if (1) {
-            vu32 i;
-            for (i = 0; i < 1000000; i++) { /* Wait a bit. */
-                __asm__("nop");
-            }
-        }
-
-        r = usbd_ep_write_packet(usbd_dev, 0x82, buf, len);
-        usb_puthex(r, 2);
+        return usbd_ep_write_packet(usbd_dev, 0x82, buf, len);
     }
 
     return 0;
@@ -292,12 +287,4 @@ void usb_pull(void)
 {
     usbd_poll(usbd_dev);
 }
-
-
-
-
-
-
-
-
 

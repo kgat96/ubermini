@@ -166,6 +166,7 @@ void cc_init(void);
 void cc_reset(void);
 void cc_rx_mode(void);
 void cc_specan_mode(void);
+void get_specan_date(u8 *buf, int len);
 
 #define DMA_SIZE 50
 extern u8 rxbuf1[];

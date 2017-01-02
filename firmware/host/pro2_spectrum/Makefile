@@ -610,6 +610,16 @@ moc_mainwindow.cpp: /mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/QMainWindow \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qtouchdevice.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/qtabwidget.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qicon.h \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QQueue \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qqueue.h \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QThread \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qthread.h \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QSemaphore \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qsemaphore.h \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QDebug \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QTimer \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qtimer.h \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qbasictimer.h \
 		mainwindow.h
 	/mnt/ssd/qtttt/5.4/gcc_64/bin/moc $(DEFINES) -I/mnt/ssd/qtttt/5.4/gcc_64/mkspecs/linux-g++ -I/mnt/data/sdr/ubertoothp-master/firmware/host/pro2_spectrum -I/mnt/data/sdr/ubertoothp-master/firmware/host/qcustomplot -I/usr/include/libusb-1.0 -I/mnt/ssd/qtttt/5.4/gcc_64/include -I/mnt/ssd/qtttt/5.4/gcc_64/include/QtPrintSupport -I/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets -I/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui -I/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore mainwindow.h -o moc_mainwindow.cpp
 
@@ -1101,130 +1111,8 @@ moc_qcustomplot.cpp: /mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qglobal.h \
 		../qcustomplot/qcustomplot.h
 	/mnt/ssd/qtttt/5.4/gcc_64/bin/moc $(DEFINES) -I/mnt/ssd/qtttt/5.4/gcc_64/mkspecs/linux-g++ -I/mnt/data/sdr/ubertoothp-master/firmware/host/pro2_spectrum -I/mnt/data/sdr/ubertoothp-master/firmware/host/qcustomplot -I/usr/include/libusb-1.0 -I/mnt/ssd/qtttt/5.4/gcc_64/include -I/mnt/ssd/qtttt/5.4/gcc_64/include/QtPrintSupport -I/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets -I/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui -I/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore ../qcustomplot/qcustomplot.h -o moc_qcustomplot.cpp
 
-compiler_moc_source_make_all: main.moc
+compiler_moc_source_make_all:
 compiler_moc_source_clean:
-	-$(DEL_FILE) main.moc
-main.moc: mainwindow.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/QMainWindow \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/qmainwindow.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/qwidget.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qwindowdefs.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qglobal.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qconfig.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qfeatures.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qsystemdetection.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qprocessordetection.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qcompilerdetection.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qtypeinfo.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qtypetraits.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qsysinfo.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qlogging.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qflags.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qatomic.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qbasicatomic.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qatomic_bootstrap.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qgenericatomic.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qatomic_msvc.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qatomic_armv7.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qatomic_armv6.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qatomic_armv5.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qatomic_ia64.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qatomic_mips.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qatomic_x86.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qatomic_cxx11.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qatomic_gcc.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qatomic_unix.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qglobalstatic.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qmutex.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qnumeric.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qobjectdefs.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qnamespace.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qobjectdefs_impl.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qwindowdefs_win.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qobject.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qstring.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qchar.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qbytearray.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qrefcount.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qarraydata.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qstringbuilder.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qlist.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qalgorithms.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qiterator.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qbytearraylist.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qcoreevent.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qscopedpointer.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qmetatype.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qvarlengtharray.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qcontainerfwd.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qisenum.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qobject_impl.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qmargins.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qpaintdevice.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qrect.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qsize.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qpoint.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qpalette.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qcolor.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qrgb.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qstringlist.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qdatastream.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qiodevice.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qpair.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qregexp.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qstringmatcher.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qbrush.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qvector.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qmatrix.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qpolygon.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qregion.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qline.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qtransform.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qpainterpath.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qimage.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qpixelformat.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qpixmap.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qsharedpointer.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qshareddata.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qhash.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qsharedpointer_impl.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qfont.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qfontmetrics.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qfontinfo.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/qsizepolicy.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qcursor.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qkeysequence.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qevent.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qvariant.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qmap.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qdebug.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qtextstream.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qlocale.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qset.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qcontiguouscache.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qurl.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qurlquery.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qfile.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qfiledevice.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qvector2d.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qtouchdevice.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/qtabwidget.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qicon.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/QApplication \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/qapplication.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qcoreapplication.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qeventloop.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/qdesktopwidget.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qguiapplication.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qinputmethod.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QThread \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qthread.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QSemaphore \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qsemaphore.h \
-		uberusb.h \
-		main.cpp
-	/mnt/ssd/qtttt/5.4/gcc_64/bin/moc $(DEFINES) -I/mnt/ssd/qtttt/5.4/gcc_64/mkspecs/linux-g++ -I/mnt/data/sdr/ubertoothp-master/firmware/host/pro2_spectrum -I/mnt/data/sdr/ubertoothp-master/firmware/host/qcustomplot -I/usr/include/libusb-1.0 -I/mnt/ssd/qtttt/5.4/gcc_64/include -I/mnt/ssd/qtttt/5.4/gcc_64/include/QtPrintSupport -I/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets -I/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui -I/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore main.cpp -o main.moc
-
 compiler_uic_make_all: ui_mainwindow.h
 compiler_uic_clean:
 	-$(DEL_FILE) ui_mainwindow.h
@@ -1723,7 +1611,7 @@ compiler_yacc_impl_make_all:
 compiler_yacc_impl_clean:
 compiler_lex_make_all:
 compiler_lex_clean:
-compiler_clean: compiler_moc_header_clean compiler_moc_source_clean compiler_uic_clean 
+compiler_clean: compiler_moc_header_clean compiler_uic_clean 
 
 ####### Compile
 
@@ -1833,6 +1721,16 @@ main.o: main.cpp mainwindow.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qtouchdevice.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/qtabwidget.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qicon.h \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QQueue \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qqueue.h \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QThread \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qthread.h \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QSemaphore \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qsemaphore.h \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QDebug \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QTimer \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qtimer.h \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qbasictimer.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/QApplication \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/qapplication.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qcoreapplication.h \
@@ -1840,10 +1738,6 @@ main.o: main.cpp mainwindow.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/qdesktopwidget.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qguiapplication.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qinputmethod.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QThread \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qthread.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QSemaphore \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qsemaphore.h \
 		uberusb.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
@@ -2444,6 +2338,16 @@ mainwindow.o: mainwindow.cpp mainwindow.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qtouchdevice.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/qtabwidget.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qicon.h \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QQueue \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qqueue.h \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QThread \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qthread.h \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QSemaphore \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qsemaphore.h \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QDebug \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QTimer \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qtimer.h \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qbasictimer.h \
 		ui_mainwindow.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QVariant \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/QAction \
@@ -2495,9 +2399,6 @@ mainwindow.o: mainwindow.cpp mainwindow.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QPointer \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qpointer.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QSharedPointer \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QTimer \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qtimer.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qbasictimer.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/QPainter \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qpainter.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/qtextoption.h \
@@ -2512,7 +2413,6 @@ mainwindow.o: mainwindow.cpp mainwindow.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qdatetime.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QMultiMap \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QFlags \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QDebug \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QStack \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qstack.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QCache \
@@ -2619,8 +2519,6 @@ mainwindow.o: mainwindow.cpp mainwindow.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qfuturesynchronizer.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qfuturewatcher.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qreadwritelock.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qsemaphore.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qthread.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qthreadpool.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qthreadstorage.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qwaitcondition.h \
@@ -2635,7 +2533,6 @@ mainwindow.o: mainwindow.cpp mainwindow.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qelapsedtimer.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qlinkedlist.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qmessageauthenticationcode.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qqueue.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qscopedvaluerollback.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qtextboundaryfinder.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qtimeline.h \
@@ -2836,7 +2733,8 @@ mainwindow.o: mainwindow.cpp mainwindow.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtPrintSupport/qprinter.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtPrintSupport/qprinterinfo.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtPrintSupport/qprintpreviewwidget.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtPrintSupport/qtprintsupportversion.h
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtPrintSupport/qtprintsupportversion.h \
+		uberusb.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o mainwindow.cpp
 
 moc_mainwindow.o: moc_mainwindow.cpp 

@@ -297,6 +297,8 @@ static int find_giac(u8 *buf)
     return 0;
 }
 
+extern uint8_t en_ww;
+
 int main(void)
 {
     gpio_setup();
@@ -333,42 +335,34 @@ int main(void)
     SPI_CR1(SPI3) |= SPI_CR1_SPE;
 
     //cc_rx_mode();
-    //cc_specan_mode();
+    cc_specan_mode();
 
-//    while (1) {
+    while (0) {
 //        kputhex(idle_rxbuf[0], 2);
 //        kputhex(idle_rxbuf[1], 2);
 //        kputhex(idle_rxbuf[2], 2);
 //        kputhex(idle_rxbuf[3], 2);
-//
-//        if (find_giac(idle_rxbuf)) {
-//            gpio_toggle(GPIOB, PIN_RXLED); /* LED on/off */
-//            kputc('*');
-//        }
-//    }
+
+        if (find_giac(idle_rxbuf)) {
+            gpio_toggle(GPIOC, PIN_RXLED); /* LED on/off */
+            kputc('*');
+        }
+    }
 
     while(1) {
+
+        u8 spbuff[64];
+
+        if (en_ww) {
+            get_specan_date(spbuff, 64);
+            //usb_write_packet(spbuff, 64);
+            if (usb_write_packet(spbuff, 64) == 0) {
+                gpio_toggle(GPIOC, PIN_RXLED); /* LED on/off */
+                kputc('*');
+            }
+        }
+
         usb_pull();
-
-        static u8 count = 1;
-
-        u8 buff[64];
-
-        buff[0] = 1;
-        buff[1] = 2;
-        buff[2] = 3;
-        buff[3] = 4;
-
-        count ++;
-
-        //if(count == 0) {
-            //kputc('*');
-            //kputs("tim2_isr\n");
-
-        usb_write_packet(buff, 64);
-        //}
-
-
     }
 
     while (1) {

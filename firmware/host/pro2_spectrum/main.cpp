@@ -18,33 +18,54 @@
 
 class QCustomPlot;
 
+#include <QDebug>
+
 class UberThread : public QThread
 {
-    Q_OBJECT
-
 public:
-    explicit UberThread();
-    ~UberThread(){}
+    explicit UberThread() { runStatus = true;}
+    ~UberThread() {
+        runStatus = false;
+        if (!this->isFinished())
+            this->wait();
+        qDebug() << "UberThread isFinished";
+    }
 
 private:
-    bool runStatus;
+    QSemaphore mSem;
+    volatile bool runStatus;
     void run();
 };
 
 void UberThread::run()
 {
-    while(1);
-
+    while(runStatus) {
+        uber_handle_events();
+        //mSem.tryAcquire(1, 100); // sem.available() --
+    }
 }
 
+MainWindow *wp;
+
+extern "C" void UberPacket(unsigned short *buf, int len)
+{
+    wp->pushUberPacket((quint16 *)buf, len);
+    qDebug() << "UberPacket: " << len;
+}
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     MainWindow w;
+
+    wp = &w;
+
     w.show();
 
     uberusb();
+
+    UberThread mUberThread;
+    mUberThread.start();
 
     return a.exec();
 }

@@ -209,47 +209,47 @@ void cc_rx_mode(void)
 
 void cc_specan_mode(void)
 {
-    u16 f, i = 0;
-    u8 buf[DMA_SIZE];
-
     cc_set(MANAND,  0x7fff);
     cc_set(LMTST,   0x2b22);
     cc_set(MDMTST0, 0x134b); // without PRNG
     cc_set(GRMDM,   0x0101); // un-buffered mode, GFSK
     cc_set(MDMCTRL, 0x0029); // 160 kHz frequency deviation
     //FIXME maybe set RSSI.RSSI_FILT
+
+    cc_strobe(SXOSCON);
+
     while (!(cc_status() & XOSC16M_STABLE));
+
     while ((cc_status() & FS_LOCK));
 
-    while(1) {
-        for (f = low_freq; f < high_freq + 1; f++) {
-            cc_set(FSDIV, f - 1);
-            cc_strobe(SFSON);
-            while (!(cc_status() & FS_LOCK));
+    PAEN_SET();
+    HGM_SET();
 
-            cc_strobe(SRX);
-
-            //cc_putchar(' ');
-            //cc_puthex(i, 2);
-            //cc_puthex(cc_get(RSSI) >> 8, 2);
-
-            {
-                buf[3 * i] = (f >> 8) & 0xFF;
-                buf[(3 * i) + 1] = f  & 0xFF;
-                buf[(3 * i) + 2] = cc_get(RSSI) >> 8;
-
-                if (i++ == 15) {
-
-                }
-
-            }
-
-            cc_strobe(SRFOFF);
-            while ((cc_status() & FS_LOCK));
-        }
-        gpio_toggle(GPIOC, PIN_RXLED);
-    }
-
-
+    cc_debug("cc entry specan mode\n");
 }
+
+
+void get_specan_date(u8 *buf, int len)
+{
+    static int f = 2400;
+    int i = 0;
+
+     while(len > 0) {
+        len -= 2;
+        cc_set(FSDIV, f - 1);
+        cc_strobe(SFSON);
+        while (!(cc_status() & FS_LOCK));
+        cc_strobe(SRX);
+
+        buf[i++] = f - low_freq;
+        buf[i++] = cc_get(RSSI) >> 8;
+
+        f += 1;
+        if (f > high_freq) f = low_freq;
+
+        cc_strobe(SRFOFF);
+        while ((cc_status() & FS_LOCK));
+    }
+}
+
 
