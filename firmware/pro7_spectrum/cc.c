@@ -98,7 +98,7 @@ void cc_reset(void)
     cc_set(MAIN, 0x8000);
     while (cc_get(MAIN) != 0x8000);
 
-    cc_set(MAIN, 0x8002);
+    //cc_set(MAIN, 0x8002);
 }
 
 static void clock_init(void)

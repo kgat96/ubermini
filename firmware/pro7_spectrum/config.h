@@ -34,6 +34,7 @@ typedef volatile unsigned char vu8;
 #define PIN_TX      GPIO10      /* Pb.10 */
 #define PIN_BTGR    GPIO14      /* Pb.14 */
 
+#define PIN_DBGLED  GPIO15       /* Pb.15 LED4 */
 #define PIN_RXLED   GPIO8       /* Pc.8 LED1 */
 #define PIN_TXLED   GPIO7       /* Pc.7 LED2 */
 #define PIN_USRLED  GPIO6       /* Pc.6 LED3 */
@@ -52,6 +53,10 @@ typedef volatile unsigned char vu8;
 //#define TXLED         (FIO1PIN & PIN_TXLED)
 #define TXLED_SET()     gpio_set(GPIOC, PIN_TXLED)
 #define TXLED_CLR()     gpio_clear(GPIOC, PIN_TXLED)
+
+//#define DEBUGLED
+#define DBGLED_SET()     gpio_set(GPIOB, PIN_DBGLED)
+#define DBGLED_CLR()     gpio_clear(GPIOB, PIN_DBGLED)
 
 #define CC3V3_SET()     gpio_set(GPIOB, PIN_CC3V3)
 #define CC3V3_CLR()     gpio_clear(GPIOB, PIN_CC3V3)

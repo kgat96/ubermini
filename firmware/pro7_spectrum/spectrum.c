@@ -97,6 +97,8 @@ static void gpio_setup(void)
 
     BTGR_CLR(); TX_CLR(); RX_CLR();
 
+    TXLED_SET(); USRLED_SET(); RXLED_SET();DBGLED_SET();
+
     /* USB pins */
     gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO11 | GPIO12 );
     gpio_set_af(GPIOA, GPIO_AF10, GPIO11 | GPIO12 );
@@ -307,9 +309,15 @@ int main(void)
 
     kputs("\nSpectrum start\n");
 
+    delay();
+
     cc_reset();
 
+    DBGLED_CLR();
+
     cc_init();
+
+    USRLED_CLR();
 
     delay(); // why ???
 
@@ -318,6 +326,8 @@ int main(void)
     rcc_clock_setup_hse_3v3(&rcc_hse_16mhz_3v3[RCC_CLOCK_3V3_120MHZ]);
 
     rcc_periph_clock_enable(RCC_OTGFS);
+
+    TXLED_CLR();
 
     /* Setup USART1 parameters. */
     usart_set_baudrate(USART1, 2000000);
@@ -334,10 +344,12 @@ int main(void)
 
     SPI_CR1(SPI3) |= SPI_CR1_SPE;
 
-    //cc_rx_mode();
-    cc_specan_mode();
+    RXLED_CLR();
 
-    while (0) {
+    cc_rx_mode();
+    //cc_specan_mode();
+
+    while (1) {
 //        kputhex(idle_rxbuf[0], 2);
 //        kputhex(idle_rxbuf[1], 2);
 //        kputhex(idle_rxbuf[2], 2);
