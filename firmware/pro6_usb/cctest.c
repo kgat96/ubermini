@@ -136,7 +136,6 @@ static void gpio_setup(void)
     rcc_periph_clock_enable(RCC_GPIOC);
     rcc_periph_clock_enable(RCC_GPIOD);
 
-
     /* Set GPIO LED. */
     gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLDOWN, GPIO8); // LED1
     gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLDOWN, GPIO7); // LED2
@@ -267,7 +266,7 @@ static void cc_reset(void)
     cc_set(MAIN, 0x8000);
     while (cc_get(MAIN) != 0x8000);
 
-    cc_set(MAIN, 0x8002);
+    //cc_set(MAIN, 0x8002);
 }
 
 
@@ -526,6 +525,11 @@ static void cdcacm_set_config(usbd_device *usbd_dev, uint16_t wValue)
             USB_REQ_TYPE_TYPE, hid_control_request);
 }
 
+#include <libopencm3/stm32/otg_fs.h>
+#include <libopencm3/stm32/otg_hs.h>
+
+#define xREBASE(x)        MMIO32((x) + (USB_OTG_FS_BASE))
+
 int main(void)
 {
     usbd_device *usbd_dev;
@@ -549,6 +553,27 @@ int main(void)
 
     clock_init();
 
+    rcc_periph_clock_enable(RCC_GPIOA);
+    gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, GPIO11 | GPIO12 );
+    gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, GPIO15); // LED1
+
+    gpio_clear(GPIOA, GPIO11); /* LED on/off */
+    gpio_clear(GPIOA, GPIO12); /* LED on/off */
+
+    gpio_clear(GPIOA, GPIO15); /* LED on/off */
+
+    while (0) {
+        /* Manually: */
+        /* Using API functions gpio_set()/gpio_clear(): */
+        /* Using API function gpio_toggle(): */
+        gpio_set(GPIOC, GPIO0); /* LED on/off */
+        gpio_set(GPIOB, GPIO15); /* LED on/off */
+        delay();
+        gpio_clear(GPIOC, GPIO0); /* LED on/off */
+        gpio_clear(GPIOB, GPIO15); /* LED on/off */
+        delay();
+    }
+
     /* Setup USART1 parameters. */
     usart_set_baudrate(USART1, 2000000);
 
@@ -558,7 +583,7 @@ int main(void)
     rcc_periph_clock_enable(RCC_OTGFS);
 
     /* USB pins */
-    gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO11 | GPIO12 );
+    gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_PULLUP, GPIO11 | GPIO12 );
 
     gpio_set_af(GPIOA, GPIO_AF10, GPIO11 | GPIO12 );
 
@@ -570,20 +595,30 @@ int main(void)
     kputs("usbd register done!\n");
 
     while (1) {
+        //kputc(0x55);
+        //uint32_t intsts = xREBASE(OTG_GINTSTS);
+        //kputhex(intsts, 8);kputs("\n");
         usbd_poll(usbd_dev);
     }
 
+    gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, GPIO11 | GPIO12 );
 
     while (1) {
         /* Manually: */
         /* Using API functions gpio_set()/gpio_clear(): */
         /* Using API function gpio_toggle(): */
+        gpio_set(GPIOA, GPIO11); /* LED on/off */
+        gpio_set(GPIOA, GPIO12); /* LED on/off */
 
         gpio_set(GPIOC, GPIO0); /* LED on/off */
         gpio_set(GPIOB, GPIO15); /* LED on/off */
         delay();
         gpio_clear(GPIOC, GPIO0); /* LED on/off */
         gpio_clear(GPIOB, GPIO15); /* LED on/off */
+
+        gpio_clear(GPIOA, GPIO11); /* LED on/off */
+        gpio_clear(GPIOA, GPIO12); /* LED on/off */
+
         delay();
 
     }
