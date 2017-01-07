@@ -27,3 +27,6 @@ FORMS    += mainwindow.ui
 #RESOURCES += mainwindow.qrc
 #RC_ICONS += ./images/voice.ico
 
+RESOURCES += \
+    resource.qrc
+

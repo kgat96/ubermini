@@ -51,12 +51,14 @@ OBJECTS_DIR   = ./
 SOURCES       = main.cpp \
 		../qcustomplot/qcustomplot.cpp \
 		uberusb.c \
-		mainwindow.cpp moc_mainwindow.cpp \
+		mainwindow.cpp qrc_resource.cpp \
+		moc_mainwindow.cpp \
 		moc_qcustomplot.cpp
 OBJECTS       = main.o \
 		qcustomplot.o \
 		uberusb.o \
 		mainwindow.o \
+		qrc_resource.o \
 		moc_mainwindow.o \
 		moc_qcustomplot.o
 DIST          = /mnt/ssd/qtttt/5.4/gcc_64/mkspecs/features/spec_pre.prf \
@@ -334,6 +336,7 @@ Makefile: spectrum.pro /mnt/ssd/qtttt/5.4/gcc_64/mkspecs/linux-g++/qmake.conf /m
 		/mnt/ssd/qtttt/5.4/gcc_64/mkspecs/features/yacc.prf \
 		/mnt/ssd/qtttt/5.4/gcc_64/mkspecs/features/lex.prf \
 		spectrum.pro \
+		resource.qrc \
 		/mnt/ssd/qtttt/5.4/gcc_64/lib/libQt5PrintSupport.prl \
 		/mnt/ssd/qtttt/5.4/gcc_64/lib/libQt5Widgets.prl \
 		/mnt/ssd/qtttt/5.4/gcc_64/lib/libQt5Gui.prl \
@@ -459,6 +462,7 @@ Makefile: spectrum.pro /mnt/ssd/qtttt/5.4/gcc_64/mkspecs/linux-g++/qmake.conf /m
 /mnt/ssd/qtttt/5.4/gcc_64/mkspecs/features/yacc.prf:
 /mnt/ssd/qtttt/5.4/gcc_64/mkspecs/features/lex.prf:
 spectrum.pro:
+resource.qrc:
 /mnt/ssd/qtttt/5.4/gcc_64/lib/libQt5PrintSupport.prl:
 /mnt/ssd/qtttt/5.4/gcc_64/lib/libQt5Widgets.prl:
 /mnt/ssd/qtttt/5.4/gcc_64/lib/libQt5Gui.prl:
@@ -477,6 +481,7 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
+	$(COPY_FILE) --parents resource.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents mainwindow.h uberusb.h ../qcustomplot/qcustomplot.h $(DISTDIR)/
 	$(COPY_FILE) --parents main.cpp ../qcustomplot/qcustomplot.cpp uberusb.c mainwindow.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents mainwindow.ui $(DISTDIR)/
@@ -500,8 +505,14 @@ mocables: compiler_moc_header_make_all compiler_moc_source_make_all
 
 check: first
 
-compiler_rcc_make_all:
+compiler_rcc_make_all: qrc_resource.cpp
 compiler_rcc_clean:
+	-$(DEL_FILE) qrc_resource.cpp
+qrc_resource.cpp: resource.qrc \
+		AppoTech_logo_B_H.jpg \
+		AppoTech_logo_B_H.PNG
+	/mnt/ssd/qtttt/5.4/gcc_64/bin/rcc -name resource resource.qrc -o qrc_resource.cpp
+
 compiler_moc_header_make_all: moc_mainwindow.cpp moc_qcustomplot.cpp
 compiler_moc_header_clean:
 	-$(DEL_FILE) moc_mainwindow.cpp moc_qcustomplot.cpp
@@ -620,6 +631,7 @@ moc_mainwindow.cpp: /mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/QMainWindow \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QTimer \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qtimer.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qbasictimer.h \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QVector \
 		mainwindow.h
 	/mnt/ssd/qtttt/5.4/gcc_64/bin/moc $(DEFINES) -I/mnt/ssd/qtttt/5.4/gcc_64/mkspecs/linux-g++ -I/mnt/data/sdr/ubertoothp-master/firmware/host/pro2_spectrum -I/mnt/data/sdr/ubertoothp-master/firmware/host/qcustomplot -I/usr/include/libusb-1.0 -I/mnt/ssd/qtttt/5.4/gcc_64/include -I/mnt/ssd/qtttt/5.4/gcc_64/include/QtPrintSupport -I/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets -I/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui -I/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore mainwindow.h -o moc_mainwindow.cpp
 
@@ -1611,7 +1623,7 @@ compiler_yacc_impl_make_all:
 compiler_yacc_impl_clean:
 compiler_lex_make_all:
 compiler_lex_clean:
-compiler_clean: compiler_moc_header_clean compiler_uic_clean 
+compiler_clean: compiler_rcc_clean compiler_moc_header_clean compiler_uic_clean 
 
 ####### Compile
 
@@ -1731,6 +1743,7 @@ main.o: main.cpp mainwindow.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QTimer \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qtimer.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qbasictimer.h \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QVector \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/QApplication \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/qapplication.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qcoreapplication.h \
@@ -2348,6 +2361,7 @@ mainwindow.o: mainwindow.cpp mainwindow.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QTimer \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qtimer.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qbasictimer.h \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QVector \
 		ui_mainwindow.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QVariant \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/QAction \
@@ -2392,6 +2406,8 @@ mainwindow.o: mainwindow.cpp mainwindow.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/qpushbutton.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/qabstractbutton.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/QSpacerItem \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/QStatusBar \
+		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/qstatusbar.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/QVBoxLayout \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/QWidget \
 		../qcustomplot/qcustomplot.h \
@@ -2407,7 +2423,6 @@ mainwindow.o: mainwindow.cpp mainwindow.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/QMouseEvent \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/QWheelEvent \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtGui/QPixmap \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QVector \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QString \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/QDateTime \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtCore/qdatetime.h \
@@ -2718,7 +2733,6 @@ mainwindow.o: mainwindow.cpp mainwindow.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/qsplashscreen.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/qsplitter.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/qstackedwidget.h \
-		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/qstatusbar.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/qtextbrowser.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/qtoolbar.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtWidgets/qtoolbox.h \
@@ -2736,6 +2750,9 @@ mainwindow.o: mainwindow.cpp mainwindow.h \
 		/mnt/ssd/qtttt/5.4/gcc_64/include/QtPrintSupport/qtprintsupportversion.h \
 		uberusb.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o mainwindow.cpp
+
+qrc_resource.o: qrc_resource.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qrc_resource.o qrc_resource.cpp
 
 moc_mainwindow.o: moc_mainwindow.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mainwindow.o moc_mainwindow.cpp

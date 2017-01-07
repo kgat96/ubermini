@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/bmp">
+        <file>AppoTech_logo_B_H.jpg</file>
+        <file>AppoTech_logo_B_H.PNG</file>
+    </qresource>
+</RCC>

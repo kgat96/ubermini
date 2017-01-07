@@ -21,7 +21,7 @@
 
 #include "config.h"
 #include "cc.h"
-#include "usbhid.h"
+//#include "usbhid.h"
 
 void kputhex(unsigned int value, int digits)
 {
@@ -95,9 +95,10 @@ static void gpio_setup(void)
     gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP,
             PIN_USRLED | PIN_RXLED | PIN_TXLED | PIN_CSN | PIN_SCLK | PIN_PAEN | PIN_HGM);
 
-    BTGR_CLR(); TX_CLR(); RX_CLR();
+    gpio_mode_setup(GPIOA, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, PIN_GIO6);
+    gpio_mode_setup(GPIOB, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, PIN_GIO1);
 
-    TXLED_SET(); USRLED_SET(); RXLED_SET();DBGLED_SET();
+    BTGR_CLR(); TX_CLR(); RX_CLR();
 
     /* USB pins */
     gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO11 | GPIO12 );
@@ -203,7 +204,8 @@ static void tim_setup(void)
     timer_continuous_mode(TIM2);
 
     /* Period. */
-    timer_set_period(TIM2, 3276800000 - 1);
+    //timer_set_period(TIM2, 3276800000 - 1);
+    timer_set_period(TIM2, 1000000 - 1);
 
     /* Disable outputs. */
     timer_disable_oc_output(TIM2, TIM_OC1);
@@ -299,8 +301,6 @@ static int find_giac(u8 *buf)
     return 0;
 }
 
-extern uint8_t en_ww;
-
 int main(void)
 {
     gpio_setup();
@@ -309,28 +309,20 @@ int main(void)
 
     kputs("\nSpectrum start\n");
 
-    delay();
-
     cc_reset();
 
-    DBGLED_CLR();
-
     cc_init();
-
-    USRLED_CLR();
 
     delay(); // why ???
 
     /* Enable external high-speed oscillator 16MHz. */
-    rcc_osc_bypass_enable(RCC_HSE);
-    rcc_clock_setup_hse_3v3(&rcc_hse_16mhz_3v3[RCC_CLOCK_3V3_120MHZ]);
+    //rcc_osc_bypass_enable(RCC_HSE);
+    //rcc_clock_setup_hse_3v3(&rcc_hse_16mhz_3v3[RCC_CLOCK_3V3_120MHZ]);
 
-    rcc_periph_clock_enable(RCC_OTGFS);
-
-    TXLED_CLR();
+    //rcc_periph_clock_enable(RCC_OTGFS);
 
     /* Setup USART1 parameters. */
-    usart_set_baudrate(USART1, 2000000);
+    //usart_set_baudrate(USART1, 2000000);
 
     kputs("system clock init done!\n");
 
@@ -340,16 +332,14 @@ int main(void)
 
     dma_setup();
 
-    usb_setup();
+    //usb_setup();
 
     SPI_CR1(SPI3) |= SPI_CR1_SPE;
 
-    RXLED_CLR();
+    cc_rx_mode();
+    //cc_specan_mode();
 
-    //cc_rx_mode();
-    cc_specan_mode();
-
-    while (0) {
+    while (1) {
 //        kputhex(idle_rxbuf[0], 2);
 //        kputhex(idle_rxbuf[1], 2);
 //        kputhex(idle_rxbuf[2], 2);
@@ -365,16 +355,9 @@ int main(void)
 
         u8 spbuff[64];
 
-        if (en_ww) {
-            get_specan_date(spbuff, 64);
-            //usb_write_packet(spbuff, 64);
-            if (usb_write_packet(spbuff, 64) == 0) {
-                gpio_toggle(GPIOC, PIN_RXLED); /* LED on/off */
-                kputc('*');
-            }
-        }
+        get_specan_date(spbuff, 64);
+        //usb_write_packet(spbuff, 64);
 
-        usb_pull();
     }
 
     while (1) {
@@ -407,6 +390,12 @@ void tim2_isr(void)
         /* Clear compare interrupt flag. */
         TIM_SR(TIM2) = ~TIM_SR_UIF;
         ++clkn_high;
+
+        if (gpio_get(GPIOB, PIN_GIO1))
+            kputc('1');
+        else
+            kputc('0');
+
         gpio_toggle(GPIOC, PIN_USRLED);
     }
 

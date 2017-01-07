@@ -17,6 +17,7 @@
 #include <QSemaphore>
 #include <QDebug>
 #include <QTimer>
+#include <QVector>
 
 class QCustomPlot;
 
@@ -46,6 +47,8 @@ private:
     void run();
 };
 
+const static int FREQ_WIDTH = 84;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -68,6 +71,7 @@ private slots:
     void uberOpen();
     void uberClose();
     void bracketDataSlot();
+    void uberRefresh();
 };
 
 #endif // MAINWINDOW_H
