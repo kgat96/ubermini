@@ -187,7 +187,7 @@ void MainWindow::setupItemDemo(QCustomPlot *customPlot)
     customPlot->graph(1)->setPen(pen);
     customPlot->graph(1)->setData(x, y);
 
-    customPlot->yAxis->setRange(-100, -80);
+    customPlot->yAxis->setRange(-100, -50);
     customPlot->xAxis->grid()->setZeroLinePen(Qt::NoPen);
     customPlot->xAxis->setRange(2400, 2490);
 

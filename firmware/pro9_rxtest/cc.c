@@ -29,6 +29,7 @@
  * 3. The CC2400 needs CSN held low for the entire transaction which the
  *    LPC17xx SPI peripheral won't do without some workaround anyway.
  */
+
 static u32 cc_spi(u8 len, u32 data)
 {
     u32 msb = 1 << (len - 1);
@@ -87,16 +88,39 @@ static u8 cc_strobe(u8 reg)
     return cc_spi(8, reg);
 }
 
+
+static inline void wait_fslock(void)
+{
+    //while (!(cc_status() & FS_LOCK));
+    while (!gpio_get(GPIOB, PIN_GIO1));
+}
+
+static inline void wait_fsunlock(void)
+{
+    //while ((cc_status() & FS_LOCK));
+    while (gpio_get(GPIOB, PIN_GIO1));
+}
+
 /*
  * Warning: This should only be called when running on the internal oscillator.
  * Otherwise use clock_start().
  */
 void cc_reset(void)
 {
+    cc_strobe(SXOSCOFF);
+
+    delay();
+
     cc_set(MAIN, 0x0000);
-    while (cc_get(MAIN) != 0x0000);
+    while (cc_get(MAIN) != 0x0000) {
+        cc_puthex(cc_get(FSMSTATE), 2);
+        delay();
+    }
     cc_set(MAIN, 0x8000);
-    while (cc_get(MAIN) != 0x8000);
+    while (cc_get(MAIN) != 0x8000) {
+        cc_puthex(cc_get(FSMSTATE), 2);
+        delay();
+    }
 
     cc_set(MAIN, 0x8002);
 }
@@ -109,12 +133,15 @@ static void clock_init(void)
 
     cc_strobe(SXOSCOFF);
 
-    cc_set(IOCFG, (45 << 9) | (60 << 3));
-    //cc_set(IOCFG, (61 << 9) | (61 << 3));
-    //cc_puthex((cc_get(IOCFG) >> 3) & 0x3f, 2);cc_puthex((cc_get(IOCFG) >> 9) & 0x3f, 2);
+    cc_set(IOCFG, (GIO_CLK_16M << 9) | (GIO_LOCK_STATUS << 3));
+
     cc_strobe(SXOSCON);
 
-    while (!(cc_status() & XOSC16M_STABLE));
+    while (!(cc_status() & XOSC16M_STABLE)) {
+        //cc_puthex(cc_get(FSMSTATE), 2);
+    };
+
+    cc_puthex(cc_get(FSMSTATE), 2);
 
     cc_debug("cchip XOSC16M stable done\n");
 }
@@ -165,12 +192,101 @@ volatile u32 rx_err;
 u8 *active_rxbuf = &rxbuf1[0];
 u8 *idle_rxbuf = &rxbuf2[0];
 
-volatile u32 mode = MODE_IDLE;
-volatile u32 requested_mode = MODE_IDLE;
-volatile u32 modulation = MOD_BT_BASIC_RATE;
-volatile u16 channel = 2441;
+/* operation mode */
+volatile u8 mode = MODE_RX_SYMBOLS;
+volatile u8 requested_mode = MODE_IDLE;
+volatile u8 modulation = MOD_BT_BASIC_RATE;
+
+/* specan stuff */
 volatile u16 low_freq = 2400;
 volatile u16 high_freq = 2483;
+
+/* hopping stuff */
+volatile u8  hop_mode = HOP_SWEEP;
+volatile u8  do_hop = 0;                  // set by timer interrupt
+volatile u16 channel = 2441;
+volatile u16 hop_direct_channel = 0;      // for hopping directly to a channel
+volatile u16 hop_timeout = 158;
+volatile u16 requested_channel = 2402;
+volatile u16 saved_request = 0;
+
+u64 syncword;
+u8 afh_enabled;
+u8 afh_map[10];
+u8 used_channels;
+
+volatile u32 clkn = 0;
+volatile u32 last_hop = 0;
+
+volatile u32 clkn_offset = 0;
+volatile u16 clk100ns_offset = 0;
+
+void cc_clkn_handler(void)
+{
+    clkn += clkn_offset + 1;
+    clkn_offset = 0;
+
+    /* NONE or SWEEP -> 25 Hz */
+    if (hop_mode == HOP_NONE || hop_mode == HOP_SWEEP) {
+        if ((clkn & 0x7f) == 0) {
+            do_hop = 1;
+        }
+    }
+}
+
+void cc_hop(void)
+{
+    static char max_rssi = -120;
+
+    if (!do_hop) {
+        char rssi = (int8_t)(cc_get(RSSI) >> 8);
+        if (rssi > max_rssi) max_rssi = rssi;
+        return;
+    } else {
+        cc_puthex(channel, 2);
+        cc_putchar('-');
+        cc_puthex(max_rssi*(-1), 2);
+        cc_putchar('\n');cc_putchar('\r');
+        max_rssi = -120;
+    }
+
+    do_hop = 0;
+    last_hop = clkn;
+
+    // No hopping, if channel is set correctly, do nothing
+    if (hop_mode == HOP_NONE) {
+        if (cc_get(FSDIV) == (channel - 1))
+            return;
+    }
+    /* only hop to currently used channels if AFH is enabled
+     */
+    else if (hop_mode == HOP_SWEEP) {
+        do {
+            channel += 32;
+            if (channel > 2480)
+                channel -= 79;
+        } while ( used_channels != 0 && afh_enabled && !( afh_map[(channel-2402)/8] & 0x1<<((channel-2402)%8) ) );
+    }
+
+    /* IDLE mode, but leave amp on, so don't call cc2400_idle(). */
+    cc_strobe(SRFOFF);
+    wait_fsunlock();
+
+    /* return */
+    if(mode == MODE_TX_SYMBOLS)
+        cc_set(FSDIV, channel);
+    else
+        cc_set(FSDIV, channel - 1);
+
+    /* Wait for lock */
+    cc_strobe(SFSON);
+    wait_fslock();
+
+    if(mode == MODE_TX_SYMBOLS)
+        cc_strobe(STX);
+    else
+        cc_strobe(SRX);
+}
 
 /* start un-buffered rx */
 void cc_rx_mode(void)
@@ -198,22 +314,16 @@ void cc_rx_mode(void)
 
     while (!(cc_status() & XOSC16M_STABLE));
 
-    cc_debug("tt1\n");
-    delay();delay();delay();delay();delay();delay();
-    cc_debug("tt2\n");
-
     cc_strobe(SFSON);
 
-    delay();
-
-    while (!(cc_status() & FS_LOCK));
-
-    cc_debug("tt3\n");
+    wait_fslock();
 
     cc_strobe(SRX);
 
     PAEN_SET();
     HGM_SET();
+
+    cc_debug("cchip rx mode\n");
 }
 
 void cc_specan_mode(void)
@@ -229,12 +339,14 @@ void cc_specan_mode(void)
 
     while (!(cc_status() & XOSC16M_STABLE));
 
-    while ((cc_status() & FS_LOCK));
+    cc_strobe(SRFOFF);
+
+    wait_fsunlock();
 
     PAEN_SET();
     HGM_SET();
 
-    cc_debug("cc entry specan mode\n");
+    cc_debug("cchip entry specan mode\n");
 }
 
 
@@ -243,21 +355,38 @@ void get_specan_date(u8 *buf, int len)
     static int f = 2400;
     int i = 0;
 
+    cc_debug("get_specan\n");
+
      while(len > 0) {
         len -= 2;
         cc_set(FSDIV, f - 1);
         cc_strobe(SFSON);
-        while (!(cc_status() & FS_LOCK));
+        wait_fslock();
         cc_strobe(SRX);
+
+        {
+            u32 k;
+            for (k = 0; k < 10000; k++) { /* Wait a bit. */
+                __asm__("nop");
+            }
+        }
 
         buf[i++] = f - low_freq;
         buf[i++] = cc_get(RSSI) >> 8;
+
+        {
+            char t = (char)buf[i-1];
+            t *= -1;
+
+            cc_puthex(t, 2); cc_putchar('\n');cc_putchar('\r');
+        }
+
 
         f += 1;
         if (f > high_freq) f = low_freq;
 
         cc_strobe(SRFOFF);
-        while ((cc_status() & FS_LOCK));
+        wait_fsunlock();
     }
 }
 
