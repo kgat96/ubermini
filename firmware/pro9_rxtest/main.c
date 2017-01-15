@@ -23,6 +23,8 @@
 #include "cc.h"
 #include "usbhid.h"
 
+#include <string.h>
+
 void kputhex(unsigned int value, int digits)
 {
     while (digits-- > 0) {
@@ -264,6 +266,65 @@ static int find_giac(u8 *buf)
 
 static volatile u32 tx_count = 0;
 
+/*
+ * USB packet for Bluetooth RX (64 total bytes)
+ */
+typedef struct {
+    u8     pkt_type;
+    u8     status;
+    u8     channel;
+    u8     clkn_high;
+    u32    clk100ns;
+    char   rssi_max;   // Max RSSI seen while collecting symbols in this packet
+    char   rssi_min;   // Min ...
+    char   rssi_avg;   // Average ...
+    u8     rssi_count; // Number of ... (0 means RSSI stats are invalid)
+    u8     reserved[2];
+    u8     data[DMA_SIZE];
+} usb_pkt_rx;
+
+usb_pkt_rx fifo[128];
+
+volatile u32 head = 0;
+volatile u32 tail = 0;
+
+void queue_init(void)
+{
+    head = 0;
+    tail = 0;
+    memset(fifo, 0, sizeof(fifo));
+}
+
+usb_pkt_rx *fifo_enqueue(void)
+{
+    u8 h = head & 0x7F;
+    u8 t = tail & 0x7F;
+    u8 n = (t + 1) & 0x7F;
+
+    /* fail if queue is full */
+    if (h == n) {
+        return NULL;
+    }
+
+    ++tail;
+    return &fifo[t];
+}
+
+usb_pkt_rx *fifo_dequeue(void)
+{
+    u8 h = head & 0x7F;
+    u8 t = tail & 0x7F;
+
+    /* fail if queue is empty */
+    if (h == t) {
+        return NULL;
+    }
+
+    ++head;
+    return &fifo[h];
+}
+
+
 int main(void)
 {
     gpio_setup();
@@ -303,7 +364,7 @@ int main(void)
 
     dma_setup();
 
-    //usb_setup();
+    usb_setup();
 
     SPI_CR1(SPI3) |= SPI_CR1_SPE;
 
@@ -313,6 +374,23 @@ int main(void)
     //cc_specan_mode();
 
     DBGLED_SET();
+
+    while(0) {
+        extern vu8 en_ww;
+
+        u8 spbuff[64];
+
+        if (en_ww) {
+            get_specan_date(spbuff, 64);
+            //usb_write_packet(spbuff, 64);
+            if (usb_write_packet(spbuff, 64) == 0) {
+                gpio_toggle(GPIOC, PIN_RXLED); /* LED on/off */
+                kputc('*');
+            }
+        }
+
+        usb_pull();
+    }
 
     while (1) {
 //        kputhex(idle_rxbuf[0], 2);
@@ -330,20 +408,30 @@ int main(void)
         while(!tx_count) {
             /* If timer says time to hop, do it. */
             cc_hop();
+            usb_pull();
         }
 
         RXLED_SET();
 
-//        {
-//            int i = 0;
-//
-//            for (; i < 50; i++)
-//                kputc(idle_rxbuf[i]);
+//        if (find_giac(idle_rxbuf)) {
+//            gpio_toggle(GPIOC, PIN_TXLED); /* LED on/off */
+//            kputc('*');
 //        }
 
-        if (find_giac(idle_rxbuf)) {
-            gpio_toggle(GPIOC, PIN_TXLED); /* LED on/off */
-            kputc('*');
+        {
+            extern vu8 en_ww;
+            static u32 count;
+            usb_pkt_rx pkt;
+
+            ((u32 *)(&pkt))[0] = count++;
+
+            memcpy(pkt.data, idle_rxbuf, 50);
+
+            if (en_ww)
+            if (usb_write_packet(&pkt, 64) == 0) {
+                gpio_toggle(GPIOC, PIN_TXLED); /* LED on/off */
+                kputc('*');
+            }
         }
 
         if (tx_count > 1) {

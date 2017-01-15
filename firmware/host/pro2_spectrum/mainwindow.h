@@ -18,6 +18,9 @@
 #include <QDebug>
 #include <QTimer>
 #include <QVector>
+#include <QMutex>
+#include <QMutexLocker>
+#include <QFile>
 
 class QCustomPlot;
 
@@ -57,9 +60,12 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    QMutex mQueueMutex;
+
     void setupItemDemo(QCustomPlot *customPlot);
     void pushUberPacket(quint16 *buf, int len);
     void updataPlot(void);
+    void dump(quint8 *buf, int len);
 
 private:
     Ui::MainWindow *ui;
@@ -67,11 +73,18 @@ private:
     PlotThread mPlotThread;
     QTimer dataTimer;
 
+    QFile mDumpFile;
+    bool mDumpFileStatus;
+
 private slots:
     void uberOpen();
     void uberClose();
     void bracketDataSlot();
     void uberRefresh();
+
+    void setTimerValue(int);
+    void setDompFileStatus(int);
+
 };
 
 #endif // MAINWINDOW_H

@@ -26,7 +26,8 @@ void PlotThread::run()
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    mDumpFileStatus(false)
 {
     ui->setupUi(this);
 
@@ -37,23 +38,55 @@ MainWindow::MainWindow(QWidget *parent) :
     mPlotThread.setFunc(&MainWindow::updataPlot);
     mPlotThread.start();
 
+    mDumpFile.setFileName(QString("dump_%1.dat").
+                          arg(QDateTime::currentDateTime().toString("hhmmss")));
+    if (!mDumpFile.open(QIODevice::WriteOnly)) {
+        qDebug() << "Dump file creater error";
+    }
+
     connect(ui->mButtonOpen, SIGNAL(clicked()), this, SLOT(uberOpen()));
     connect(ui->mButtonClose, SIGNAL(clicked()), this, SLOT(uberClose()));
     connect(ui->mButtonRefresh, SIGNAL(clicked()), this, SLOT(uberRefresh()));
 
+    connect(ui->mRefreshSlider, SIGNAL(valueChanged(int)), this, SLOT(setTimerValue(int)));
+    connect(ui->mDumpBox, SIGNAL(stateChanged(int)), this, SLOT(setDompFileStatus(int)));
+
     // setup a timer that repeatedly calls MainWindow::bracketDataSlot:
     connect(&dataTimer, SIGNAL(timeout()), this, SLOT(bracketDataSlot()));
-    dataTimer.start(11); // Interval 0 means to refresh as fast as possible
+    dataTimer.start(20); // Interval 0 means to refresh as fast as possible
 }
 
 MainWindow::~MainWindow()
 {
+    if (mDumpFile.isOpen()) {
+        mDumpFile.flush();
+        mDumpFile.close();
+    }
+
     delete ui;
+}
+
+void MainWindow::setTimerValue(int a)
+{
+    //qDebug() << "setTimerValue " << a;
+    ui->mFpsLabel->setText(QString("%1 FPS").arg(1000/a));
+    dataTimer.setInterval(a);
+}
+
+void MainWindow::setDompFileStatus(int a)
+{
+    qDebug() << "setDompFileStatus " << a;
+    mDumpFileStatus = !!a;
 }
 
 void MainWindow::bracketDataSlot()
 {
     updataPlot();
+}
+
+void MainWindow::dump(quint8 *buf, int len)
+{
+
 }
 
 void MainWindow::updataPlot(void)
@@ -63,8 +96,12 @@ void MainWindow::updataPlot(void)
     static QVector<double> sMax(n);
     static QVector<int> sDisTime(n);
 
-    if(mUberQueue.size() > n) {
+//    {
+//        QMutexLocker locker(&mQueueMutex);
+//        mUberQueue.clear();
+//    }
 
+    if(mUberQueue.size() > n) {
         //qDebug() << "updataPlot";
         ui->mQCustomPlot->removeGraph(1);
         ui->mQCustomPlot->addGraph();
@@ -77,7 +114,13 @@ void MainWindow::updataPlot(void)
         QVector<double> x(n), y(n);
 
         for (int i=0; i<n; ++i) {
-            quint16 data = mUberQueue.dequeue();
+            quint16 data;
+
+            {
+                QMutexLocker locker(&mQueueMutex);
+                data = mUberQueue.dequeue();
+            }
+
             //quint16 data = 0;
             int freq = (int) (data & 0xff);
             signed char dbm = (signed char) (data >> 8) ;
@@ -131,8 +174,25 @@ void MainWindow::updataPlot(void)
 
 void MainWindow::pushUberPacket(quint16 *buf, int len)
 {
-    for (int i = 0; i < len; ++i) {
-        mUberQueue.enqueue(buf[i]);
+    QMutexLocker locker(&mQueueMutex);
+
+    if (mDumpFileStatus) {
+        int count = 0;
+        quint32 check = ((quint32 *)buf)[0];
+        for(; count < len; count += 64) {
+            quint32 *pb = (quint32 *)((quint8 *)buf + count);
+            if (check == pb[0]) {
+                mDumpFile.write((char *)pb + 14, 50);
+            } else {
+                //qDebug() << "packet index error ..";
+            }
+            check ++;
+        }
+
+    } else {
+        for (int i = 0; i < len; ++i) {
+            mUberQueue.enqueue(buf[i]);
+        }
     }
 }
 
@@ -150,6 +210,7 @@ void MainWindow::uberClose()
 
 void MainWindow::uberRefresh()
 {
+    QMutexLocker locker(&mQueueMutex);
     qDebug() << "uberRefresh";
     mUberQueue.clear();
 }

@@ -68,6 +68,42 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="mDumpBox">
+        <property name="text">
+         <string>DumpFile</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSlider" name="mRefreshSlider">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="value">
+         <number>20</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="mFpsLabel">
+        <property name="text">
+         <string>0 FPS</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="verticalSpacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>

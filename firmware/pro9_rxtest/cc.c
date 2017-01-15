@@ -243,10 +243,10 @@ void cc_hop(void)
         if (rssi > max_rssi) max_rssi = rssi;
         return;
     } else {
-        cc_puthex(channel, 2);
-        cc_putchar('-');
-        cc_puthex(max_rssi*(-1), 2);
-        cc_putchar('\n');cc_putchar('\r');
+        //cc_puthex(channel, 2);
+        //cc_putchar('-');
+        //cc_puthex(max_rssi*(-1), 2);
+        //cc_putchar('\n');cc_putchar('\r');
         max_rssi = -120;
     }
 
@@ -355,7 +355,7 @@ void get_specan_date(u8 *buf, int len)
     static int f = 2400;
     int i = 0;
 
-    cc_debug("get_specan\n");
+    //cc_debug("get_specan\n");
 
      while(len > 0) {
         len -= 2;
@@ -366,7 +366,7 @@ void get_specan_date(u8 *buf, int len)
 
         {
             u32 k;
-            for (k = 0; k < 10000; k++) { /* Wait a bit. */
+            for (k = 0; k < 30000; k++) { /* Wait a bit. */
                 __asm__("nop");
             }
         }
@@ -378,7 +378,7 @@ void get_specan_date(u8 *buf, int len)
             char t = (char)buf[i-1];
             t *= -1;
 
-            cc_puthex(t, 2); cc_putchar('\n');cc_putchar('\r');
+            //cc_puthex(t, 2); cc_putchar('\n');cc_putchar('\r');
         }
 
 
