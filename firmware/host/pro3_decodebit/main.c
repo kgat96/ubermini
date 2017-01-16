@@ -3,14 +3,14 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <fcntl.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include <signal.h>
 
 #include <libusb-1.0/libusb.h>
 
 #include <btbb.h>
-
-
 
 /* RX USB packet parameters */
 #define PKT_LEN       64
@@ -60,7 +60,7 @@ static int find_giac(uint8_t *buf)
 int main(int argc, char *argv[])
 {
 
-    char buffer[SYM_LEN];
+    uint8_t buffer[SYM_LEN];
 
     char syms[BANK_LEN];
 
@@ -88,6 +88,10 @@ int main(int argc, char *argv[])
         offset = btbb_find_ac(syms, BANK_LEN - 64, LAP_ANY, 2, &pkt);
         if (offset >= 0)
             printf("find accccccc ..%d ..!\n", offset);
+
+
+
+
     }
 
     printf("done\n");

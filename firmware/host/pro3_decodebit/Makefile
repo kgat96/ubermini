@@ -1,14 +1,15 @@
 CC=gcc
-CFLAGS=-I. -Wall -I/usr/include/libusb-1.0  -lusb-1.0 -lbtbb
+CFLAGS=-I. -Wall -I../libbtbb
+LFLAGS=../libbtbb/libbtbb.a
 OBJ = main.o
 
 .PHONY: uber
 
-%.o: %.c 
+%.o: %.c
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 uber: $(OBJ)
-	$(CC) -o $@ $^ $(CFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LFLAGS)
 
 clean:
 	rm *.o uber

@@ -1,0 +1,11 @@
+# host and firmware
+*.o
+*.so.*
+
+# Source code indexing files.
+tags
+tags.log
+TAGS
+TAGS.log
+cscope*
+ID
