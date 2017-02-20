@@ -1,6 +1,13 @@
 # host and firmware
 *.o
 *.so.*
+*.d
+*.elf
+.*
+*.list
+*.map
+*.hex
+*.bin
 
 # Source code indexing files.
 tags

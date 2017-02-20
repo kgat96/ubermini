@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-I. -Wall -I../libbtbb
-LFLAGS=../libbtbb/libbtbb.a
+#LFLAGS=../libbtbb/libbtbb.a
 OBJ = main.o
 
 .PHONY: uber
@@ -12,4 +12,4 @@ uber: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS) $(LFLAGS)
 
 clean:
-	rm *.o uber
+	rm *.o uber uber.exe
