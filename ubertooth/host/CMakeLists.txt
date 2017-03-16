@@ -25,8 +25,8 @@ project(ubertooth_all)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules
 	CACHE STRING "CMake module path")
 
-set(MAJOR_VERSION 0 CACHE INT "libUbertooth major version number")
-set(MINOR_VERSION 3 CACHE INT "libUbertooth minor version number")
+set(MAJOR_VERSION 1 CACHE INT "libUbertooth major version number")
+set(MINOR_VERSION 0 CACHE INT "libUbertooth minor version number")
 set( VERSION ${MAJOR_VERSION}.${MINOR_VERSION} )
 add_definitions( -DVERSION="${VERSION}" )
 
@@ -57,6 +57,7 @@ endif( ${BUILD_STATIC_BINS} AND NOT ${BUILD_STATIC_LIB} )
 
 add_subdirectory(libubertooth)
 add_subdirectory(ubertooth-tools)
+add_subdirectory(doc)
 add_subdirectory(misc)
 if(${ENABLE_PYTHON})
 	add_subdirectory(python)

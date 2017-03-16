@@ -338,38 +338,6 @@ int stream_rx_file(ubertooth_t* ut, FILE* fp, rx_callback cb, void* cb_args)
 	}
 }
 
-/* Receive and process packets. For now, returning from
- * stream_rx_usb() means that UAP and clocks have been found, and that
- * hopping should be started. A more flexible framework would be
- * nice. */
-void rx_live(ubertooth_t* ut, btbb_piconet* pn, int timeout)
-{
-	int r = btbb_init(max_ac_errors);
-	if (r < 0)
-		return;
-
-	if (timeout)
-		ubertooth_set_timeout(ut, timeout);
-
-	if (pn != NULL && btbb_piconet_get_flag(pn, BTBB_CLK27_VALID))
-		cmd_set_clock(ut->devh, 0);
-	else {
-		stream_rx_usb(ut, cb_br_rx, pn);
-		/* Allow pending transfers to finish */
-		sleep(1);
-	}
-	/* Used when follow_pn is preset OR set by stream_rx_usb above
-	 * i.e. This cannot be rolled in to the above if...else
-	 */
-	if (pn != NULL && btbb_piconet_get_flag(pn, BTBB_CLK27_VALID)) {
-		ut->stop_ubertooth = 0;
-		// cmd_stop(ut->devh);
-		cmd_set_bdaddr(ut->devh, btbb_piconet_get_bdaddr(pn));
-		cmd_start_hopping(ut->devh, btbb_piconet_get_clk_offset(pn), 0);
-		stream_rx_usb(ut, cb_br_rx, pn);
-	}
-}
-
 void rx_afh(ubertooth_t* ut, btbb_piconet* pn, int timeout)
 {
 	int r = btbb_init(max_ac_errors);
@@ -445,20 +413,6 @@ void rx_afh_r(ubertooth_t* ut, btbb_piconet* pn, int timeout __attribute__((unus
 	}
 
 	ubertooth_bulk_thread_stop();
-}
-
-/* sniff one target LAP until the UAP is determined */
-void rx_file(FILE* fp, btbb_piconet* pn)
-{
-	int r = btbb_init(max_ac_errors);
-	if (r < 0)
-		return;
-
-	ubertooth_t* ut = ubertooth_init();
-	if (ut == NULL)
-		return;
-
-	stream_rx_file(ut, fp, cb_br_rx, pn);
 }
 
 void rx_btle_file(FILE* fp)
@@ -628,28 +582,46 @@ ubertooth_t* ubertooth_start(int ubertooth_device)
 	return ut;
 }
 
-int ubertooth_check_api(ubertooth_t *ut) {
-	int r;
+int ubertooth_get_api(ubertooth_t *ut, uint16_t *version) {
+	int result;
+	libusb_device* dev;
+	struct libusb_device_descriptor desc;
+	dev = libusb_get_device(ut->devh);
+	result = libusb_get_device_descriptor(dev, &desc);
+	if (result < 0) {
+		if (result == LIBUSB_ERROR_PIPE) {
+			fprintf(stderr, "control message unsupported\n");
+		} else {
+			show_libusb_error(result);
+		}
+		return result;
+	}
+	*version = desc.bcdDevice;
+	return 0;
+}
 
-	r = cmd_api_version(ut->devh);
-	if (r < 0) {
-		fprintf(stderr, "Ubertooth running very old firmware found.\n");
+int ubertooth_check_api(ubertooth_t *ut) {
+	uint16_t version;
+	int result;
+	result = ubertooth_get_api(ut, &version);
+	if (result < 0) {
+		return result;
+	}
+
+	if (version < UBERTOOTH_API_VERSION) {
+		fprintf(stderr, "Ubertooth API version %x.%02x found, libubertooth %s requires %x.%02x.\n",
+				(version>>8)&0xFF, version&0xFF, VERSION,
+				(UBERTOOTH_API_VERSION>>8)&0xFF, UBERTOOTH_API_VERSION&0xFF);
 		fprintf(stderr, "Please upgrade to latest released firmware.\n");
+		fprintf(stderr, "See: https://github.com/greatscottgadgets/ubertooth/wiki/Firmware\n");
 		ubertooth_stop(ut);
 		return -1;
 	}
-	else if (r < UBERTOOTH_API_VERSION) {
-		fprintf(stderr, "Ubertooth API version %d found, libubertooth requires %d.\n",
-				r, UBERTOOTH_API_VERSION);
-		fprintf(stderr, "Please upgrade to latest released firmware.\n");
-		ubertooth_stop(ut);
-		return -1;
-	}
-	else if (r > UBERTOOTH_API_VERSION) {
-		fprintf(stderr, "Ubertooth API version %d found, newer than that supported by libubertooth (%d).\n",
-				r, UBERTOOTH_API_VERSION);
+	else if (version > UBERTOOTH_API_VERSION) {
+		fprintf(stderr, "Ubertooth API version %x.%02x found, newer than that supported by libubertooth (%x.%02x).\n",
+				(version>>8)&0xFF, version&0xFF,
+				(UBERTOOTH_API_VERSION>>8)&0xFF, UBERTOOTH_API_VERSION&0xFF);
 		fprintf(stderr, "Things will still work, but you might want to update your host tools.\n");
 	}
-
 	return 0;
 }

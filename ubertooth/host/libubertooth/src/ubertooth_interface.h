@@ -25,7 +25,7 @@
 #include <stdint.h>
 
 // increment on every API change
-#define UBERTOOTH_API_VERSION 1
+#define UBERTOOTH_API_VERSION 0x0102
 
 #define DMA_SIZE 50
 
@@ -104,7 +104,7 @@ enum ubertooth_usb_commands {
 	UBERTOOTH_AFH                = 61,
 	UBERTOOTH_HOP                = 62,
 	UBERTOOTH_TRIM_CLOCK         = 63,
-	UBERTOOTH_GET_API_VERSION    = 64,
+	// UBERTOOTH_GET_API_VERSION    = 64,
 	UBERTOOTH_WRITE_REGISTERS    = 65,
 	UBERTOOTH_READ_ALL_REGISTERS = 66,
 	UBERTOOTH_RX_GENERIC         = 67,
@@ -162,9 +162,9 @@ typedef struct {
 	u8     channel;
 	u8     clkn_high;
 	u32    clk100ns;
-	char   rssi_max;   // Max RSSI seen while collecting symbols in this packet
-	char   rssi_min;   // Min ...
-	char   rssi_avg;   // Average ...
+	int8_t rssi_max;   // Max RSSI seen while collecting symbols in this packet
+	int8_t rssi_min;   // Min ...
+	int8_t rssi_avg;   // Average ...
 	u8     rssi_count; // Number of ... (0 means RSSI stats are invalid)
 	u8     reserved[2];
 	u8     data[DMA_SIZE];

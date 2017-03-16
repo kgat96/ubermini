@@ -264,7 +264,7 @@ void cc2400_init()
  * We're bit-banging because:
  *
  * 1. We're using one SPI peripheral for the CC2400's unbuffered data
- *    interface.
+ *    interace.
  * 2. We're saving the second SPI peripheral for an expansion port.
  * 3. The CC2400 needs CSN held low for the entire transaction which the
  *    LPC17xx SPI peripheral won't do without some workaround anyway.
@@ -489,7 +489,7 @@ void clock_start()
 	/* switch to main oscillator */
 	CLKSRCSEL = 1;
 
-	/* configure PLL0 Fcco = 400MHz */
+	/* configure PLL0 */
 	PLL0CFG = (MSEL0 << 0) | (NSEL0 << 16);
 	PLL0FEED_SEQUENCE;
 
@@ -498,7 +498,7 @@ void clock_start()
 	PLL0FEED_SEQUENCE;
 	while (!(PLL0STAT & PLL0STAT_PLLE0_STAT));
 
-	/* set CPU clock divider cclk 400/(3+1) */
+	/* set CPU clock divider */
 	CCLKCFG = CCLKSEL;
 
 	/* connect PLL0 */

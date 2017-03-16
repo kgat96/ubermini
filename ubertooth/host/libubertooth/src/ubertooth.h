@@ -77,6 +77,7 @@ ubertooth_t* ubertooth_init();
 int ubertooth_connect(ubertooth_t* ut, int ubertooth_device);
 ubertooth_t* ubertooth_start(int ubertooth_device);
 void ubertooth_stop(ubertooth_t* ut);
+int ubertooth_get_api(ubertooth_t *ut, uint16_t *version);
 int ubertooth_check_api(ubertooth_t *ut);
 void ubertooth_set_timeout(ubertooth_t* ut, int seconds);
 
@@ -88,8 +89,6 @@ void ubertooth_bulk_thread_stop();
 
 int stream_rx_file(ubertooth_t* ut,FILE* fp, rx_callback cb, void* cb_args);
 
-void rx_live(ubertooth_t* ut, btbb_piconet* pn, int timeout);
-void rx_file(FILE* fp, btbb_piconet* pn);
 void rx_dump(ubertooth_t* ut, int full);
 void rx_btle(ubertooth_t* ut);
 void rx_btle_file(FILE* fp);

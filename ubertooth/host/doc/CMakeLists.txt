@@ -1,6 +1,7 @@
-# Copyright 2012 Michael Ossmann, Dominic Spill
 #
-# This file is part of Project Ubertooth.
+# Copyright 2017 Dominic Spill
+#
+# This file is part of Ubertooth.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,24 +17,22 @@
 # along with this program; see the file COPYING.  If not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street,
 # Boston, MA 02110-1301, USA.
+#
 
-INSTALL ?= /usr/bin/install
-PYTHON ?= /usr/bin/env python
 
-INSTALL_DIR ?= /usr/bin
+project(libubertooth C)
+set(PACKAGE documentation)
 
-EXECUTABLE_FILES = btaptap
+add_subdirectory(man)
 
-all: pcapdump
+# Create uninstall target
+if(NOT ubertooth_all_SOURCE_DIR)
+configure_file(
+    ${PROJECT_SOURCE_DIR}/../cmake/cmake_uninstall.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
+@ONLY)
 
-pcapdump:
-	$(PYTHON) setup.py build
-
-clean:
-	rm -rf build
-
-install: pcapdump
-	$(PYTHON) setup.py install
-	$(INSTALL) -m 0755 $(EXECUTABLE_FILES) $(INSTALL_DIR)
-
-.PHONY: all clean install pcapdump
+add_custom_target(uninstall
+    ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
+)
+endif()

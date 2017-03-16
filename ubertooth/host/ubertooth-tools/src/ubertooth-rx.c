@@ -28,23 +28,33 @@
 
 static void usage()
 {
-	printf("ubertooth-rx - passive Bluetooth discovery/decode\n");
-	printf("Usage:\n");
-	printf("\t-h this help\n");
-	printf("\t-V print version information\n");
-	printf("\t-i filename\n");
-	printf("\t-l <LAP> to decode (6 hex), otherwise sniff all LAPs\n");
-	printf("\t-u <UAP> to decode (2 hex), otherwise try to calculate (requires LAP)\n");
-	printf("\t-U <0-7> set ubertooth device to use\n");
-	printf("\t-r<filename> capture packets to PCAPNG file\n");
+	printf("ubertooth-rx - passive Classic Bluetooth discovery/decode\n");
+	printf("\n");
+	printf("Example usage:\n");
+	printf("\tubertooth-rx -- sniff for all LAPs\n");
+	printf("\tubertooth-rx -l <lap> -- calculate UAP for a given LAP\n");
+	printf("\tubertooth-rx -l <lap> -u <uap> -- calculate clock and follow piconet\n");
+	printf("\tubertooth-rx -z -t 20 -- survey mode: discover all LAPs+UAPs for 20 seconds\n");
+	printf("\n");
+	printf("Major modes:\n");
+	printf("\t-l <LAP> to decode (6 hex) - if not specified sniff all LAPs\n");
+	printf("\t-u <UAP> to decode (2 hex) - if not specified calculate UAP (requires LAP)\n");
+	printf("\t-z Survey mode - discover and list piconets (implies -s, interrupt with ctrl-C)\n");
+	printf("\t-i <filename> input file - if not specified use Ubertooth for live capture\n");
+	printf("\n");
+	printf("Configuration:\n");
+	printf("\t-c <BT Channel> set a fixed bluetooth channel [Default: 39]\n");
+	printf("\t-e max_ac_errors (default: %d, range: 0-4)\n", max_ac_errors);
+	printf("\t-t <SECONDS> sniff timeout - 0 means no timeout [Default: 0]\n");
+	printf("\n");
+	printf("Output options:\n");
+	printf("\t-r<filename> capture packets to PcapNG file\n");
 	printf("\t-q<filename> capture packets to PCAP file\n");
 	printf("\t-d<filename> dump packets to binary file\n");
-	printf("\t-e max_ac_errors (default: %d, range: 0-4)\n", max_ac_errors);
-	printf("\t-c <BT Channel> set a fixed bluetooth channel [Default: 39]\n");
-	printf("\t-s reset channel scanning\n");
-	printf("\t-t <SECONDS> sniff timeout - 0 means no timeout [Default: 0]\n");
-	printf("\t-z Survey mode - discover and list piconets (implies -s -t 20)\n");
-	printf("\nIf an input file is not specified, an Ubertooth device is used for live capture.\n");
+	printf("\n");
+	printf("Miscellaneous:\n");
+	printf("\t-V print version information\n");
+	printf("\t-U <0-7> set ubertooth device to use\n");
 }
 
 int main(int argc, char* argv[])
@@ -53,13 +63,12 @@ int main(int argc, char* argv[])
 	int survey_mode = 0;
 	int r;
 	int timeout = 0;
-	int reset_scan = 0;
 	char* end;
-	char ubertooth_device = -1;
+	int ubertooth_device = -1;
 	btbb_piconet* pn = NULL;
 	uint32_t lap = 0;
 	uint8_t uap = 0;
-	uint8_t channel = 39;
+	uint16_t channel = 9999;
 
 	ubertooth_t* ut = ubertooth_init();
 
@@ -115,7 +124,7 @@ int main(int argc, char* argv[])
 			max_ac_errors = atoi(optarg);
 			break;
 		case 's':
-			++reset_scan;
+			fprintf(stderr, "sweep mode is now the default and the -s argument is deprecated\n");
 			break;
 		case 't':
 			timeout = atoi(optarg);
@@ -125,6 +134,7 @@ int main(int argc, char* argv[])
 			break;
 		case 'c':
 			channel = atoi(optarg);
+			channel = channel + 2402;
 			break;
 		case 'V':
 			print_version();
@@ -183,14 +193,7 @@ int main(int argc, char* argv[])
 	}
 
 	if (infile == NULL) {
-		/* Scan all frequencies. Same effect as
-		 * ubertooth-utils -c9999. This is necessary after
-		 * following a piconet. */
-		if (reset_scan) {
-			cmd_set_channel(ut->devh, 9999);
-		} else {
-			cmd_set_channel(ut->devh, 2402 + channel);
-		}
+		cmd_set_channel(ut->devh, channel);
 
 		/* Clean up on exit. */
 		register_cleanup_handler(ut, 0);
