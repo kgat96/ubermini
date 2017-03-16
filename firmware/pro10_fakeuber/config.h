@@ -96,5 +96,8 @@ void kputhex(unsigned int value, int digits);
 void kputs(char *s);
 void delay(void);
 
+#define U1_VENDORID    0x1d50
+#define U1_PRODUCTID   0x6002
+
 #endif
 
