@@ -249,7 +249,7 @@ int cmd_get_channel(struct libusb_device_handle* devh)
 	r = libusb_control_transfer(devh, CTRL_IN, UBERTOOTH_GET_CHANNEL, 0, 0,
 			result, 2, 1000);
 	if (r == LIBUSB_ERROR_PIPE) {
-		fprintf(stderr, "control message unsupported\n");
+		fprintf(stderr, "UBERTOOTH_GET_CHANNEL unsupported\n");
 		return r;
 	} else if (r < 0) {
 		show_libusb_error(r);
@@ -263,11 +263,10 @@ int cmd_get_channel(struct libusb_device_handle* devh)
 int cmd_set_channel(struct libusb_device_handle* devh, u16 channel)
 {
 	int r;
-
 	r = libusb_control_transfer(devh, CTRL_OUT, UBERTOOTH_SET_CHANNEL, channel, 0,
 			NULL, 0, 1000);
 	if (r == LIBUSB_ERROR_PIPE) {
-		fprintf(stderr, "control message unsupported\n");
+		fprintf(stderr, "UBERTOOTH_SET_CHANNEL unsupported\n");
 		return r;
 	} else if (r < 0) {
 		show_libusb_error(r);
@@ -329,7 +328,7 @@ int cmd_set_modulation(struct libusb_device_handle* devh, u16 mod)
 	r = libusb_control_transfer(devh, CTRL_OUT, UBERTOOTH_SET_MOD, mod, 0,
 			NULL, 0, 1000);
 	if (r == LIBUSB_ERROR_PIPE) {
-		fprintf(stderr, "control message unsupported\n");
+		fprintf(stderr, "UBERTOOTH_SET_MOD unsupported\n");
 		return r;
 	} else if (r < 0) {
 		show_libusb_error(r);

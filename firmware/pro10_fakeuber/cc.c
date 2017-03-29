@@ -141,7 +141,7 @@ static void clock_init(void)
         //cc_puthex(cc_get(FSMSTATE), 2);
     };
 
-    cc_puthex(cc_get(FSMSTATE), 2);
+    //cc_puthex(cc_get(FSMSTATE), 2);
 
     cc_debug("cchip XOSC16M stable done\n");
 }

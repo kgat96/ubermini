@@ -495,6 +495,7 @@ void ubertooth_stop(ubertooth_t* ut)
 	if (ut->devh != NULL) {
 		cmd_stop(ut->devh);
 		libusb_release_interface(ut->devh, 0);
+		libusb_attach_kernel_driver(ut->devh, 0);
 	}
 	libusb_close(ut->devh);
 	libusb_exit(NULL);
@@ -560,6 +561,13 @@ int ubertooth_connect(ubertooth_t* ut, int ubertooth_device)
 		ubertooth_stop(ut);
 		return -1;
 	}
+
+    r = libusb_detach_kernel_driver(ut->devh, 0);
+    if (r < 0) {
+        fprintf(stderr, "libusb_detach_kernel_driver error %d\n", r);
+        //ubertooth_stop(ut);
+        //return -1;
+    }
 
 	r = libusb_claim_interface(ut->devh, 0);
 	if (r < 0) {

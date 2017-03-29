@@ -23,7 +23,9 @@
 #include "cc.h"
 #include "usbhid.h"
 
-#include <string.h>
+#include <errno.h>
+#include <stdio.h>
+#include <unistd.h>
 
 void kputhex(unsigned int value, int digits)
 {
@@ -40,6 +42,23 @@ void kputs(char *s)
             kputc('\r');
         kputc(*s++);
     }
+}
+
+
+int _write(int file, char *ptr, int len)
+{
+    int i;
+
+    if (file == STDOUT_FILENO || file == STDERR_FILENO) {
+        for (i = 0; i < len; i++) {
+            if (ptr[i] == '\n') kputc('\r');
+            kputc(ptr[i]);
+        }
+        return i;
+    }
+
+    errno = EIO;
+    return -1;
 }
 
 void delay(void)
@@ -333,6 +352,8 @@ int main(void)
 
     kputs("\nTx test start\n");
 
+    printf("system printfx ...%x\n", 123);
+
     delay();
 
     cc_reset();
@@ -343,7 +364,7 @@ int main(void)
 
     USRLED_CLR();
 
-    delay(); // why ???
+    delay();delay(); // why ???
 
     /* Enable external high-speed oscillator 16MHz. */
     rcc_osc_bypass_enable(RCC_HSE);
@@ -375,7 +396,9 @@ int main(void)
 
     DBGLED_SET();
 
-    while(0) {
+    //printf("system printf ...%x\n", 123);
+
+    while(1) {
         extern vu8 en_ww;
 
         u8 spbuff[64];
@@ -427,11 +450,11 @@ int main(void)
 
             memcpy(pkt.data, idle_rxbuf, 50);
 
-            if (en_ww)
-            if (usb_write_packet(&pkt, 64) == 0) {
-                gpio_toggle(GPIOC, PIN_TXLED); /* LED on/off */
-                kputc('*');
-            }
+            //if (en_ww)
+            //if (usb_write_packet(&pkt, 64) == 0) {
+            //    gpio_toggle(GPIOC, PIN_TXLED); /* LED on/off */
+            //    kputc('*');
+            //}
         }
 
         if (tx_count > 1) {

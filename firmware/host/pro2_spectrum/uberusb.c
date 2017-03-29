@@ -22,6 +22,7 @@ extern void UberPacket(unsigned short *buf, int len);
 
 #define DATA_IN     (0x82 | LIBUSB_ENDPOINT_IN)
 #define DATA_OUT    (0x01 | LIBUSB_ENDPOINT_OUT)
+
 #define CTRL_IN     (LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_ENDPOINT_IN)
 #define CTRL_OUT    (LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_ENDPOINT_OUT)
 #define TIMEOUT     10000
