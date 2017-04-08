@@ -11,6 +11,8 @@
 #include "config.h"
 #include "usbhid.h"
 
+#include "cc.h"
+
 #define usb_debug(a)         kputs(a)
 #define usb_puthex(a, b)     kputhex(a, b)
 #define usb_putchar(a)       kputc(a)
@@ -122,38 +124,28 @@ static const char * usb_strings[] = {
 /* Buffer to be used for control requests. */
 uint8_t usbd_control_buffer[128];
 
-vu8 en_ww = 0;
-
 static int hid_control_request(usbd_device *usbd_dev, struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
             void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
 {
     (void)complete;
     (void)usbd_dev;
 
-    kputs("cp:");kputhex(req->bRequest, 2);
+    UNUSED(buf);
+    UNUSED(len);
 
-    if (req->bRequest==0x33 || req->bRequest==0x22) {
-        if(req->bRequest==0x22) {
-            en_ww = 1;
-            usb_debug("bRequest 0x22\n");
-        }
+    //uint16_t value = req->wValue;
+    //kputs("cp:");kputhex(req->bRequest, 2);
 
-        if(req->bRequest==0x33) {
-            en_ww = 0;
-            usb_debug("bRequest 0x33\n");
-        }
+    printf("bRequest %d wLength %d wValue %d\n", req->bRequest, req->wLength, req->wValue);
 
-        uint8_t da[4] = {0, 0, 0, 0};
-        usbd_ep_write_packet(usbd_dev, 0x81, da, 4);
-        return 1;
-    }
+    if (usb_request(req->bRequest))
+        return USBD_REQ_HANDLED;
 
-    if ((req->bmRequestType != 0x81) ||
-       (req->bRequest != USB_REQ_GET_DESCRIPTOR) ||
-       (req->wValue != 0x2200))
-        return 0;
+//    uint8_t da[4] = {0, 0, 0, 0};
+//    usbd_ep_write_packet(usbd_dev, 0x81, da, 4);
+//    return USBD_REQ_HANDLED;//USBD_REQ_NOTSUPP
 
-    return 1;
+    return USBD_REQ_NOTSUPP;
 }
 
 static void hci_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
@@ -176,8 +168,7 @@ static void hci_data_tx_cb(usbd_device *usbd_dev, uint8_t ep)
     (void)ep;
     (void)usbd_dev;
 
-    kputs("tx");
-
+    kputs("tx\n");
     //usb_putchar('i');
 }
 
@@ -213,15 +204,10 @@ void usb_setup(void)
 
 int usb_write_packet(u8* buf, int len)
 {
-    if (en_ww) {
-        //en_ww = 0;
-        return usbd_ep_write_packet(usbd_dev, 0x82, buf, len);
-    }
-
-    return 0;
+    return usbd_ep_write_packet(usbd_dev, 0x82, buf, len);
 }
 
-void usb_pull(void)
+void usb_poll(void)
 {
     usbd_poll(usbd_dev);
 }

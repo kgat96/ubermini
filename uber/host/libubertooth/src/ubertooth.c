@@ -564,7 +564,7 @@ int ubertooth_connect(ubertooth_t* ut, int ubertooth_device)
 
     r = libusb_detach_kernel_driver(ut->devh, 0);
     if (r < 0) {
-        fprintf(stderr, "libusb_detach_kernel_driver error %d\n", r);
+        fprintf(stderr, "usb_detach_kernel_driver error %d\n", r);
         //ubertooth_stop(ut);
         //return -1;
     }

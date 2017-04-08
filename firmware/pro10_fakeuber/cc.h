@@ -181,11 +181,14 @@ void cc_hop(void);
 void cc_clkn_handler(void);
 
 #define DMA_SIZE 50
+
 extern u8 rxbuf1[];
 extern u8 rxbuf2[];
 
 extern u8 *active_rxbuf;
 extern u8 *idle_rxbuf;
+
+int usb_request(u8 request);
 
 #endif /* __CC_H */
 

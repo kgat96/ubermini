@@ -17,7 +17,7 @@
 #include <libopencm3/cm3/scb.h>
 
 void usb_setup(void);
-void usb_pull(void);
+void usb_poll(void);
 int usb_write_packet(u8* buf, int len);
 
 #endif

@@ -193,9 +193,9 @@ u8 *active_rxbuf = &rxbuf1[0];
 u8 *idle_rxbuf = &rxbuf2[0];
 
 /* operation mode */
-volatile u8 mode = MODE_RX_SYMBOLS;
-volatile u8 requested_mode = MODE_IDLE;
-volatile u8 modulation = MOD_BT_BASIC_RATE;
+#define mode requested_mode
+extern u8 requested_mode;
+extern u8 modulation;
 
 /* specan stuff */
 volatile u16 low_freq = 2400;
@@ -221,6 +221,13 @@ volatile u32 last_hop = 0;
 volatile u32 clkn_offset = 0;
 volatile u16 clk100ns_offset = 0;
 
+/* bulk USB stuff */
+volatile uint8_t  idle_buf_clkn_high = 0;
+volatile uint32_t idle_buf_clk100ns = 0;
+volatile uint16_t idle_buf_channel = 0;
+
+volatile char max_rssi = -120;
+
 void cc_clkn_handler(void)
 {
     clkn += clkn_offset + 1;
@@ -236,7 +243,6 @@ void cc_clkn_handler(void)
 
 void cc_hop(void)
 {
-    static char max_rssi = -120;
 
     if (!do_hop) {
         char rssi = (int8_t)(cc_get(RSSI) >> 8);
