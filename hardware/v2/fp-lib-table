@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name v2)(type KiCad)(uri "$(KIPRJMOD)")(options "")(descr ""))
+  (lib (name 23)(type KiCad)(uri /tmp/kicad-libraries-master/)(options "")(descr ""))
+)
