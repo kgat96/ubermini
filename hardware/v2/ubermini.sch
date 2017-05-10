@@ -429,9 +429,9 @@ F 3 "" H 6500 1450 50  0000 C CNN
 	-1   0    0    1   
 $EndComp
 Text Label 6800 1400 3    60   ~ 0
-ATEST1
+ATEST1_P
 Text Label 6900 1400 3    60   ~ 0
-ATEST2
+ATEST2_N
 $Comp
 L Crystal_GND24 Y1
 U 1 1 58FC7BD6
@@ -615,14 +615,14 @@ Text Label 14800 6950 3    60   ~ 0
 HGM
 Text Label 15000 7000 3    60   ~ 0
 EN
-Text Label 15150 7100 1    60   ~ 0
+Text Label 11300 9150 2    60   ~ 0
 GR
 Text Label 1550 8150 1    60   ~ 0
 GIO1
 Text Label 8550 1700 0    60   ~ 0
-ATEST1
+ATEST1_P
 Text Label 8550 2150 0    60   ~ 0
-ATEST2
+ATEST2_N
 Text Label 11250 8250 2    60   ~ 0
 GIO6
 Text Label 1850 9350 2    60   ~ 0
@@ -1678,16 +1678,14 @@ Wire Wire Line
 	13150 1300 13150 1650
 Connection ~ 13150 1450
 Wire Wire Line
-	13050 1750 13600 1750
-Wire Wire Line
 	13600 1750 13600 1800
 Wire Wire Line
 	13400 1650 13400 1800
 Connection ~ 13400 1750
 Wire Wire Line
-	13600 2100 13600 2150
+	13600 2150 13600 2100
 Wire Wire Line
-	13600 2150 13400 2150
+	13250 2150 13600 2150
 Wire Wire Line
 	13400 2100 13400 2200
 Connection ~ 13400 2150
@@ -1968,4 +1966,44 @@ Wire Wire Line
 	10750 8950 11300 8950
 Wire Wire Line
 	10750 9050 11300 9050
+Text Label 1900 8350 0    60   ~ 0
+LED1
+Wire Wire Line
+	1900 8350 2150 8350
+Wire Wire Line
+	2150 8450 1900 8450
+Wire Wire Line
+	2150 8550 1900 8550
+Wire Wire Line
+	2150 8650 1900 8650
+Text Label 1900 8450 0    60   ~ 0
+LED2
+Text Label 1900 8550 0    60   ~ 0
+LED3
+Text Label 1900 8650 0    60   ~ 0
+LED4
+Wire Wire Line
+	10750 7050 11000 7050
+Wire Wire Line
+	10750 7150 11000 7150
+Wire Wire Line
+	10750 7250 11000 7250
+Wire Wire Line
+	10750 7350 11000 7350
+Text Label 11000 7050 0    60   ~ 0
+SPI1_CS
+Text Label 11000 7150 0    60   ~ 0
+SPI1_SCK
+Text Label 11000 7250 0    60   ~ 0
+SPI1_MI
+Text Label 11000 7350 0    60   ~ 0
+SPI1_MO
+Wire Wire Line
+	13400 1750 13600 1750
+Wire Wire Line
+	13050 1750 13250 1750
+Wire Wire Line
+	13250 1750 13250 2150
+Wire Wire Line
+	10750 9150 11300 9150
 $EndSCHEMATC
