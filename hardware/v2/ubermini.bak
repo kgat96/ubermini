@@ -1,4 +1,5 @@
 EESchema Schematic File Version 2
+LIBS:ubermini-rescue
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -611,9 +612,9 @@ F 3 "" H 9150 3900 50  0000 C CNN
 	1    9150 3900
 	0    1    1    0   
 $EndComp
-Text Label 1850 9850 0    60   ~ 0
-HGM
 Text Label 1850 9750 0    60   ~ 0
+HGM
+Text Label 1850 9650 0    60   ~ 0
 EN
 Text Label 11300 9150 2    60   ~ 0
 GR
@@ -1242,7 +1243,7 @@ F 3 "" H 14250 4450 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L LED D2
+L LED-RESCUE-ubermini D2
 U 1 1 58FFDCAF
 P 14050 3800
 F 0 "D2" H 14050 3900 50  0000 C CNN
@@ -1253,7 +1254,7 @@ F 3 "" H 14050 3800 50  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L LED D3
+L LED-RESCUE-ubermini D3
 U 1 1 58FFE046
 P 14250 3800
 F 0 "D3" H 14250 3900 50  0000 C CNN
@@ -1264,7 +1265,7 @@ F 3 "" H 14250 3800 50  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L LED D4
+L LED-RESCUE-ubermini D4
 U 1 1 58FFE123
 P 14450 3800
 F 0 "D4" H 14450 3900 50  0000 C CNN
@@ -1275,7 +1276,7 @@ F 3 "" H 14450 3800 50  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L LED D5
+L LED-RESCUE-ubermini D5
 U 1 1 58FFE207
 P 14650 3800
 F 0 "D5" H 14650 3900 50  0000 C CNN
@@ -1316,7 +1317,7 @@ F 3 "" H 1200 3800 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L USB_OTG J1
+L USB_OTG-RESCUE-ubermini J1
 U 1 1 5900CA0C
 P 12200 7850
 F 0 "J1" H 12000 8300 50  0000 L CNN
@@ -1376,7 +1377,7 @@ F 3 "" H 14950 2350 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L LED D6
+L LED-RESCUE-ubermini D6
 U 1 1 5914A2C9
 P 14950 2000
 F 0 "D6" H 14950 2100 50  0000 C CNN
@@ -2135,7 +2136,6 @@ NoConn ~ 2150 8950
 NoConn ~ 2150 9050
 NoConn ~ 2150 9150
 NoConn ~ 2150 9250
-NoConn ~ 2150 9650
 NoConn ~ 11000 7050
 NoConn ~ 10750 9250
 NoConn ~ 10750 9350
@@ -2152,4 +2152,8 @@ NoConn ~ 10750 6850
 NoConn ~ 10750 6750
 NoConn ~ 10750 6650
 NoConn ~ 2150 7950
+Wire Wire Line
+	2150 9650 1850 9650
+Text Label 1850 9850 0    60   ~ 0
+SPI1_CS
 $EndSCHEMATC
