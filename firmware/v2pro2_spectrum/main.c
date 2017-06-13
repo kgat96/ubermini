@@ -23,6 +23,9 @@
 #include "cc.h"
 #include "usbhid.h"
 
+#include <errno.h>
+#include <stdio.h>
+#include <unistd.h>
 #include <string.h>
 
 void kputhex(unsigned int value, int digits)
@@ -40,6 +43,24 @@ void kputs(char *s)
             kputc('\r');
         kputc(*s++);
     }
+}
+
+int _write(int file, char *ptr, int len);
+
+int _write(int file, char *ptr, int len)
+{
+    int i;
+
+    if (file == STDOUT_FILENO || file == STDERR_FILENO) {
+        for (i = 0; i < len; i++) {
+            if (ptr[i] == '\n') kputc('\r');
+            kputc(ptr[i]);
+        }
+        return i;
+    }
+
+    errno = EIO;
+    return -1;
 }
 
 void delay(void)
@@ -149,6 +170,18 @@ static void spi_setup(void)
      SPI3_CR2 |= 1;
 }
 
+#define CLK100NS (3125*(clkn & 0xfffff) + timer_get_counter(TIM2))
+
+extern volatile u32 clkn;
+extern volatile u32 clkn_offset;
+extern volatile u16 clk100ns_offset;
+
+extern volatile uint8_t  idle_buf_clkn_high;
+extern volatile uint32_t idle_buf_clk100ns;
+extern volatile uint16_t idle_buf_channel;
+
+extern volatile u16 channel;
+
 static void tim_setup(void)
 {
     /* Enable TIM2 clock. */
@@ -240,35 +273,32 @@ static void dma_setup(void)
     dma_enable_stream(UES_DMA_CONUR, UES_DMA_STREAM);
 }
 
-/* an ugly but effective way to identify a GIAC (inquiry packet) */
-static int find_giac(u8 *buf)
-{
-    int i, j;
-    const uint8_t giac[8][7] = {
-            {0x47, 0x5c, 0x58, 0xcc, 0x73, 0x34, 0x5e},
-            {0x8e, 0xb8, 0xb1, 0x98, 0xe6, 0x68, 0xbc},
-            {0x11, 0xd7, 0x16, 0x33, 0x1c, 0xcd, 0x17},
-            {0x23, 0xae, 0x2c, 0x66, 0x39, 0x9a, 0x2f},
-            {0x75, 0xc5, 0x8c, 0xc7, 0x33, 0x45, 0xe7},
-            {0xeb, 0x8b, 0x19, 0x8e, 0x66, 0x8b, 0xce},
-            {0x1d, 0x71, 0x63, 0x31, 0xcc, 0xd1, 0x79},
-            {0x3a, 0xe2, 0xc6, 0x63, 0x99, 0xa2, 0xf3}};
-
-    for (i = 0; i < (DMA_SIZE - 6); i++)
-            for (j = 0; j < 8; j++)
-                if (buf[i] == giac[j][0]
-                        && buf[i + 1] == giac[j][1]
-                        && buf[i + 2] == giac[j][2]
-                        && buf[i + 3] == giac[j][3]
-                        && buf[i + 4] == giac[j][4]
-                        && buf[i + 5] == giac[j][5]
-                        && buf[i + 6] == giac[j][6])
-                    return 1;
-
-    return 0;
-}
 
 static volatile u32 tx_count = 0;
+static volatile uint8_t tx_status = 0;
+
+/* operation mode */
+volatile u8 requested_mode = MODE_IDLE;
+volatile u8 modulation = MOD_BT_BASIC_RATE;
+
+enum usb_pkt_status {
+    DMA_OVERFLOW  = 0x01,
+    DMA_ERROR     = 0x02,
+    FIFO_OVERFLOW = 0x04,
+    CS_TRIGGER    = 0x08,
+    RSSI_TRIGGER  = 0x10,
+    DISCARD       = 0x20,
+};
+
+enum usb_pkt_types {
+    BR_PACKET  = 0,
+    LE_PACKET  = 1,
+    MESSAGE    = 2,
+    KEEP_ALIVE = 3,
+    SPECAN     = 4,
+    LE_PROMISC = 5,
+    EGO_PACKET = 6,
+};
 
 /*
  * USB packet for Bluetooth RX (64 total bytes)
@@ -292,14 +322,16 @@ usb_pkt_rx fifo[128];
 volatile u32 head = 0;
 volatile u32 tail = 0;
 
-void queue_init(void)
+extern volatile char max_rssi;
+
+static void queue_init(void)
 {
     head = 0;
     tail = 0;
     memset(fifo, 0, sizeof(fifo));
 }
 
-usb_pkt_rx *fifo_enqueue(void)
+static usb_pkt_rx *fifo_enqueue(void)
 {
     u8 h = head & 0x7F;
     u8 t = tail & 0x7F;
@@ -314,7 +346,7 @@ usb_pkt_rx *fifo_enqueue(void)
     return &fifo[t];
 }
 
-usb_pkt_rx *fifo_dequeue(void)
+static usb_pkt_rx *fifo_dequeue(void)
 {
     u8 h = head & 0x7F;
     u8 t = tail & 0x7F;
@@ -328,6 +360,76 @@ usb_pkt_rx *fifo_dequeue(void)
     return &fifo[h];
 }
 
+static int usb_enqueue(uint8_t type, uint8_t* buf)
+{
+    usb_pkt_rx* f = fifo_enqueue();
+
+    /* fail if queue is full */
+    if (f == NULL) {
+        tx_status |= FIFO_OVERFLOW;
+        kputc('F');
+        return 0;
+    }
+
+    f->pkt_type = type;
+    if(type == SPECAN) {
+        f->clkn_high = 0;
+        f->clk100ns = 0;
+    } else {
+        f->clkn_high = idle_buf_clkn_high;
+        f->clk100ns = idle_buf_clk100ns;
+        f->channel = (uint8_t)((idle_buf_channel - 2402) & 0xff);
+        f->rssi_min = -100;
+        f->rssi_max = max_rssi;
+        f->rssi_avg = 0;
+        f->rssi_count = 0;
+    }
+
+    memcpy(f->data, buf, DMA_SIZE);
+
+    f->status = tx_status;
+    tx_status = 0;
+
+    return 1;
+}
+
+static void usb_dequeue(void)
+{
+    static usb_pkt_rx* f = NULL;
+
+    if (f == NULL) {
+        f = fifo_dequeue();
+    }
+
+    if (f != NULL) {
+        if (usb_write_packet((u8 *)f, sizeof(usb_pkt_rx))) {
+            f = NULL;
+            kputc('S');
+        } else {
+            kputc('E');
+        }
+    }
+}
+
+int usb_request(u8 request)
+{
+    switch (request) {
+    case UBERTOOTH_SET_CHANNEL:
+        break;
+    case UBERTOOTH_RX_SYMBOLS:
+        requested_mode = MODE_RX_SYMBOLS;
+        break;
+    case UBERTOOTH_STOP:
+        requested_mode = MODE_IDLE;
+        break;
+
+    default:
+        return USBD_REQ_NOTSUPP;
+    }
+
+    return USBD_REQ_HANDLED;
+}
+
 
 int main(void)
 {
@@ -335,7 +437,9 @@ int main(void)
 
     usart_setup();
 
-    kputs("\nMain start\n");
+    kputs("\nTx test start\n");
+
+    printf("system uart output\n");
 
     delay();
     
@@ -355,7 +459,7 @@ int main(void)
 
     /* Enable external high-speed oscillator 16MHz. */
     rcc_osc_bypass_enable(RCC_HSE);
-    rcc_clock_setup_hse_3v3(&rcc_hse_16mhz_3v3[RCC_CLOCK_3V3_120MHZ]);
+    rcc_clock_setup_hse_3v3(&rcc_hse_16mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
 
     rcc_periph_clock_enable(RCC_OTGFS);
 
@@ -377,60 +481,72 @@ int main(void)
     SPI_CR1(SPI3) |= SPI_CR1_SPE;
 
     //cc_rx_mode();
-    
     cc_specan_mode();
 
+    queue_init();
+
     while(1) {
+
+        while(!tx_count) {
+            cc_hop();
+            usb_poll();
+        }
+
+        switch (requested_mode) {
+        case MODE_IDLE:
+            break;
+        case MODE_RX_SYMBOLS:
+            usb_enqueue(BR_PACKET, (uint8_t*)idle_rxbuf);
+            usb_dequeue();
+            break;
+        }
+
+        //if (tx_count > 1) // Missed a DMA trasfer
+        //    gpio_toggle(GPIOC, PIN_USRLED);
+
+        tx_count = 0;
+    }
+
+#if 0
+    while(0) {
         extern vu8 en_ww;
 
         u8 spbuff[64];
 
         if (en_ww) {
             get_specan_date(spbuff, 64);
-            kputc('#');
             //usb_write_packet(spbuff, 64);
             if (usb_write_packet(spbuff, 64) == 0) {
-                kputc(' ');
-            } else {
-                gpio_toggle(GPIOC, PIN_LED1); /* LED on/off */
+                //gpio_toggle(GPIOC, PIN_RXLED); /* LED on/off */
+                kputc('*');
             }
         }
 
-        //if (tx_count > 1) {
-        //    kputc('#');
-        //}
-
-        tx_count = 0;
-
         usb_pull();
     }
-    
-    while(0) {
-        while(!tx_count) {
-            /* If timer says time to hop, do it. */
-            // cc_hop();
-        }
 
-        //kputhex(idle_rxbuf[0], 2);
-        //kputhex(idle_rxbuf[1], 2);
-        //kputhex(idle_rxbuf[2], 2);
-        //kputhex(idle_rxbuf[3], 2);
+    while (0) {
+//        kputhex(idle_rxbuf[0], 2);
+//        kputhex(idle_rxbuf[1], 2);
+//        kputhex(idle_rxbuf[2], 2);
+//        kputhex(idle_rxbuf[3], 2);
 
-        if (find_giac(idle_rxbuf)) {
-            gpio_toggle(GPIOC, PIN_LED1); /* LED on/off */
-            kputc('*');
-        }
-        
-        tx_count = 0;
-    }
-
-    while (1) {
+//        if (find_giac(idle_rxbuf)) {
+//            gpio_toggle(GPIOC, PIN_RXLED); /* LED on/off */
+//            kputc('*');
+//        }
 
         while(!tx_count) {
             /* If timer says time to hop, do it. */
             cc_hop();
-            usb_pull();
+            usb_poll();
         }
+
+
+//        if (find_giac(idle_rxbuf)) {
+//            gpio_toggle(GPIOC, PIN_TXLED); /* LED on/off */
+//            kputc('*');
+//        }
 
         {
             extern vu8 en_ww;
@@ -441,10 +557,11 @@ int main(void)
 
             memcpy(pkt.data, idle_rxbuf, 50);
 
-            if (en_ww)
-            if (usb_write_packet(&pkt, 64) == 0) {
-                kputc('*');
-            }
+            //if (en_ww)
+            //if (usb_write_packet(&pkt, 64) == 0) {
+            //    gpio_toggle(GPIOC, PIN_TXLED); /* LED on/off */
+            //    kputc('*');
+            //}
         }
 
         if (tx_count > 1) {
@@ -454,6 +571,7 @@ int main(void)
 
         tx_count = 0;
     }
+#endif
 
     return 0;
 }
@@ -484,10 +602,13 @@ void dma1_stream0_isr(void)
             active_rxbuf = &rxbuf1[0];
             idle_rxbuf = &rxbuf2[0];
         }
-        //gpio_toggle(GPIOB, PIN_DBGLED);
+
+        idle_buf_clk100ns  = CLK100NS;
+        idle_buf_clkn_high = (clkn >> 20) & 0xff;
+        idle_buf_channel   = channel;
+
         tx_count++;
     } else if (dma_get_interrupt_flag(UES_DMA_CONUR, UES_DMA_STREAM, DMA_TEIF)) {
         dma_clear_interrupt_flags(UES_DMA_CONUR, UES_DMA_STREAM, DMA_TEIF);
     }
 }
-

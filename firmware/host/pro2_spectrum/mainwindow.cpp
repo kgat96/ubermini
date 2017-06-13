@@ -96,6 +96,8 @@ void MainWindow::updataPlot(void)
     static QVector<double> sMax(n);
     static QVector<int> sDisTime(n);
 
+    static int DisTime = 10;
+
 //    {
 //        QMutexLocker locker(&mQueueMutex);
 //        mUberQueue.clear();
@@ -139,7 +141,7 @@ void MainWindow::updataPlot(void)
 
                 if (y[freq] > pMax[freq]) {
                     pMax[freq] = y[freq];
-                    pDis[freq] = 60;
+                    pDis[freq] = DisTime;
                     //ui->mQCustomPlot->graph(1)->addData(x[freq], sMax[freq]);
                 }
 
@@ -169,6 +171,8 @@ void MainWindow::updataPlot(void)
             .arg(mUberQueue.size()), 0);
       lastFpsKey = key;
       frameCount = 0;
+
+      //DisTime = frameCount/(key-lastFpsKey);
     }
 }
 
