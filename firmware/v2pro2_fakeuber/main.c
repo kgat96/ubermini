@@ -19,49 +19,16 @@
 
 #include <libopencm3/stm32/dma.h>
 
+//#include <errno.h>
+//#include <stdio.h>
+//#include <unistd.h>
+
+#include <string.h>
+
 #include "config.h"
 #include "cc.h"
 #include "usbhid.h"
-
-#include <errno.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <string.h>
-
-void kputhex(unsigned int value, int digits)
-{
-    while (digits-- > 0) {
-        unsigned int tmp = (value >> (4 * digits)) & 0xf;
-        kputc(tmp > 9 ? tmp - 10 + 'a' : tmp + '0');
-    }
-}
-
-void kputs(char *s)
-{
-    while (*s) {
-        if (*s == '\n')
-            kputc('\r');
-        kputc(*s++);
-    }
-}
-
-int _write(int file, char *ptr, int len);
-
-int _write(int file, char *ptr, int len)
-{
-    int i;
-
-    if (file == STDOUT_FILENO || file == STDERR_FILENO) {
-        for (i = 0; i < len; i++) {
-            if (ptr[i] == '\n') kputc('\r');
-            kputc(ptr[i]);
-        }
-        return i;
-    }
-
-    errno = EIO;
-    return -1;
-}
+#include "uart.h"
 
 void delay(void)
 {
@@ -144,13 +111,10 @@ static void spi_setup(void)
       * SPI3  PA15*, PA4*  PB3*, PC10*           PB4*, PC11*             PB5*, PD6, PC12*
       */
 
-     // set debug gpio 4 PA15 to NSS(cs)
-     //gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_PULLUP, GPIO15);
-     //gpio_set_af(GPIOA, GPIO_AF6, GPIO15);
-     
      // set spi sck PB3
      gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_PULLUP, GPIO3);
      gpio_set_af(GPIOB, GPIO_AF6, GPIO3);
+
      // set spi MISO PB4
      gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_PULLUP, GPIO4);
      gpio_set_af(GPIOB, GPIO_AF6, GPIO4);
@@ -162,8 +126,8 @@ static void spi_setup(void)
      rcc_periph_clock_enable(RCC_SPI3);
 
      // slave mode, 8 bit, one line only,
-     SPI3_CR1 = SPI_CR1_BIDIMODE_1LINE_BIDIR |
-                     SPI_CR1_SSM | SPI_CR1_CPHA | SPI_CR1_CPOL; // SPI_CR1_BIDIOE
+     SPI3_CR1 = SPI_CR1_BIDIMODE_1LINE_BIDIR | SPI_CR1_SSM
+             | SPI_CR1_CPHA | SPI_CR1_CPOL; // SPI_CR1_BIDIOE
      //SPI3_CR1 =  SPI_CR1_SSM | SPI_CR1_CPHA | SPI_CR1_CPOL;
      
      // RX dma mode
@@ -274,7 +238,7 @@ static void dma_setup(void)
 }
 
 
-static volatile u32 tx_count = 0;
+static volatile u32 slotn = 0;
 static volatile uint8_t tx_status = 0;
 
 /* operation mode */
@@ -446,9 +410,7 @@ int main(void)
     while(0) {
         delay();delay();delay();
         delay();delay();delay();
-        gpio_toggle(GPIOC, PIN_LED1);
-        //gpio_toggle(GPIOC, PIN_LED2);
-        kputs("toggle\n");
+        LED1_TOG();
     }
 
     cc_reset();
@@ -480,14 +442,14 @@ int main(void)
 
     SPI_CR1(SPI3) |= SPI_CR1_SPE;
 
-    //cc_rx_mode();
-    cc_specan_mode();
+    cc_rx_mode();
+    //cc_specan_mode();
 
     queue_init();
 
     while(1) {
 
-        while(!tx_count) {
+        while(!slotn) {
             cc_hop();
             usb_poll();
         }
@@ -501,82 +463,14 @@ int main(void)
             break;
         }
 
-        //if (tx_count > 1) // Missed a DMA trasfer
+        //if (slotn > 1) // Missed a DMA trasfer
         //    gpio_toggle(GPIOC, PIN_USRLED);
 
-        tx_count = 0;
+        slotn = 0;
     }
-
-#if 0
-    while(0) {
-        extern vu8 en_ww;
-
-        u8 spbuff[64];
-
-        if (en_ww) {
-            get_specan_date(spbuff, 64);
-            //usb_write_packet(spbuff, 64);
-            if (usb_write_packet(spbuff, 64) == 0) {
-                //gpio_toggle(GPIOC, PIN_RXLED); /* LED on/off */
-                kputc('*');
-            }
-        }
-
-        usb_pull();
-    }
-
-    while (0) {
-//        kputhex(idle_rxbuf[0], 2);
-//        kputhex(idle_rxbuf[1], 2);
-//        kputhex(idle_rxbuf[2], 2);
-//        kputhex(idle_rxbuf[3], 2);
-
-//        if (find_giac(idle_rxbuf)) {
-//            gpio_toggle(GPIOC, PIN_RXLED); /* LED on/off */
-//            kputc('*');
-//        }
-
-        while(!tx_count) {
-            /* If timer says time to hop, do it. */
-            cc_hop();
-            usb_poll();
-        }
-
-
-//        if (find_giac(idle_rxbuf)) {
-//            gpio_toggle(GPIOC, PIN_TXLED); /* LED on/off */
-//            kputc('*');
-//        }
-
-        {
-            extern vu8 en_ww;
-            static u32 count;
-            usb_pkt_rx pkt;
-
-            ((u32 *)(&pkt))[0] = count++;
-
-            memcpy(pkt.data, idle_rxbuf, 50);
-
-            //if (en_ww)
-            //if (usb_write_packet(&pkt, 64) == 0) {
-            //    gpio_toggle(GPIOC, PIN_TXLED); /* LED on/off */
-            //    kputc('*');
-            //}
-        }
-
-        if (tx_count > 1) {
-            //kputs("Missed a DMA trasfer\n");
-            //gpio_toggle(GPIOC, PIN_USRLED);
-        }
-
-        tx_count = 0;
-    }
-#endif
 
     return 0;
 }
-
-
 
 /* clkn_high is incremented each time CLK100NS rolls over */
 void tim2_isr(void)
@@ -585,6 +479,7 @@ void tim2_isr(void)
         /* Clear compare interrupt flag. */
         TIM_SR(TIM2) = ~TIM_SR_UIF;
         cc_clkn_handler();
+        LED4_TOG();
     }
 }
 
@@ -607,8 +502,10 @@ void dma1_stream0_isr(void)
         idle_buf_clkn_high = (clkn >> 20) & 0xff;
         idle_buf_channel   = channel;
 
-        tx_count++;
+        slotn++;
     } else if (dma_get_interrupt_flag(UES_DMA_CONUR, UES_DMA_STREAM, DMA_TEIF)) {
         dma_clear_interrupt_flags(UES_DMA_CONUR, UES_DMA_STREAM, DMA_TEIF);
     }
 }
+
+

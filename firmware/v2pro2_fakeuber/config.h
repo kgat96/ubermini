@@ -27,7 +27,6 @@ typedef volatile unsigned long int vu64;
 
 #define UNUSED(x) (void)(x)
 
-
 #define PIN_MOSI    GPIO11      /* Pc.11  */
 #define PIN_MISO    GPIO10      /* Pc.10  */
 #define PIN_SCLK    GPIO12      /* Pc.12  */
@@ -50,15 +49,19 @@ typedef volatile unsigned long int vu64;
 
 #define LED1_SET()      gpio_set(GPIOC, PIN_LED1)
 #define LED1_CLR()      gpio_clear(GPIOC, PIN_LED1)
+#define LED1_TOG()      gpio_toggle(GPIOC, PIN_LED1)
 
 #define LED2_SET()      gpio_set(GPIOC, PIN_LED2)
 #define LED2_CLR()      gpio_clear(GPIOC, PIN_LED2)
+#define LED2_TOG()      gpio_toggle(GPIOC, PIN_LED2)
 
 #define LED3_SET()      gpio_set(GPIOC, PIN_LED3)
 #define LED3_CLR()      gpio_clear(GPIOC, PIN_LED3)
+#define LED3_TOG()      gpio_toggle(GPIOC, PIN_LED3)
 
 #define LED4_SET()      gpio_set(GPIOC, PIN_LED4)
 #define LED4_CLR()      gpio_clear(GPIOC, PIN_LED4)
+#define LED4_TOG()      gpio_toggle(GPIOC, PIN_LED4)
 
 #define RX_SET()        gpio_set(GPIOB, PIN_RX)
 #define RX_CLR()        gpio_clear(GPIOB, PIN_RX)
@@ -84,15 +87,6 @@ typedef volatile unsigned long int vu64;
 #define HGM()       gpio_get(GPIOC, PIN_HGM)
 #define HGM_SET()   gpio_set(GPIOC, PIN_HGM)
 #define HGM_CLR()   gpio_clear(GPIOC, PIN_HGM)
-
-#include <libopencm3/stm32/usart.h>
-
-#define nUSART USART1
-
-#define kputc(a) usart_send_blocking(nUSART, a);
-void kputhex(unsigned int value, int digits);
-void kputs(char *s);
-void delay(void);
 
 #define U1_VENDORID    0x1d50
 #define U1_PRODUCTID   0x6002

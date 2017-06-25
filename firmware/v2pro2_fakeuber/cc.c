@@ -12,6 +12,7 @@
 
 #include "config.h"
 #include "cc.h"
+#include "uart.h"
 
 #define cc_debug(a)         kputs(a)
 #define cc_puthex(a, b)     kputhex(a, b)
@@ -74,8 +75,6 @@ static void cc_set(u8 reg, u16 val)
     cc_spi(24, out);
 }
 
-
-
 /* get the status */
 static u8 cc_status(void)
 {
@@ -87,7 +86,6 @@ static u8 cc_strobe(u8 reg)
 {
     return cc_spi(8, reg);
 }
-
 
 static inline void wait_fslock(void)
 {

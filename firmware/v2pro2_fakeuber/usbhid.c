@@ -10,6 +10,7 @@
 
 #include "config.h"
 #include "usbhid.h"
+#include "uart.h"
 
 #include "cc.h"
 
