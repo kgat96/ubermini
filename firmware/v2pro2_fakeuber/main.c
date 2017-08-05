@@ -394,6 +394,7 @@ int usb_request(u8 request)
     return USBD_REQ_HANDLED;
 }
 
+void ble_adv(void);
 
 int main(void)
 {
@@ -442,8 +443,16 @@ int main(void)
 
     SPI_CR1(SPI3) |= SPI_CR1_SPE;
 
-    cc_rx_mode();
+    //cc_rx_mode();
     //cc_specan_mode();
+
+    while(1) {
+        kputs("ble adv ..\n");
+        ble_adv();
+        delay();delay();delay();delay();
+        delay();delay();delay();delay();
+        delay();delay();delay();delay();
+    }
 
     queue_init();
 
