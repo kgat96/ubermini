@@ -445,7 +445,19 @@ static void cc_fifo_write(u8 len, u8 *data) {
         SCLK_CLR();
     }
 
-    delay();
+    //delay();
+
+    __asm__("nop");__asm__("nop");__asm__("nop");
+    __asm__("nop");__asm__("nop");__asm__("nop");
+
+
+    if (0) {
+        u32 nn = 500;
+        while(nn--) {
+            __asm__("nop");__asm__("nop");__asm__("nop");
+        }
+    }
+
     /* end transaction by raising CSN */
     CSN_SET();
 }
@@ -524,7 +536,7 @@ static void le_transmit(u32 aa, u8 len, u8 *data)
     //      |  +-----------------> packet mode
     //      +--------------------> buffered mode
 
-    cc_set(FSDIV,   channel);      // 37
+    cc_set(FSDIV,   channel);   // 37
     cc_set(FREND,   0b1011);    // amplifier level (-7 dBm, picked from hat)
     cc_set(MDMCTRL, 0x0040);    // 250 kHz frequency deviation
     cc_set(INT,     0x0014);    // FIFO_THRESHOLD: 20 bytes
@@ -540,28 +552,54 @@ static void le_transmit(u32 aa, u8 len, u8 *data)
 
     cc_set(IOCFG, (GIO_CLK_16M << 3) | (GIO_FIFO_FULL << 9));
 
-    kputs("ble1\n");
-
     while (!(cc_status() & XOSC16M_STABLE));
     cc_strobe(SFSON);
-    kputs("ble2\n");
 
     while (!(cc_status() & FS_LOCK));
 
     PAEN_SET();
 
-    kputs("ble3\n");
+    while(1) {
+        kputc('.');
 
-    while ((cc_get(FSMSTATE) & 0x1f) != STATE_STROBE_FS_ON);
-    cc_strobe(STX);
+        if (0) {
+            for(i = 0; i < 64; i++) {
+                txbuf[i] = (i & 1) ? 0xff : 0xff;
+            }
 
-    // put the packet into the FIFO
-    for (i = 0; i < len; i += 16) {
-        while (gpio_get(GPIOA, PIN_GIO6)); // wait for the FIFO to drain (FIFO_FULL false)
-        tx_len = len - i;
-        if (tx_len > 16)
-            tx_len = 16;
-        cc_fifo_write(tx_len, txbuf + i);
+            //txbuf[0] = 0xff;
+            //txbuf[1] = 0xff;
+
+            //txbuf[2] = 0;
+            //txbuf[3] = 0;
+
+            //txbuf[4] = 0xff;
+            //txbuf[5] = 0xff;
+
+            //txbuf[6] = 0;
+            //txbuf[7] = 0;
+        }
+
+        while ((cc_get(FSMSTATE) & 0x1f) != STATE_STROBE_FS_ON);
+        cc_strobe(STX);
+
+        // put the packet into the FIFO
+        for (i = 0; i < len; i += 16) {
+            while (gpio_get(GPIOA, PIN_GIO6)); // wait for the FIFO to drain (FIFO_FULL false)
+            tx_len = len - i;
+            if (tx_len > 16)
+                tx_len = 16;
+            cc_fifo_write(tx_len, txbuf + i);
+        }
+
+        {
+            u32 nn = 50000;
+            while(nn--) {
+                __asm__("nop");__asm__("nop");__asm__("nop");
+                __asm__("nop");__asm__("nop");__asm__("nop");
+                __asm__("nop");__asm__("nop");__asm__("nop");
+            }
+        }
     }
 
     while ((cc_get(FSMSTATE) & 0x1f) != STATE_STROBE_FS_ON);
@@ -607,7 +645,7 @@ static u32 btle_calc_crc(u32 crc_init, u8 *data, int len)
 }
 
 /* le stuff */
-uint8_t slave_mac_address[6] = { 0, };
+uint8_t slave_mac_address[6] = {0x1, 0x2, 0x3, 0x4, 0x5, 0x6};
 void ble_adv(void);
 
 void ble_adv(void)
