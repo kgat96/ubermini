@@ -266,8 +266,6 @@ int main(void)
 
     printf("system uart output\n");
 
-    delay();
-
     cc_reset();
 
     cc_init();
@@ -315,9 +313,20 @@ void tim2_isr(void)
     }
 }
 
+/* DMA buffers */
+#define DMA_SIZE 50
+u8 rxbuf1[DMA_SIZE];
+u8 rxbuf2[DMA_SIZE];
+
+/*
+ * The active buffer is the one with an active DMA transfer.
+ * The idle buffer is the one we can read/write between transfers.
+ */
+u8 *active_rxbuf = &rxbuf1[0];
+u8 *idle_rxbuf = &rxbuf2[0];
+
 /*--------------------------------------------------------------------*/
 /* The ISR simply provides a test output for a CRO trigger */
-
 void dma1_stream0_isr(void)
 {
     if (dma_get_interrupt_flag(UES_DMA_CONUR, UES_DMA_STREAM, DMA_TCIF)) {
@@ -330,9 +339,7 @@ void dma1_stream0_isr(void)
             idle_rxbuf = &rxbuf2[0];
         }
 
-        idle_buf_clk100ns  = CLK100NS;
-        idle_buf_clkn_high = (clkn >> 20) & 0xff;
-        idle_buf_channel   = channel;
+        // TODO
 
     } else if (dma_get_interrupt_flag(UES_DMA_CONUR, UES_DMA_STREAM, DMA_TEIF)) {
         dma_clear_interrupt_flags(UES_DMA_CONUR, UES_DMA_STREAM, DMA_TEIF);

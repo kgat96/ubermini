@@ -130,65 +130,20 @@
 #define STATE_STROBE_TX_OFF   18
 #define STATE_BEFORE_IDLE     24
 
-/* operating modes */
-enum operating_modes {
-    MODE_IDLE          = 0,
-    MODE_RX_SYMBOLS    = 1,
-    MODE_TX_SYMBOLS    = 2,
-    MODE_TX_TEST       = 3,
-    MODE_SPECAN        = 4,
-    MODE_RANGE_TEST    = 5,
-    MODE_REPEATER      = 6,
-    MODE_LED_SPECAN    = 7,
-    MODE_BT_FOLLOW     = 8,
-    MODE_BT_FOLLOW_LE  = 9,
-    MODE_BT_PROMISC_LE = 10,
-    MODE_RESET         = 11,
-    MODE_BT_SLAVE_LE   = 12,
-    MODE_EGO           = 13,
-    MODE_AFH           = 14,
-    MODE_RX_GENERIC    = 15,
-    MODE_TX_GENERIC    = 16,
-};
-
-enum modulations {
-    MOD_BT_BASIC_RATE = 0,
-    MOD_BT_LOW_ENERGY = 1,
-    MOD_80211_FHSS    = 2,
-    MOD_NONE          = 3
-};
-
-enum hop_mode {
-    HOP_NONE      = 0,
-    HOP_SWEEP     = 1,
-    HOP_BLUETOOTH = 2,
-    HOP_BTLE      = 3,
-    HOP_DIRECT    = 4,
-    HOP_AFH       = 5,
-};
-
 /* tuning limits */
 #define MIN_FREQ 2268
 #define MAX_FREQ 2794
 
+/* specan stuff */
+extern volatile u16 low_freq;
+extern volatile u16 high_freq;
+
 void cc_init(void);
 void cc_reset(void);
-void cc_rx_mode(void);
+void cc_rx_mode(int m, int channel);
 void cc_specan_mode(void);
-void get_specan_date(u8 *buf, int len);
+void cc_specan_date(u8 *buf, int len);
 
-void cc_hop(void);
-void cc_clkn_handler(void);
 
-#define DMA_SIZE 50
-
-extern u8 rxbuf1[];
-extern u8 rxbuf2[];
-
-extern u8 *active_rxbuf;
-extern u8 *idle_rxbuf;
-
-int usb_request(u8 request);
 
 #endif /* __CC_H */
-

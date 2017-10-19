@@ -16,3 +16,4 @@ TAGS
 TAGS.log
 cscope*
 ID
+/Debug/
