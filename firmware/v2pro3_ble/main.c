@@ -222,6 +222,11 @@ static void tim_setup(void)
     timer_enable_irq(TIM2, TIM_DIER_UIE);
 }
 
+/* DMA buffers */
+#define DMA_SIZE        50
+u8 rxbuf1[DMA_SIZE];
+u8 rxbuf2[DMA_SIZE];
+
 #define UES_DMA_STREAM DMA_STREAM0
 #define UES_DMA_CONUR  DMA1
 
@@ -312,11 +317,6 @@ void tim2_isr(void)
         UART_TOG();
     }
 }
-
-/* DMA buffers */
-#define DMA_SIZE 50
-u8 rxbuf1[DMA_SIZE];
-u8 rxbuf2[DMA_SIZE];
 
 /*
  * The active buffer is the one with an active DMA transfer.
