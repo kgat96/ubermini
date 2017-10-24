@@ -298,6 +298,9 @@ int main(void)
 
     SPI_CR1(SPI3) |= SPI_CR1_SPE;
 
+    void ble_follow(void);
+    ble_follow();
+
     while(1) {
         delay_ms(1000);
         LED1_TOG();

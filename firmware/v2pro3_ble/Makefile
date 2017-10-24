@@ -13,7 +13,7 @@ V = 1
 
 BINARY = main
 
-OBJS = cc.o uart.o
+OBJS = cc.o uart.o ble.o
 
 LDSCRIPT = ./link.ld
 
