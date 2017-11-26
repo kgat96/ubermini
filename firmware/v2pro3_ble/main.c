@@ -1,5 +1,5 @@
 /*
- * This file is part of the ubertoothp project.
+ * This file is part of the ubermini project.
  *
  * Copyright (C) 2017 Kage Shen <kgat96@gmail.com>
  *
@@ -103,10 +103,8 @@ static void gpio_setup(void)
     gpio_mode_setup(GPIOD, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, PIN_CSN);
 
     /* other pins */
-    gpio_mode_setup(GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, \
-                                        PIN_RX | PIN_TX | PIN_BTGR);
-    gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, \
-                                        PIN_PAEN | PIN_HGM);
+    gpio_mode_setup(GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, PIN_RX | PIN_TX | PIN_BTGR);
+    gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, PIN_PAEN | PIN_HGM);
 
     gpio_mode_setup(GPIOB, GPIO_MODE_OUTPUT,  GPIO_PUPD_PULLUP, 1 << 13); // ?????
 
@@ -125,10 +123,10 @@ static void gpio_setup(void)
 static void spi_setup(void)
 {
     /*
-      *       NSS          SCK                   MISO                    MOSI
-      *   --------------   -------------------   -------------           ---------------
-      * SPI3  PA15*, PA4*  PB3*, PC10*           PB4*, PC11*             PB5*, PD6, PC12*
-      */
+     *       NSS          SCK                   MISO            MOSI
+     *   --------------   -------------------   -------------   ---------------
+     * SPI3  PA15*, PA4*  PB3*, PC10*           PB4*, PC11*     PB5*, PD6, PC12*
+     */
 
      // set spi sck PB3
      gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_PULLUP, GPIO3);
@@ -145,12 +143,12 @@ static void spi_setup(void)
      rcc_periph_clock_enable(RCC_SPI3);
 
      // slave mode, 8 bit, one line only,
-     SPI3_CR1 = SPI_CR1_BIDIMODE_1LINE_BIDIR | SPI_CR1_SSM
-             | SPI_CR1_CPHA | SPI_CR1_CPOL; // SPI_CR1_BIDIOE
-     //SPI3_CR1 =  SPI_CR1_SSM | SPI_CR1_CPHA | SPI_CR1_CPOL;
-     
-     // RX dma mode
-     SPI3_CR2 |= 1;
+     SPI3_CR1 = SPI_CR1_BIDIMODE_1LINE_BIDIR | SPI_CR1_SSM | SPI_CR1_CPHA | SPI_CR1_CPOL;
+
+     SPI3_CR2 = SPI_CR2_RXNEIE; // Rx buffer not empty interrupt enable
+     nvic_enable_irq(NVIC_SPI3_IRQ);
+
+     //SPI3_CR2 |= 1;           // RX dma mode
 }
 
 #define CLK100NS (3125*(clkn & 0xfffff) + timer_get_counter(TIM2))
@@ -162,8 +160,6 @@ extern volatile u16 clk100ns_offset;
 extern volatile uint8_t  idle_buf_clkn_high;
 extern volatile uint32_t idle_buf_clk100ns;
 extern volatile uint16_t idle_buf_channel;
-
-extern volatile u16 channel;
 
 static void tim_setup(void)
 {
@@ -227,8 +223,8 @@ static void tim_setup(void)
 u8 rxbuf1[DMA_SIZE];
 u8 rxbuf2[DMA_SIZE];
 
-#define UES_DMA_STREAM DMA_STREAM0
-#define UES_DMA_CONUR  DMA1
+#define UES_DMA_STREAM  DMA_STREAM0
+#define UES_DMA_CONUR   DMA1
 
 static void dma_setup(void)
 {
@@ -267,7 +263,7 @@ int main(void)
 
     usart_setup();
 
-    kputs("\nUBER TUN\n");
+    kputs("\nUBER RUN\n");
 
     printf("system uart output\n");
 
@@ -285,7 +281,7 @@ int main(void)
 
     /* Setup USART1 parameters. */
     usart_set_baudrate(USART1, 2000000);
-    
+
     LED1_CLR();LED2_CLR();LED3_CLR();LED4_CLR();
 
     kputs("system clock init done!\n");
@@ -294,9 +290,7 @@ int main(void)
 
     spi_setup();
 
-    dma_setup();
-
-    SPI_CR1(SPI3) |= SPI_CR1_SPE;
+    //dma_setup();
 
     void ble_follow(void);
     ble_follow();
@@ -317,7 +311,7 @@ void tim2_isr(void)
         /* Clear compare interrupt flag. */
         TIM_SR(TIM2) = ~TIM_SR_UIF;
         //LED4_TOG();
-        UART_TOG();
+        //UART_TOG();
     }
 }
 
@@ -349,4 +343,20 @@ void dma1_stream0_isr(void)
     }
 }
 
+extern int ble_packet_len;
 
+void cc_clean_fifo(void)
+{
+    while (SPI3_SR & SPI_SR_RXNE)
+        {SPI2_DR = SPI3_DR;};
+}
+
+void spi3_isr(void)
+{
+    while (SPI3_SR & SPI_SR_RXNE) {
+        //kputc('|');
+        //kputc(SPI3_DR);
+        rxbuf1[ble_packet_len++] = SPI3_DR;
+        //UART_TOG();
+    }
+}

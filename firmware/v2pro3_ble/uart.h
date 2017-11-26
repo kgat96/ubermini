@@ -17,7 +17,7 @@
 
 #define printf xprintf
 
-#define kputc(a) usart_send_blocking(nUSART, a);
+#define kputc(a) usart_send_blocking(nUSART, a)
 
 void xprintf(const char* fmt, ...);
 

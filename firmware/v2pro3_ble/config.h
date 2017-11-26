@@ -59,6 +59,8 @@ typedef volatile unsigned long int vu64;
 
 #define UART_RX         GPIO10       /* Pa.10  */
 
+#define UART_SET()      gpio_set(GPIOA, UART_RX)
+#define UART_CLR()      gpio_clear(GPIOA, UART_RX)
 #define UART_TOG()      gpio_toggle(GPIOA, UART_RX)
 
 #define LED1_SET()      gpio_set(GPIOC, PIN_LED1)

@@ -147,4 +147,9 @@ void cc_rx_sync(int m, u32 sync, int channel);
 void cc_specan_mode(void);
 void cc_specan_date(u8 *buf, int len);
 
+void cc_clean_fifo(void);
+
+void cc_SRFoff(void);
+void cc_SRFon_RX(void);
+
 #endif /* __CC_H */

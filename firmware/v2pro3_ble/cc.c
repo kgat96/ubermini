@@ -95,6 +95,19 @@ static inline void wait_fsunlock(void)
     while (gpio_get(GPIOA, PIN_GIO6));
 }
 
+void cc_SRFoff(void)
+{
+    cc_strobe(SRFOFF);
+    wait_fsunlock();
+}
+
+void cc_SRFon_RX(void)
+{
+    cc_strobe(SFSON);
+    wait_fslock();
+    cc_strobe(SRX);
+}
+
 /*
  * Warning: This should only be called when running on the internal oscillator.
  * Otherwise use clock_start().
@@ -103,6 +116,7 @@ void cc_reset(void)
 {
     cc_strobe(SXOSCOFF);
     delay();
+
     cc_set(MAIN, 0x0000);
     while (cc_get(MAIN) != 0x0000) {
         cc_puthex(cc_get(FSMSTATE), 2);
