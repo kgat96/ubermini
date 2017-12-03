@@ -296,7 +296,7 @@ static void packet_process(u8 *packet)
     u8 *data_len = &packet[DATA_LEN_IDX];
     //u8 *data = &packet[DATA_START_IDX];
 
-    printf("pkt %x %d\n", packet[4], packet[DATA_LEN_IDX] & 0x3f);
+    //printf("pkt %x %d\n", packet[4], packet[DATA_LEN_IDX] & 0x3f);
 
     if (le.link_state == LINK_LISTENING) {
         u8 pkt_type = packet[4] & 0x0F;
@@ -358,6 +358,8 @@ static void packet_process(u8 *packet)
 
 }
 
+u8 cx_strobe(u8 reg);
+
 static void ble_process(void)
 {
     volatile u16 channel = 2426;
@@ -379,30 +381,30 @@ static void ble_process(void)
 
     // Preamble     Access Address  PDU                 CRC
     // (1 octet)    (4 octets)      (2 to 39 octets)    (3 octets)
-    u32 len = (p[5] & 0x3f) + 2;
+    u32 len = (p[5] & 0x3f) + 2 + 3;
 
-    printf("%x %d\n", len, p[5] & 0x3f);
+    printf("len %d %d %d\n", ble_packet_len, p[5] & 0x3f, len);
 
-    if (len > 39) {
+    //if (len > 39) {
+    if (0) {
         kputc('.');
-        cc_SRFoff();
+        //cc_SRFoff();
+        spi_set_nss_high(SPI3);
+        cx_strobe(SFSON);
         return;
     }
 
     // transfer the minimum number of bytes from the CC2400
     // this allows us enough time to resume RX for subsequent packets on the same channel
 
-    while (ble_packet_len < (len-4));
+    while (ble_packet_len < len);
 
-    for (u32 i= 0; i < len; i++) {
-        printf("%x ", p[i]);
-    }
+    //cc_SRFoff();
+    //cc_clean_fifo();
+    //spi_disable(SPI3);
 
-    kputc('\n');
-
-    cc_SRFoff();
-    cc_clean_fifo();
-    spi_disable(SPI3);
+    spi_set_nss_high(SPI3);
+    cx_strobe(SFSON);
 
     // unwhiten the rest of the packet
     for (int i = 4; i < 44; i += 4) {
@@ -419,12 +421,17 @@ static void ble_process(void)
                      | (p[4+len+1] << 8)
                      | (p[4+len+0] << 0);
         if (calc_crc != wire_crc) { // skip packets with a bad CRC
-            cc_SRFoff();
             return;
         }
     }
 
-    packet_process((u8 *)packet);
+    for (u32 i= 0; i < (len + 4); i++) {
+        printf("%x ", p[i]);
+    }
+
+    kputc('\n');
+
+    //packet_process((u8 *)packet);
 
 
 
@@ -445,14 +452,12 @@ void ble_follow(void)
 
     kputs("bleX\n");
 
-    u8 cx_strobe(u8 reg);
-
     cc_clean_fifo();
     spi_enable(SPI3);
     cx_strobe(SRX);
     spi_set_nss_low(SPI3);
 
-    while (1) {
+    while (0) {
         const u32 *whit = whitening_word[btle_channel_index(channel-2402)];
         u32 packet[48/4+1] = { 0, };
         u8 *p = (u8 *)packet;
@@ -489,8 +494,11 @@ void ble_follow(void)
             ble_process();
 
             ble_packet_len = 0;
-            cc_SRFon_RX();
-            spi_enable(SPI3);
+            //cc_SRFon_RX();
+            //spi_enable(SPI3);
+            cc_clean_fifo();
+            spi_set_nss_low(SPI3);
+            cx_strobe(SRX);
         }
     }
 }
