@@ -11,6 +11,14 @@
 #include <stdarg.h>
 #include "uart.h"
 
+void kputc(char c)
+{
+    if (c == '\n') {
+        usart_send_blocking(nUSART, '\r');
+    }
+    usart_send_blocking(nUSART, c);
+}
+
 void kputhex(unsigned int value, int digits)
 {
     while (digits-- > 0) {
@@ -22,8 +30,6 @@ void kputhex(unsigned int value, int digits)
 void kputs(char *s)
 {
     while (*s) {
-        if (*s == '\n')
-            kputc('\r');
         kputc(*s++);
     }
 }

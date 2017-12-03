@@ -83,6 +83,12 @@ static u8 cc_strobe(u8 reg)
     return cc_spi(8, reg);
 }
 
+u8 cx_strobe(u8 reg);
+u8 cx_strobe(u8 reg)
+{
+    return cc_spi(8, reg);
+}
+
 static inline void wait_fslock(void)
 {
     //while (!(cc_status() & FS_LOCK));
@@ -98,11 +104,11 @@ static inline void wait_fsunlock(void)
 void cc_SRFoff(void)
 {
     cc_strobe(SRFOFF);
-    wait_fsunlock();
 }
 
 void cc_SRFon_RX(void)
 {
+    wait_fsunlock();
     cc_strobe(SFSON);
     wait_fslock();
     cc_strobe(SRX);
@@ -235,7 +241,6 @@ void cc_rx_sync(int m, u32 sync, int channel)
 
     cc_strobe(SFSON);
     wait_fslock();
-    cc_strobe(SRX);
     PAEN_SET();
     HGM_SET();
 }

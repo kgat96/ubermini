@@ -143,7 +143,8 @@ static void spi_setup(void)
      rcc_periph_clock_enable(RCC_SPI3);
 
      // slave mode, 8 bit, one line only,
-     SPI3_CR1 = SPI_CR1_BIDIMODE_1LINE_BIDIR | SPI_CR1_SSM | SPI_CR1_CPHA | SPI_CR1_CPOL;
+     //SPI3_CR1 = SPI_CR1_SSI | SPI_CR1_BIDIMODE_1LINE_BIDIR | SPI_CR1_SSM | SPI_CR1_CPHA | SPI_CR1_CPOL;
+     SPI3_CR1 = SPI_CR1_SSI | SPI_CR1_BIDIMODE_1LINE_BIDIR | SPI_CR1_SSM;
 
      SPI3_CR2 = SPI_CR2_RXNEIE; // Rx buffer not empty interrupt enable
      nvic_enable_irq(NVIC_SPI3_IRQ);
@@ -358,5 +359,9 @@ void spi3_isr(void)
         //kputc(SPI3_DR);
         rxbuf1[ble_packet_len++] = SPI3_DR;
         //UART_TOG();
+    }
+
+    if (SPI3_SR & 0x148) {
+        kputc('x');
     }
 }

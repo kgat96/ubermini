@@ -495,7 +495,7 @@ static void le_transmit(u32 aa, u8 len, u8 *data)
     u8 byte;
     u16 gio_save;
 
-    channel = 2402;     // 37
+    channel = 2426;     // 38
 
     // first four bytes: AA
     for (i = 0; i < 4; ++i) {
@@ -559,8 +559,8 @@ static void le_transmit(u32 aa, u8 len, u8 *data)
 
     PAEN_SET();
 
-    while(1) {
-        kputc('.');
+    //while(0) {
+    //    kputc('.');
 
         if (0) {
             for(i = 0; i < 64; i++) {
@@ -592,7 +592,7 @@ static void le_transmit(u32 aa, u8 len, u8 *data)
             cc_fifo_write(tx_len, txbuf + i);
         }
 
-        {
+        if(1) {
             u32 nn = 50000;
             while(nn--) {
                 __asm__("nop");__asm__("nop");__asm__("nop");
@@ -600,7 +600,7 @@ static void le_transmit(u32 aa, u8 len, u8 *data)
                 __asm__("nop");__asm__("nop");__asm__("nop");
             }
         }
-    }
+    //}
 
     while ((cc_get(FSMSTATE) & 0x1f) != STATE_STROBE_FS_ON);
 
@@ -661,7 +661,7 @@ void ble_adv(void)
         0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 
         // advertising data
-        0x02, 0x01, 0x05,
+        0xa2, 0xa1, 0xa5,
 
         // CRC (calc)
         0xff, 0xff, 0xff,
@@ -680,7 +680,7 @@ void ble_adv(void)
 
     // spam advertising packets
     //while (requested_mode == MODE_BT_SLAVE_LE) {
-        le_transmit(0x8e89bed6, adv_ind_len+3, adv_ind);
+        le_transmit(0x8e89beaa, adv_ind_len+3, adv_ind);
         //msleep(100);
     //}
 }

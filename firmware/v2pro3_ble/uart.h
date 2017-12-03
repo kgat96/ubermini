@@ -17,12 +17,11 @@
 
 #define printf xprintf
 
-#define kputc(a) usart_send_blocking(nUSART, a)
-
 void xprintf(const char* fmt, ...);
 
 void kputhex(unsigned int value, int digits);
 void kputs(char *s);
+void kputc(char c);
 
 void delay(void);
 

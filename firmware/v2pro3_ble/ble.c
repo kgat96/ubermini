@@ -8,10 +8,15 @@
  * published by the Free Software Foundation.
  */
 
+#include <string.h>
+
 #include "config.h"
 #include "cc.h"
 #include "uart.h"
 #include "ble.h"
+
+void delay_us(u32 us);
+void delay_ms(u32 us);
 
 static const u32 whitening_word[40][12] = {
     { 0xc3bcb240, 0x5f4a371f, 0x9a9cf685, 0x44c5d6c1, 0xe1de5920, 0xafa51b8f,
@@ -96,6 +101,61 @@ static const u32 whitening_word[40][12] = {
       0x2262eb60, 0xf0ef2c90, 0x57d28dc7, 0x66a73da1, 0x113175b0, 0xf8779648, },
 };
 
+u32 btle_crc_lut[256] = {
+    0x000000, 0x01b4c0, 0x036980, 0x02dd40, 0x06d300, 0x0767c0, 0x05ba80, 0x040e40,
+    0x0da600, 0x0c12c0, 0x0ecf80, 0x0f7b40, 0x0b7500, 0x0ac1c0, 0x081c80, 0x09a840,
+    0x1b4c00, 0x1af8c0, 0x182580, 0x199140, 0x1d9f00, 0x1c2bc0, 0x1ef680, 0x1f4240,
+    0x16ea00, 0x175ec0, 0x158380, 0x143740, 0x103900, 0x118dc0, 0x135080, 0x12e440,
+    0x369800, 0x372cc0, 0x35f180, 0x344540, 0x304b00, 0x31ffc0, 0x332280, 0x329640,
+    0x3b3e00, 0x3a8ac0, 0x385780, 0x39e340, 0x3ded00, 0x3c59c0, 0x3e8480, 0x3f3040,
+    0x2dd400, 0x2c60c0, 0x2ebd80, 0x2f0940, 0x2b0700, 0x2ab3c0, 0x286e80, 0x29da40,
+    0x207200, 0x21c6c0, 0x231b80, 0x22af40, 0x26a100, 0x2715c0, 0x25c880, 0x247c40,
+    0x6d3000, 0x6c84c0, 0x6e5980, 0x6fed40, 0x6be300, 0x6a57c0, 0x688a80, 0x693e40,
+    0x609600, 0x6122c0, 0x63ff80, 0x624b40, 0x664500, 0x67f1c0, 0x652c80, 0x649840,
+    0x767c00, 0x77c8c0, 0x751580, 0x74a140, 0x70af00, 0x711bc0, 0x73c680, 0x727240,
+    0x7bda00, 0x7a6ec0, 0x78b380, 0x790740, 0x7d0900, 0x7cbdc0, 0x7e6080, 0x7fd440,
+    0x5ba800, 0x5a1cc0, 0x58c180, 0x597540, 0x5d7b00, 0x5ccfc0, 0x5e1280, 0x5fa640,
+    0x560e00, 0x57bac0, 0x556780, 0x54d340, 0x50dd00, 0x5169c0, 0x53b480, 0x520040,
+    0x40e400, 0x4150c0, 0x438d80, 0x423940, 0x463700, 0x4783c0, 0x455e80, 0x44ea40,
+    0x4d4200, 0x4cf6c0, 0x4e2b80, 0x4f9f40, 0x4b9100, 0x4a25c0, 0x48f880, 0x494c40,
+    0xda6000, 0xdbd4c0, 0xd90980, 0xd8bd40, 0xdcb300, 0xdd07c0, 0xdfda80, 0xde6e40,
+    0xd7c600, 0xd672c0, 0xd4af80, 0xd51b40, 0xd11500, 0xd0a1c0, 0xd27c80, 0xd3c840,
+    0xc12c00, 0xc098c0, 0xc24580, 0xc3f140, 0xc7ff00, 0xc64bc0, 0xc49680, 0xc52240,
+    0xcc8a00, 0xcd3ec0, 0xcfe380, 0xce5740, 0xca5900, 0xcbedc0, 0xc93080, 0xc88440,
+    0xecf800, 0xed4cc0, 0xef9180, 0xee2540, 0xea2b00, 0xeb9fc0, 0xe94280, 0xe8f640,
+    0xe15e00, 0xe0eac0, 0xe23780, 0xe38340, 0xe78d00, 0xe639c0, 0xe4e480, 0xe55040,
+    0xf7b400, 0xf600c0, 0xf4dd80, 0xf56940, 0xf16700, 0xf0d3c0, 0xf20e80, 0xf3ba40,
+    0xfa1200, 0xfba6c0, 0xf97b80, 0xf8cf40, 0xfcc100, 0xfd75c0, 0xffa880, 0xfe1c40,
+    0xb75000, 0xb6e4c0, 0xb43980, 0xb58d40, 0xb18300, 0xb037c0, 0xb2ea80, 0xb35e40,
+    0xbaf600, 0xbb42c0, 0xb99f80, 0xb82b40, 0xbc2500, 0xbd91c0, 0xbf4c80, 0xbef840,
+    0xac1c00, 0xada8c0, 0xaf7580, 0xaec140, 0xaacf00, 0xab7bc0, 0xa9a680, 0xa81240,
+    0xa1ba00, 0xa00ec0, 0xa2d380, 0xa36740, 0xa76900, 0xa6ddc0, 0xa40080, 0xa5b440,
+    0x81c800, 0x807cc0, 0x82a180, 0x831540, 0x871b00, 0x86afc0, 0x847280, 0x85c640,
+    0x8c6e00, 0x8ddac0, 0x8f0780, 0x8eb340, 0x8abd00, 0x8b09c0, 0x89d480, 0x886040,
+    0x9a8400, 0x9b30c0, 0x99ed80, 0x985940, 0x9c5700, 0x9de3c0, 0x9f3e80, 0x9e8a40,
+    0x972200, 0x9696c0, 0x944b80, 0x95ff40, 0x91f100, 0x9045c0, 0x929880, 0x932c40
+};
+
+/*
+ * Calculate a BTLE CRC one byte at a time. Thanks to Dominic Spill and
+ * Michael Ossmann for writing and optimizing this.
+ *
+ * Arguments: CRCInit, pointer to start of packet, length of packet in
+ * bytes
+ * */
+static u32 btle_crcgen_lut(u32 crc_init, u8 *data, int len)
+{
+    u32 state;
+    int i;
+    u8 key;
+
+    state = crc_init & 0xffffff;
+    for (i = 0; i < len; ++i) {
+        key = data[i] ^ (state & 0xff);
+        state = (state >> 8) ^ btle_crc_lut[key];
+    }
+    return state;
+}
 
 typedef enum {
     LINK_INACTIVE,
@@ -223,9 +283,86 @@ static u8 btle_channel_index(u8 channel) {
     return idx;
 }
 
+volatile unsigned int ble_packet_len;
+
+static void packet_process(u8 *packet)
+{
+#define ADV_ADDRESS_IDX 0
+#define HEADER_IDX 4
+#define DATA_LEN_IDX 5
+#define DATA_START_IDX 6
+
+    //u8 header = packet[HEADER_IDX];
+    u8 *data_len = &packet[DATA_LEN_IDX];
+    //u8 *data = &packet[DATA_START_IDX];
+
+    printf("pkt %x %d\n", packet[4], packet[DATA_LEN_IDX] & 0x3f);
+
+    if (le.link_state == LINK_LISTENING) {
+        u8 pkt_type = packet[4] & 0x0F;
+        if (pkt_type == 0x05) {
+            uint16_t conn_interval;
+
+            // ignore packets with incorrect length
+            if (*data_len != 34)
+                return;
+
+            // conn interval must be [7.5 ms, 4.0s] in units of 1.25 ms
+            conn_interval = (packet[29] << 8) | packet[28];
+            if (conn_interval < 6 || conn_interval > 3200)
+                return;
+
+            // This is a connect packet
+            // if we have a target, see if InitA or AdvA matches
+            if (le.target_set &&
+                memcmp(le.target, &packet[6], 6) &&  // Target address doesn't match Initiator.
+                memcmp(le.target, &packet[12], 6)) {  // Target address doesn't match Advertiser.
+                return;
+            }
+
+            le.link_state = LINK_CONN_PENDING;
+            le.crc_verify = 0; // we will drop many packets if we attempt to filter by CRC
+
+            int i = 0;
+            u32 tmp = 0;
+
+            for (i = 0; i < 4; ++i)
+                tmp |= packet[18+i] << (i*8);
+
+            le_set_access_address(tmp);
+
+#define CRC_INIT (2+4+6+6+4)
+            le.crc_init = (packet[CRC_INIT+2] << 16)
+                        | (packet[CRC_INIT+1] << 8)
+                        |  packet[CRC_INIT+0];
+            le.crc_init_reversed = rbit(le.crc_init);
+
+#define WIN_SIZE (2+4+6+6+4+3)
+            le.win_size = packet[WIN_SIZE];
+
+#define WIN_OFFSET (2+4+6+6+4+3+1)
+            le.win_offset = packet[WIN_OFFSET];
+
+#define CONN_INTERVAL (2+4+6+6+4+3+1+2)
+            le.conn_interval = (packet[CONN_INTERVAL+1] << 8)
+                             |  packet[CONN_INTERVAL+0];
+
+#define CHANNEL_INC (2+4+6+6+4+3+1+2+2+2+2+5)
+            le.channel_increment = packet[CHANNEL_INC] & 0x1f;
+            le.channel_idx = le.channel_increment;
+
+            // Hop to the initial channel immediately
+            //do_hop = 1;
+        }
+    }
+
+}
+
 static void ble_process(void)
 {
     volatile u16 channel = 2426;
+
+    le.link_state = LINK_LISTENING;
 
     u32 packet[48/4+1] = { 0, };
     u8 *p = (u8 *)packet;
@@ -240,18 +377,61 @@ static void ble_process(void)
         packet[i/4+1] = rbit(v) ^ whit[i/4];
     }
 
+    // Preamble     Access Address  PDU                 CRC
+    // (1 octet)    (4 octets)      (2 to 39 octets)    (3 octets)
     u32 len = (p[5] & 0x3f) + 2;
 
-    if (len > 39)
+    printf("%x %d\n", len, p[5] & 0x3f);
+
+    if (len > 39) {
         kputc('.');
-    else
-        kputc('*');
+        cc_SRFoff();
+        return;
+    }
+
+    // transfer the minimum number of bytes from the CC2400
+    // this allows us enough time to resume RX for subsequent packets on the same channel
+
+    while (ble_packet_len < (len-4));
+
+    for (u32 i= 0; i < len; i++) {
+        printf("%x ", p[i]);
+    }
+
+    kputc('\n');
+
+    cc_SRFoff();
+    cc_clean_fifo();
+    spi_disable(SPI3);
+
+    // unwhiten the rest of the packet
+    for (int i = 4; i < 44; i += 4) {
+        uint32_t v = rxbuf1[i+0] << 24
+                   | rxbuf1[i+1] << 16
+                   | rxbuf1[i+2] << 8
+                   | rxbuf1[i+3] << 0;
+        packet[i/4+1] = rbit(v) ^ whit[i/4];
+    }
+
+    if (le.crc_verify) {
+        u32 calc_crc = btle_crcgen_lut(le.crc_init_reversed, p + 4, len);
+        u32 wire_crc = (p[4+len+2] << 16)
+                     | (p[4+len+1] << 8)
+                     | (p[4+len+0] << 0);
+        if (calc_crc != wire_crc) { // skip packets with a bad CRC
+            cc_SRFoff();
+            return;
+        }
+    }
+
+    packet_process((u8 *)packet);
+
 
 
 
 }
 
-volatile int ble_packet_len;
+
 
 void ble_follow(void)
 {
@@ -263,54 +443,56 @@ void ble_follow(void)
 
     cc_rx_sync(MOD_BT_LOW_ENERGY, rbit(le.access_address), channel);
 
-    kputs("ble2\n");
+    kputs("bleX\n");
 
+    u8 cx_strobe(u8 reg);
+
+    cc_clean_fifo();
     spi_enable(SPI3);
+    cx_strobe(SRX);
+    spi_set_nss_low(SPI3);
 
     while (1) {
+        const u32 *whit = whitening_word[btle_channel_index(channel-2402)];
+        u32 packet[48/4+1] = { 0, };
+        u8 *p = (u8 *)packet;
+
         if (ble_packet_len > 16) {
-            //kputc('*');
-            UART_SET();
-            cc_SRFoff();
-            UART_CLR();
+            cx_strobe(SFSON);
+            cc_clean_fifo();
+            ble_packet_len = 0;
+            spi_set_nss_high(SPI3);
+
+            // unwhiten the rest of the packet
+            for (int i = 0; i < 16; i += 4) {
+                uint32_t v = rxbuf1[i+0] << 24
+                           | rxbuf1[i+1] << 16
+                           | rxbuf1[i+2] << 8
+                           | rxbuf1[i+3] << 0;
+                packet[i/4] = rbit(v) ^ whit[i/4];
+            }
+
+            kputc(':');
+            for (int i= 0; i < 16; i++) {
+                kputhex(p[i], 2);
+            }
+            kputc('\n');
+
+            cx_strobe(SRX);
+            spi_set_nss_low(SPI3);
+        }
+    }
+
+    while (1) {
+        if (ble_packet_len > 4) {
 
             ble_process();
 
-            cc_clean_fifo();
             ble_packet_len = 0;
-            UART_SET();
             cc_SRFon_RX();
-            UART_CLR();
+            spi_enable(SPI3);
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
