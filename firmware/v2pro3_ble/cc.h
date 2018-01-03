@@ -1,5 +1,5 @@
 /*
- * This file is part of the ubertoothp project.
+ * This file is part of the ubermini project.
  *
  * Copyright (C) 2016 Kage Shen <kgat96@gmail.com>
  *

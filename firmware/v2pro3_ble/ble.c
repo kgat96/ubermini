@@ -1,5 +1,5 @@
 /*
- * This file is part of the ubertoothp project.
+ * This file is part of the ubermini project.
  *
  * Copyright (C) 2017 Kage Shen <kgat96@gmail.com>
  *
@@ -213,9 +213,9 @@ le_state_t le = {
 /* efficiently reverse the bits of a 32-bit word */
 static u32 rbit(u32 value)
 {
-  u32 result = 0;
-  __asm("rbit %0, %1" : "=r" (result) : "r" (value));
-  return result;
+    u32 result = 0;
+    __asm("rbit %0, %1" : "=r" (result) : "r" (value));
+    return result;
 }
 
 static void le_set_access_address(u32 aa)
