@@ -285,12 +285,14 @@ static u8 btle_channel_index(u8 channel) {
 
 volatile unsigned int ble_packet_len;
 
+volatile u32 clkn = 0;
+
 static void packet_process(u8 *packet)
 {
-#define ADV_ADDRESS_IDX 0
-#define HEADER_IDX 4
-#define DATA_LEN_IDX 5
-#define DATA_START_IDX 6
+#define ADV_ADDRESS_IDX     0
+#define HEADER_IDX          4
+#define DATA_LEN_IDX        5
+#define DATA_START_IDX      6
 
     //u8 header = packet[HEADER_IDX];
     u8 *data_len = &packet[DATA_LEN_IDX];
@@ -364,10 +366,25 @@ static void ble_process(void)
 {
     volatile u16 channel = 2426;
 
+    static u32 count = 100;
+
+    if (clkn == count) {
+        count = clkn + 100;
+
+
+
+    }
+
+    if (ble_packet_len < 4) {
+        return;
+    }
+
     le.link_state = LINK_LISTENING;
 
     u32 packet[48/4+1] = { 0, };
     u8 *p = (u8 *)packet;
+    u32 *rxp = (u8 *)rxbuf1;
+
     packet[0] = le.access_address;
 
     const u32 *whit = whitening_word[btle_channel_index(channel-2402)];
@@ -385,15 +402,6 @@ static void ble_process(void)
 
     printf("len %d %d %d\n", ble_packet_len, p[5] & 0x3f, len);
 
-    //if (len > 39) {
-    if (0) {
-        kputc('.');
-        //cc_SRFoff();
-        spi_set_nss_high(SPI3);
-        cx_strobe(SFSON);
-        return;
-    }
-
     // transfer the minimum number of bytes from the CC2400
     // this allows us enough time to resume RX for subsequent packets on the same channel
 
@@ -404,7 +412,7 @@ static void ble_process(void)
     //spi_disable(SPI3);
 
     spi_set_nss_high(SPI3);
-    cx_strobe(SFSON);
+    cx_strobe(SFSON);                   // goto FS_ON
 
     // unwhiten the rest of the packet
     for (int i = 4; i < 44; i += 4) {
@@ -425,16 +433,18 @@ static void ble_process(void)
         }
     }
 
-    for (u32 i= 0; i < (len + 4); i++) {
-        printf("%x ", p[i]);
-    }
+    //for (u32 i= 0; i < (len + 4); i++) {
+    //    printf("%x ", p[i]);
+    //}
+    //kputc('\n');
 
-    kputc('\n');
-
-    //packet_process((u8 *)packet);
-
+    packet_process((u8 *)packet);
 
 
+    ble_packet_len = 0;
+    cc_clean_fifo();
+    spi_set_nss_low(SPI3);
+    cx_strobe(SRX);
 
 }
 
@@ -489,17 +499,7 @@ void ble_follow(void)
     }
 
     while (1) {
-        if (ble_packet_len > 4) {
-
-            ble_process();
-
-            ble_packet_len = 0;
-            //cc_SRFon_RX();
-            //spi_enable(SPI3);
-            cc_clean_fifo();
-            spi_set_nss_low(SPI3);
-            cx_strobe(SRX);
-        }
+        ble_process();
     }
 }
 

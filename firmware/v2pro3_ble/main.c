@@ -158,10 +158,6 @@ extern volatile u32 clkn;
 extern volatile u32 clkn_offset;
 extern volatile u16 clk100ns_offset;
 
-extern volatile uint8_t  idle_buf_clkn_high;
-extern volatile uint32_t idle_buf_clk100ns;
-extern volatile uint16_t idle_buf_channel;
-
 static void tim_setup(void)
 {
     /* Enable TIM2 clock. */
@@ -313,6 +309,7 @@ void tim2_isr(void)
         TIM_SR(TIM2) = ~TIM_SR_UIF;
         //LED4_TOG();
         //UART_TOG();
+        clkn++;
     }
 }
 
@@ -359,9 +356,5 @@ void spi3_isr(void)
         //kputc(SPI3_DR);
         rxbuf1[ble_packet_len++] = SPI3_DR;
         //UART_TOG();
-    }
-
-    if (SPI3_SR & 0x148) {
-        kputc('x');
     }
 }
