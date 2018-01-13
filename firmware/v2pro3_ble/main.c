@@ -260,7 +260,7 @@ int main(void)
 
     usart_setup();
 
-    kputs("\nUBER RUN\n");
+    kputs("\nubermini RUN\n");
 
     printf("system uart output\n");
 
@@ -287,7 +287,7 @@ int main(void)
 
     spi_setup();
 
-    //dma_setup();
+    //dma_setup();              // BLE mode use spi interrupt receive data
 
     void ble_follow(void);
     ble_follow();

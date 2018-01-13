@@ -146,7 +146,7 @@ static void clock_init(void)
      * output 16MHz GIO6 */
     cc_strobe(SXOSCOFF);
     cc_set(IOCFG, (GIO_CLK_16M << 3) | (GIO_LOCK_STATUS << 9));
-    cc_strobe(SXOSCON);             // goto IDLE status
+    cc_strobe(SXOSCON);                         // goto IDLE status
     while (!(cc_status() & XOSC16M_STABLE)) {
         //cc_puthex(cc_get(FSMSTATE), 2);
     };
@@ -182,10 +182,10 @@ void cc_init(void)
     clock_init();
 }
 
-void cc_fs_init(int m, u32 sync, int channel)
+void cc_init_modulation(int mode, u32 sync)
 {
     u16 grmdm, mdmctrl;
-    if (m == MOD_BT_BASIC_RATE) {
+    if (mode == MOD_BT_BASIC_RATE) {
         mdmctrl = 0x0029;   // 160 kHz frequency deviation
         grmdm = 0x0461;     // un-buffered mode, packet w/ sync word detection
         // 0 00 00 1 000 11 0 00 0 1
@@ -196,7 +196,7 @@ void cc_fs_init(int m, u32 sync, int channel)
         //   |  +--------------------> un-buffered mode
         //   +-----------------------> sync error bits: 0
 
-    } else if (m == MOD_BT_LOW_ENERGY) {
+    } else if (mode == MOD_BT_LOW_ENERGY) {
         mdmctrl = 0x0040;   // 250 kHz frequency deviation
         grmdm = 0x0561;     // un-buffered mode, packet w/ sync word detection
         // 0 00 00 1 010 11 0 00 0 1
@@ -228,18 +228,19 @@ void cc_fs_init(int m, u32 sync, int channel)
     // ref: CC2400 datasheet page 67
     // AFC settling explained page 41/42
 
-    cc_set(GRMDM, grmdm);
+    cc_set(GRMDM,   grmdm);
 
-    cc_set(SYNCL, sync & 0xffff);
-    cc_set(SYNCH, (sync >> 16) & 0xffff);
+    cc_set(SYNCL,   sync & 0xffff);
+    cc_set(SYNCH,   (sync >> 16) & 0xffff);
+}
 
-    cc_set(FREND, 0b1011);      // amplifier level (-7 dBm, picked from hat)
-    cc_set(MDMCTRL, mdmctrl);
-    cc_set(INT, 0x0014);        // FIFO_THRESHOLD: 20 bytes
-
+void cc_set_channel(u32 channel)
+{
 
 
 }
+
+
 
 /* start un-buffered rx */
 void cc_rx_sync(int m, u32 sync, int channel)
@@ -247,11 +248,11 @@ void cc_rx_sync(int m, u32 sync, int channel)
     u16 grmdm, mdmctrl;
     if (m == MOD_BT_BASIC_RATE) {
         mdmctrl = 0x0029;   // 160 kHz frequency deviation
-        grmdm = 0x0461;     // un-buffered mode, packet w/ sync word detection
-        // 0 00 00 1 000 11 0 00 0 1
+        grmdm = 0x0101;     // un-buffered mode
+        // 0 00 00 0 010 00 0 00 0 1
         //   |  |  | |   |  +--------> CRC off
         //   |  |  | |   +-----------> sync word: 32 MSB bits of SYNC_WORD
-        //   |  |  | +---------------> 0 preamble bytes of 01010101
+        //   |  |  | +---------------> 2 preamble bytes of 01010101
         //   |  |  +-----------------> packet mode
         //   |  +--------------------> un-buffered mode
         //   +-----------------------> sync error bits: 0
