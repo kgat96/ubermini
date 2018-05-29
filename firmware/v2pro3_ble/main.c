@@ -29,6 +29,7 @@
 #include "cc.h"
 #include "usbhid.h"
 #include "uart.h"
+#include "ble.h"
 
 void delay_us(u32 us);
 void delay_ms(u32 us);
@@ -153,10 +154,6 @@ static void spi_setup(void)
 }
 
 #define CLK100NS (3125*(clkn & 0xfffff) + timer_get_counter(TIM2))
-
-extern volatile u32 clkn;
-extern volatile u32 clkn_offset;
-extern volatile u16 clk100ns_offset;
 
 static void tim_setup(void)
 {
@@ -289,14 +286,17 @@ int main(void)
 
     //dma_setup();
 
-    void ble_follow(void);
-    ble_follow();
+    ble_init();
 
-    while(1) {
-        delay_ms(1000);
-        LED1_TOG();
-        //UART_TOG();
+    while (1) {
+        ble_process();
     }
+
+//    while(1) {
+//        delay_ms(1000);
+//        LED1_TOG();
+//        //UART_TOG();
+//    }
 
     return 0;
 }
@@ -333,15 +333,11 @@ void dma1_stream0_isr(void)
             active_rxbuf = &rxbuf1[0];
             idle_rxbuf = &rxbuf2[0];
         }
-
         // TODO
-
     } else if (dma_get_interrupt_flag(UES_DMA_CONUR, UES_DMA_STREAM, DMA_TEIF)) {
         dma_clear_interrupt_flags(UES_DMA_CONUR, UES_DMA_STREAM, DMA_TEIF);
     }
 }
-
-extern int ble_packet_len;
 
 void cc_clean_fifo(void)
 {

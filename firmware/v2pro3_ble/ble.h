@@ -11,7 +11,6 @@
 #ifndef __BLE_H
 #define __BLE_H
 
-
 /* operating modes */
 enum operating_modes {
     MODE_IDLE          = 0,
@@ -49,7 +48,6 @@ enum hop_mode {
     HOP_AFH       = 5,
 };
 
-
 #define DMA_SIZE 50
 
 extern u8 rxbuf1[];
@@ -57,5 +55,14 @@ extern u8 rxbuf2[];
 
 extern u8 *active_rxbuf;
 extern u8 *idle_rxbuf;
+
+extern volatile u32 ble_packet_len;
+
+extern volatile u32 clkn;
+extern volatile u32 clkn_offset;
+extern volatile u16 clk100ns_offset;
+
+void ble_init(void);
+void ble_process(void);
 
 #endif

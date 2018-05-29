@@ -283,8 +283,7 @@ static u8 btle_channel_index(u8 channel) {
     return idx;
 }
 
-volatile unsigned int ble_packet_len;
-
+volatile u32 ble_packet_len;
 volatile u32 clkn = 0;
 
 static void packet_process(u8 *packet)
@@ -357,12 +356,9 @@ static void packet_process(u8 *packet)
             //do_hop = 1;
         }
     }
-
 }
 
-u8 cx_strobe(u8 reg);
-
-static void ble_process(void)
+void ble_process(void)
 {
     volatile u16 channel = 2426;
 
@@ -370,8 +366,6 @@ static void ble_process(void)
 
     if (clkn == count) {
         count = clkn + 100;
-
-
 
     }
 
@@ -383,7 +377,7 @@ static void ble_process(void)
 
     u32 packet[48/4+1] = { 0, };
     u8 *p = (u8 *)packet;
-    u32 *rxp = (u8 *)rxbuf1;
+    //u32 *rxp = (u32 *)rxbuf1;
 
     packet[0] = le.access_address;
 
@@ -433,13 +427,12 @@ static void ble_process(void)
         }
     }
 
-    //for (u32 i= 0; i < (len + 4); i++) {
-    //    printf("%x ", p[i]);
-    //}
-    //kputc('\n');
+    for (u32 i= 0; i < (len + 4); i++) {
+        printf("%x ", p[i]);
+    }
+    kputc('\n');
 
     packet_process((u8 *)packet);
-
 
     ble_packet_len = 0;
     cc_clean_fifo();
@@ -448,9 +441,7 @@ static void ble_process(void)
 
 }
 
-
-
-void ble_follow(void)
+void ble_init(void)
 {
     volatile u16 channel = 2426;
 
@@ -458,15 +449,19 @@ void ble_follow(void)
 
     ble_reset();
 
-    cc_rx_sync(MOD_BT_LOW_ENERGY, rbit(le.access_address), channel);
+    rf_init(MOD_BT_LOW_ENERGY, rbit(le.access_address), channel);
 
     kputs("bleX\n");
 
     cc_clean_fifo();
+
     spi_enable(SPI3);
+
     cx_strobe(SRX);
+
     spi_set_nss_low(SPI3);
 
+#if 0
     while (0) {
         const u32 *whit = whitening_word[btle_channel_index(channel-2402)];
         u32 packet[48/4+1] = { 0, };
@@ -497,10 +492,7 @@ void ble_follow(void)
             spi_set_nss_low(SPI3);
         }
     }
-
-    while (1) {
-        ble_process();
-    }
+#endif
 }
 
 

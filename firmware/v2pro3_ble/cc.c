@@ -84,6 +84,7 @@ static u8 cc_strobe(u8 reg)
 }
 
 u8 cx_strobe(u8 reg);
+
 u8 cx_strobe(u8 reg)
 {
     return cc_spi(8, reg);
@@ -101,18 +102,18 @@ static inline void wait_fsunlock(void)
     while (gpio_get(GPIOA, PIN_GIO6));
 }
 
-void cc_SRFoff(void)
-{
-    cc_strobe(SRFOFF);
-}
-
-void cc_SRFon_RX(void)
-{
-    wait_fsunlock();
-    cc_strobe(SFSON);
-    wait_fslock();
-    cc_strobe(SRX);
-}
+//void cc_SRFoff(void)
+//{
+//    cc_strobe(SRFOFF);
+//}
+//
+//void cc_SRFon_RX(void)
+//{
+//    wait_fsunlock();
+//    cc_strobe(SFSON);
+//    wait_fslock();
+//    cc_strobe(SRX);
+//}
 
 /*
  * Warning: This should only be called when running on the internal oscillator.
@@ -182,67 +183,9 @@ void cc_init(void)
     clock_init();
 }
 
-void cc_fs_init(int m, u32 sync, int channel)
-{
-    u16 grmdm, mdmctrl;
-    if (m == MOD_BT_BASIC_RATE) {
-        mdmctrl = 0x0029;   // 160 kHz frequency deviation
-        grmdm = 0x0461;     // un-buffered mode, packet w/ sync word detection
-        // 0 00 00 1 000 11 0 00 0 1
-        //   |  |  | |   |  +--------> CRC off
-        //   |  |  | |   +-----------> sync word: 32 MSB bits of SYNC_WORD
-        //   |  |  | +---------------> 0 preamble bytes of 01010101
-        //   |  |  +-----------------> packet mode
-        //   |  +--------------------> un-buffered mode
-        //   +-----------------------> sync error bits: 0
-
-    } else if (m == MOD_BT_LOW_ENERGY) {
-        mdmctrl = 0x0040;   // 250 kHz frequency deviation
-        grmdm = 0x0561;     // un-buffered mode, packet w/ sync word detection
-        // 0 00 00 1 010 11 0 00 0 1
-        //   |  |  | |   |  +--------> CRC off
-        //   |  |  | |   +-----------> sync word: 32 MSB bits of SYNC_WORD
-        //   |  |  | +---------------> 2 preamble bytes of 01010101
-        //   |  |  +-----------------> packet mode
-        //   |  +--------------------> un-buffered mode
-        //   +-----------------------> sync error bits: 0
-    } else {
-        /* oops */
-        return;
-    }
-
-    // Bluetooth-like modulation
-    cc_set(MANAND,  0x7fff);
-    cc_set(LMTST,   0x2b22);    // LNA and receive mixers test register
-
-    cc_set(MDMTST0, 0x124b);    // cc_set(MDMTST0, 0x134b);    // no PRNG
-    // 1      2      4b
-    // 00 0 1 0 0 10 01001011
-    //    | | | | |  +---------> AFC_DELTA = ??
-    //    | | | | +------------> AFC settling = 4 pairs (8 bit preamble)
-    //    | | | +--------------> no AFC adjust on packet
-    //    | | +----------------> do not invert data
-    //    | +------------------> TX IF freq 1 0Hz
-    //    +--------------------> PRNG off
-    //
-    // ref: CC2400 datasheet page 67
-    // AFC settling explained page 41/42
-
-    cc_set(GRMDM, grmdm);
-
-    cc_set(SYNCL, sync & 0xffff);
-    cc_set(SYNCH, (sync >> 16) & 0xffff);
-
-    cc_set(FREND, 0b1011);      // amplifier level (-7 dBm, picked from hat)
-    cc_set(MDMCTRL, mdmctrl);
-    cc_set(INT, 0x0014);        // FIFO_THRESHOLD: 20 bytes
-
-
-
-}
 
 /* start un-buffered rx */
-void cc_rx_sync(int m, u32 sync, int channel)
+void rf_init(int m, u32 sync, int channel)
 {
     u16 grmdm, mdmctrl;
     if (m == MOD_BT_BASIC_RATE) {
@@ -305,6 +248,7 @@ void cc_rx_sync(int m, u32 sync, int channel)
     HGM_SET();
 }
 
+#if 0
 /* start un-buffered rx */
 void cc_rx_mode(int m, int channel)
 {
@@ -400,3 +344,61 @@ void cc_specan_date(u8 *buf, int len)
         wait_fsunlock();
     }
 }
+
+void rf_init(int m, u32 sync, int channel)
+{
+    u16 grmdm, mdmctrl;
+    if (m == MOD_BT_BASIC_RATE) {
+        mdmctrl = 0x0029;   // 160 kHz frequency deviation
+        grmdm = 0x0461;     // un-buffered mode, packet w/ sync word detection
+        // 0 00 00 1 000 11 0 00 0 1
+        //   |  |  | |   |  +--------> CRC off
+        //   |  |  | |   +-----------> sync word: 32 MSB bits of SYNC_WORD
+        //   |  |  | +---------------> 0 preamble bytes of 01010101
+        //   |  |  +-----------------> packet mode
+        //   |  +--------------------> un-buffered mode
+        //   +-----------------------> sync error bits: 0
+
+    } else if (m == MOD_BT_LOW_ENERGY) {
+        mdmctrl = 0x0040;   // 250 kHz frequency deviation
+        grmdm = 0x0561;     // un-buffered mode, packet w/ sync word detection
+        // 0 00 00 1 010 11 0 00 0 1
+        //   |  |  | |   |  +--------> CRC off
+        //   |  |  | |   +-----------> sync word: 32 MSB bits of SYNC_WORD
+        //   |  |  | +---------------> 2 preamble bytes of 01010101
+        //   |  |  +-----------------> packet mode
+        //   |  +--------------------> un-buffered mode
+        //   +-----------------------> sync error bits: 0
+    } else {
+        /* oops */
+        return;
+    }
+
+    // Bluetooth-like modulation
+    cc_set(MANAND,  0x7fff);
+    cc_set(LMTST,   0x2b22);    // LNA and receive mixers test register
+
+    cc_set(MDMTST0, 0x124b);    // cc_set(MDMTST0, 0x134b);    // no PRNG
+    // 1      2      4b
+    // 00 0 1 0 0 10 01001011
+    //    | | | | |  +---------> AFC_DELTA = ??
+    //    | | | | +------------> AFC settling = 4 pairs (8 bit preamble)
+    //    | | | +--------------> no AFC adjust on packet
+    //    | | +----------------> do not invert data
+    //    | +------------------> TX IF freq 1 0Hz
+    //    +--------------------> PRNG off
+    //
+    // ref: CC2400 datasheet page 67
+    // AFC settling explained page 41/42
+
+    cc_set(GRMDM, grmdm);
+
+    cc_set(SYNCL, sync & 0xffff);
+    cc_set(SYNCH, (sync >> 16) & 0xffff);
+
+    cc_set(FREND, 0b1011);      // amplifier level (-7 dBm, picked from hat)
+    cc_set(MDMCTRL, mdmctrl);
+    cc_set(INT, 20);            // FIFO_THRESHOLD: 20 bytes
+}
+
+#endif

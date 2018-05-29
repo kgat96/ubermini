@@ -141,15 +141,7 @@ extern volatile u16 high_freq;
 void cc_init(void);
 void cc_reset(void);
 
-void cc_rx_mode(int m, int channel);
-void cc_rx_sync(int m, u32 sync, int channel);
+void rf_init(int m, u32 sync, int channel);
 
-void cc_specan_mode(void);
-void cc_specan_date(u8 *buf, int len);
-
-void cc_clean_fifo(void);
-
-void cc_SRFoff(void);
-void cc_SRFon_RX(void);
 
 #endif /* __CC_H */
