@@ -211,10 +211,17 @@ le_state_t le = {
 };
 
 /* efficiently reverse the bits of a 32-bit word */
-static u32 rbit(u32 value)
+__inline static u32 rbit(u32 value)
 {
     u32 result = 0;
     __asm("rbit %0, %1" : "=r" (result) : "r" (value));
+    return result;
+}
+
+__inline static u32 rev(u32 value)
+{
+    u32 result = 0;
+    __asm("rev %0, %1" : "=r" (result) : "r" (value));
     return result;
 }
 
@@ -377,29 +384,30 @@ void ble_process(void)
 
     u32 packet[48/4+1] = { 0, };
     u8 *p = (u8 *)packet;
-    //u32 *rxp = (u32 *)rxbuf1;
+    u32 *rxp = (u32 *)rxbuf1;
 
     packet[0] = le.access_address;
 
     const u32 *whit = whitening_word[btle_channel_index(channel-2402)];
-    for (int i = 0; i < 4; i+= 4) {
-        u32 v = rxbuf1[i+0] << 24
-                | rxbuf1[i+1] << 16
-                | rxbuf1[i+2] << 8
-                | rxbuf1[i+3] << 0;
-        packet[i/4+1] = rbit(v) ^ whit[i/4];
+    for (int i = 0; i < 1; i+= 1) {
+        //u32 v = rxbuf1[i+0] << 24
+        //        | rxbuf1[i+1] << 16
+        //        | rxbuf1[i+2] << 8
+        //        | rxbuf1[i+3] << 0;
+        u32 v = rev(rxp[i]);
+        packet[i+1] = rbit(v) ^ whit[i];
     }
 
     // Preamble     Access Address  PDU                 CRC
     // (1 octet)    (4 octets)      (2 to 39 octets)    (3 octets)
-    u32 len = (p[5] & 0x3f) + 2 + 3;
+    u32 len = (p[5] & 0x3f) + 2;    // PDU length
 
     printf("len %d %d %d\n", ble_packet_len, p[5] & 0x3f, len);
 
     // transfer the minimum number of bytes from the CC2400
     // this allows us enough time to resume RX for subsequent packets on the same channel
 
-    while (ble_packet_len < len);
+    while (ble_packet_len < (len+4+3)); // pdu + access addr + crc
 
     //cc_SRFoff();
     //cc_clean_fifo();
@@ -409,12 +417,13 @@ void ble_process(void)
     cx_strobe(SFSON);                   // goto FS_ON
 
     // unwhiten the rest of the packet
-    for (int i = 4; i < 44; i += 4) {
-        uint32_t v = rxbuf1[i+0] << 24
-                   | rxbuf1[i+1] << 16
-                   | rxbuf1[i+2] << 8
-                   | rxbuf1[i+3] << 0;
-        packet[i/4+1] = rbit(v) ^ whit[i/4];
+    for (int i = 1; i < 11; i += 1) {
+        //uint32_t v = rxbuf1[i+0] << 24
+        //           | rxbuf1[i+1] << 16
+        //           | rxbuf1[i+2] << 8
+        //           | rxbuf1[i+3] << 0;
+        u32 v = rev(rxp[i]);
+        packet[i+1] = rbit(v) ^ whit[i];
     }
 
     if (le.crc_verify) {
@@ -422,23 +431,25 @@ void ble_process(void)
         u32 wire_crc = (p[4+len+2] << 16)
                      | (p[4+len+1] << 8)
                      | (p[4+len+0] << 0);
+        //printf("crc ? %x %x\n", calc_crc, wire_crc);
         if (calc_crc != wire_crc) { // skip packets with a bad CRC
-            return;
+            //printf("crc err %x %x\n", calc_crc, wire_crc);
+            goto CLEFIFO;
         }
     }
 
-    for (u32 i= 0; i < (len + 4); i++) {
+    for (u32 i= 0; i < (len + 4 + 3); i++) {
         printf("%x ", p[i]);
     }
     kputc('\n');
 
-    packet_process((u8 *)packet);
+    //packet_process((u8 *)packet);
 
+CLEFIFO:
     ble_packet_len = 0;
     cc_clean_fifo();
     spi_set_nss_low(SPI3);
     cx_strobe(SRX);
-
 }
 
 void ble_init(void)
