@@ -210,20 +210,16 @@ le_state_t le = {
     .last_packet = 0,
 };
 
-/* efficiently reverse the bits of a 32-bit word */
-__inline static u32 rbit(u32 value)
-{
-    u32 result = 0;
-    __asm("rbit %0, %1" : "=r" (result) : "r" (value));
-    return result;
-}
-
-__inline static u32 rev(u32 value)
-{
-    u32 result = 0;
-    __asm("rev %0, %1" : "=r" (result) : "r" (value));
-    return result;
-}
+u8 adv_ind[] = {
+    // LL header
+    0x00, 0x09,
+    // advertising address
+    0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6,
+    // advertising data
+    0xa2, 0xa1, 0xa5,
+    // CRC (calc)
+    0xff, 0xff, 0xff,
+};
 
 static void le_set_access_address(u32 aa)
 {
@@ -373,7 +369,6 @@ void ble_process(void)
 
     if (clkn == count) {
         count = clkn + 100;
-
     }
 
     if (ble_packet_len < 4) {

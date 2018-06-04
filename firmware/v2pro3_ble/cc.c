@@ -192,7 +192,7 @@ void rf_init(int m, u32 sync, int channel)
         grmdm = 0x0101;     // un-buffered mode
         // 0 00 00 0 010 00 0 00 0 1
         //   |  |  | |   |  +--------> CRC off
-        //   |  |  | |   +-----------> sync word: 32 MSB bits of SYNC_WORD
+        //   |  |  | |   +-----------> sync word: 8 MSB bits
         //   |  |  | +---------------> 2 preamble bytes of 01010101
         //   |  |  +-----------------> packet mode
         //   |  +--------------------> un-buffered mode
@@ -202,11 +202,14 @@ void rf_init(int m, u32 sync, int channel)
         mdmctrl = 0x0040;   // 250 kHz frequency deviation
         grmdm = 0x0561;     // un-buffered mode, packet w/ sync word detection
         // 0 00 00 1 010 11 0 00 0 1
-        //   |  |  | |   |  +--------> CRC off
-        //   |  |  | |   +-----------> sync word: 32 MSB bits of SYNC_WORD
+        //                         +-> TX_GAUSSIAN_FILTER
+        //                     +-----> NRZ
+        //                       +---> FSK/GFSK
+        //   |  |  | |   |  +--------> HW CRC
+        //   |  |  | |   +-----------> sync word: 32 MSB bits
         //   |  |  | +---------------> 2 preamble bytes of 01010101
         //   |  |  +-----------------> packet mode
-        //   |  +--------------------> un-buffered mode
+        //   |  +--------------------> 0: Un-buffered mode 1: Buffered mode
         //   +-----------------------> sync error bits: 0
     } else {
         /* oops */
