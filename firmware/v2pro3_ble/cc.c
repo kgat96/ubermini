@@ -220,7 +220,7 @@ void rf_init(int m, u32 sync, int channel)
     cc_set(MANAND,  0x7fff);
     cc_set(LMTST,   0x2b22);    // LNA and receive mixers test register
 
-    cc_set(MDMTST0, 0x124b);
+    cc_set(MDMTST0, 0x124b);    // cc_set(MDMTST0, 0x134b);    // no PRNG
     // 1      2      4b
     // 00 0 1 0 0 10 01001011
     //    | | | | |  +---------> AFC_DELTA = ??
@@ -238,7 +238,9 @@ void rf_init(int m, u32 sync, int channel)
     cc_set(SYNCL,   sync & 0xffff);
     cc_set(SYNCH,   (sync >> 16) & 0xffff);
 
-    cc_set(FSDIV,   channel - 1); // 1 MHz IF
+    cc_set(FREND, 0b1011);          // amplifier level (-7 dBm, picked from hat)
+    cc_set(INT, 20);                // FIFO_THRESHOLD: 20 bytes
+    cc_set(FSDIV,   channel - 1);   // 1 MHz IF
     cc_set(MDMCTRL, mdmctrl);
 
     cc_strobe(SXOSCON);
@@ -249,6 +251,36 @@ void rf_init(int m, u32 sync, int channel)
     PAEN_SET();
     HGM_SET();
 }
+
+void rf_tx(void)
+{
+    cc_set(MDMTST0, 0x134b);
+    // 00 0 1 0 0 11 01001011
+    //    | | | | |  +---------> AFC_DELTA = ??
+    //    | | | | +------------> AFC settling = 8 pairs (16 bit preamble)
+    //    | | | +--------------> no AFC adjust on packet
+    //    | | +----------------> do not invert data
+    //    | +------------------> TX IF freq 1 0Hz
+    //    +--------------------> PRNG off
+
+    cc_set(GRMDM,   0x0c01);
+    // 0 00 01 1 000 00 0 00 0 1
+    //                         +-> TX_GAUSSIAN_FILTER
+    //                     +-----> NRZ
+    //                       +---> FSK/GFSK
+    //   |  |  | |   |  +--------> HW CRC
+    //   |  |  | |   +-----------> sync word: 0 MSB bits
+    //   |  |  | +---------------> 0 preamble bytes
+    //   |  |  +-----------------> packet mode
+    //   |  +--------------------> 0: Un-buffered mode 1: Buffered mode
+    //   +-----------------------> sync error bits: 0
+
+
+
+
+
+}
+
 
 #if 0
 
@@ -404,62 +436,6 @@ void cc_specan_date(u8 *buf, int len)
         cc_strobe(SRFOFF);
         wait_fsunlock();
     }
-}
-
-void rf_init(int m, u32 sync, int channel)
-{
-    u16 grmdm, mdmctrl;
-    if (m == MOD_BT_BASIC_RATE) {
-        mdmctrl = 0x0029;   // 160 kHz frequency deviation
-        grmdm = 0x0461;     // un-buffered mode, packet w/ sync word detection
-        // 0 00 00 1 000 11 0 00 0 1
-        //   |  |  | |   |  +--------> CRC off
-        //   |  |  | |   +-----------> sync word: 32 MSB bits of SYNC_WORD
-        //   |  |  | +---------------> 0 preamble bytes of 01010101
-        //   |  |  +-----------------> packet mode
-        //   |  +--------------------> un-buffered mode
-        //   +-----------------------> sync error bits: 0
-
-    } else if (m == MOD_BT_LOW_ENERGY) {
-        mdmctrl = 0x0040;   // 250 kHz frequency deviation
-        grmdm = 0x0561;     // un-buffered mode, packet w/ sync word detection
-        // 0 00 00 1 010 11 0 00 0 1
-        //   |  |  | |   |  +--------> CRC off
-        //   |  |  | |   +-----------> sync word: 32 MSB bits of SYNC_WORD
-        //   |  |  | +---------------> 2 preamble bytes of 01010101
-        //   |  |  +-----------------> packet mode
-        //   |  +--------------------> un-buffered mode
-        //   +-----------------------> sync error bits: 0
-    } else {
-        /* oops */
-        return;
-    }
-
-    // Bluetooth-like modulation
-    cc_set(MANAND,  0x7fff);
-    cc_set(LMTST,   0x2b22);    // LNA and receive mixers test register
-
-    cc_set(MDMTST0, 0x124b);    // cc_set(MDMTST0, 0x134b);    // no PRNG
-    // 1      2      4b
-    // 00 0 1 0 0 10 01001011
-    //    | | | | |  +---------> AFC_DELTA = ??
-    //    | | | | +------------> AFC settling = 4 pairs (8 bit preamble)
-    //    | | | +--------------> no AFC adjust on packet
-    //    | | +----------------> do not invert data
-    //    | +------------------> TX IF freq 1 0Hz
-    //    +--------------------> PRNG off
-    //
-    // ref: CC2400 datasheet page 67
-    // AFC settling explained page 41/42
-
-    cc_set(GRMDM, grmdm);
-
-    cc_set(SYNCL, sync & 0xffff);
-    cc_set(SYNCH, (sync >> 16) & 0xffff);
-
-    cc_set(FREND, 0b1011);      // amplifier level (-7 dBm, picked from hat)
-    cc_set(MDMCTRL, mdmctrl);
-    cc_set(INT, 20);            // FIFO_THRESHOLD: 20 bytes
 }
 
 #endif

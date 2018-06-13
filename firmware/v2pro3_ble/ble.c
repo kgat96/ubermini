@@ -261,14 +261,7 @@ static void ble_reset(void)
     le.win_offset_update = 0;
 }
 
-void ble_follow(void);
 
-//if (do_adv_index == 37)
-//    channel = 2402;
-//else if (do_adv_index == 38)
-//    channel = 2426;
-//else
-//    channel = 2480;
 
 static u8 btle_channel_index(u8 channel) {
     u8 idx;
