@@ -55,6 +55,52 @@ static u32 cc_spi(u8 len, u32 data)
     return data;
 }
 
+/* write multiple bytes to SPI */
+static void cc_fifo_write(u8 len, u8 *data)
+{
+    u8 msb = 1 << 7;
+    u8 reg = FIFOREG;
+    u8 i, j, temp;
+
+    /* start transaction by dropping CSN */
+    CSN_CLR();
+
+    for (i = 0; i < 8; ++i) {
+        if (reg & msb)
+            MOSI_SET();
+        else
+            MOSI_CLR();
+        reg <<= 1;
+        SCLK_SET();
+        SCLK_CLR();
+    }
+
+    for (i = 0; i < len; ++i) {
+        temp = data[i];
+        for (j = 0; j < 8; ++j) {
+            if (temp & msb)
+                MOSI_SET();
+            else
+                MOSI_CLR();
+            temp <<= 1;
+            SCLK_SET();
+            SCLK_CLR();
+        }
+    }
+
+    // this is necessary to clock in the last byte
+    for (i = 0; i < 8; ++i) {
+        SCLK_SET();
+        SCLK_CLR();
+    }
+
+    __asm__("nop");__asm__("nop");__asm__("nop");
+    __asm__("nop");__asm__("nop");__asm__("nop");
+
+    /* end transaction by raising CSN */
+    CSN_SET();
+}
+
 /* read 16 bit value from a register */
 static u16 cc_get(u8 reg)
 {
@@ -184,43 +230,66 @@ void cc_init(void)
 }
 
 /* start un-buffered rx */
-void rf_init(int m, u32 sync, int channel)
+void rf_init(int m)
 {
-    u16 grmdm, mdmctrl;
+    u16 mdmctrl;
     if (m == MOD_BT_BASIC_RATE) {
         mdmctrl = 0x0029;   // 160 kHz frequency deviation
-        grmdm = 0x0101;     // un-buffered mode
-        // 0 00 00 0 010 00 0 00 0 1
-        //   |  |  | |   |  +--------> CRC off
-        //   |  |  | |   +-----------> sync word: 8 MSB bits
-        //   |  |  | +---------------> 2 preamble bytes of 01010101
-        //   |  |  +-----------------> packet mode
-        //   |  +--------------------> un-buffered mode
-        //   +-----------------------> sync error bits: 0
-
     } else if (m == MOD_BT_LOW_ENERGY) {
         mdmctrl = 0x0040;   // 250 kHz frequency deviation
-        grmdm = 0x0561;     // un-buffered mode, packet w/ sync word detection
-        // 0 00 00 1 010 11 0 00 0 1
-        //                         +-> TX_GAUSSIAN_FILTER
-        //                     +-----> NRZ
-        //                       +---> FSK/GFSK
-        //   |  |  | |   |  +--------> HW CRC
-        //   |  |  | |   +-----------> sync word: 32 MSB bits
-        //   |  |  | +---------------> 2 preamble bytes of 01010101
-        //   |  |  +-----------------> packet mode
-        //   |  +--------------------> 0: Un-buffered mode 1: Buffered mode
-        //   +-----------------------> sync error bits: 0
     } else {
         /* oops */
         return;
     }
 
+    cc_strobe(SXOSCON);            // set chip to IDLE status
+    while ((cc_get(FSMSTATE) & 0x1f) != STATE_IDLE);
+
+    //cc_putchar('#'); cc_puthex(cc_get(FSMSTATE) & 0x1f, 2);
+
     // Bluetooth-like modulation
     cc_set(MANAND,  0x7fff);
-    cc_set(LMTST,   0x2b22);    // LNA and receive mixers test register
+    cc_set(LMTST,   0x2b22);        // LNA and receive mixers test register
 
-    cc_set(MDMTST0, 0x124b);    // cc_set(MDMTST0, 0x134b);    // no PRNG
+    cc_set(FREND, 0b1011);          // amplifier level (-7 dBm, picked from hat)
+    cc_set(INT, 20);                // FIFO_THRESHOLD: 20 bytes
+    cc_set(MDMCTRL, mdmctrl);
+
+    PAEN_SET();
+    HGM_SET();
+}
+
+static void rf_setting(u32 sync, u32 channel, u16 mdmtst0, u16 grmdm)
+{
+    cc_set(MDMTST0, mdmtst0);
+    cc_set(GRMDM,   grmdm);
+
+    cc_set(SYNCL,   sync & 0xffff);
+    cc_set(SYNCH,   (sync >> 16) & 0xffff);
+
+    cc_set(FSDIV,   channel);   // 1 MHz IF
+
+    //cc_strobe(SXOSCON);
+    //while (!(cc_status() & XOSC16M_STABLE));
+
+    cc_strobe(SFSON);
+    wait_fslock();
+
+    //cc_puthex(cc_status(), 2);
+    //cc_putchar('@'); cc_puthex(cc_get(FSMSTATE) & 0x1f, 2);
+
+    while ((cc_get(FSMSTATE) & 0x1f) != STATE_STROBE_FS_ON) {
+        cc_putchar('@');
+    }
+
+    cc_putchar('@'); cc_puthex(cc_get(FSMSTATE) & 0x1f, 2);
+}
+
+void rf_rxmode(u32 sync, u32 channel)
+{
+    u16 mdmtst0, grmdm;
+
+    mdmtst0 = 0x124b;           // cc_set(MDMTST0, 0x134b);    // no PRNG
     // 1      2      4b
     // 00 0 1 0 0 10 01001011
     //    | | | | |  +---------> AFC_DELTA = ??
@@ -233,28 +302,26 @@ void rf_init(int m, u32 sync, int channel)
     // ref: CC2400 datasheet page 67
     // AFC settling explained page 41/42
 
-    cc_set(GRMDM,   grmdm);
+    grmdm = 0x0561;
+    // 0 00 00 1 010 11 0 00 0 1
+    //                         +-> TX_GAUSSIAN_FILTER
+    //                     +-----> NRZ
+    //                       +---> FSK/GFSK
+    //   |  |  | |   |  +--------> HW CRC
+    //   |  |  | |   +-----------> sync word: 32 MSB bits
+    //   |  |  | +---------------> 2 preamble bytes of 01010101
+    //   |  |  +-----------------> packet mode
+    //   |  +--------------------> 0: Un-buffered mode 1: Buffered mode
+    //   +-----------------------> sync error bits: 0
 
-    cc_set(SYNCL,   sync & 0xffff);
-    cc_set(SYNCH,   (sync >> 16) & 0xffff);
-
-    cc_set(FREND, 0b1011);          // amplifier level (-7 dBm, picked from hat)
-    cc_set(INT, 20);                // FIFO_THRESHOLD: 20 bytes
-    cc_set(FSDIV,   channel - 1);   // 1 MHz IF
-    cc_set(MDMCTRL, mdmctrl);
-
-    cc_strobe(SXOSCON);
-    while (!(cc_status() & XOSC16M_STABLE));
-
-    cc_strobe(SFSON);
-    wait_fslock();
-    PAEN_SET();
-    HGM_SET();
+    rf_setting(sync, channel-1, mdmtst0, grmdm);
 }
 
-void rf_tx(void)
+void rf_txmode(u32 sync, u32 channel)
 {
-    cc_set(MDMTST0, 0x134b);
+    u16 mdmtst0, grmdm;
+
+    mdmtst0 = 0x134b;
     // 00 0 1 0 0 11 01001011
     //    | | | | |  +---------> AFC_DELTA = ??
     //    | | | | +------------> AFC settling = 8 pairs (16 bit preamble)
@@ -263,7 +330,7 @@ void rf_tx(void)
     //    | +------------------> TX IF freq 1 0Hz
     //    +--------------------> PRNG off
 
-    cc_set(GRMDM,   0x0c01);
+    grmdm = 0x0c01;
     // 0 00 01 1 000 00 0 00 0 1
     //                         +-> TX_GAUSSIAN_FILTER
     //                     +-----> NRZ
@@ -275,167 +342,35 @@ void rf_tx(void)
     //   |  +--------------------> 0: Un-buffered mode 1: Buffered mode
     //   +-----------------------> sync error bits: 0
 
+    if (sync & 1)
+        sync = 0xaaaa0000;
+    else
+        sync = 0x55550000;
 
-
-
-
+    rf_setting(sync, channel, mdmtst0, grmdm);
 }
 
-
-#if 0
-
-void cc_init_modulation(int mode, u32 sync)
+void rf_transfer(u32 len, u8 *txbuf)
 {
-    u16 grmdm, mdmctrl;
-    if (mode == MOD_BT_BASIC_RATE) {
-        mdmctrl = 0x0029;   // 160 kHz frequency deviation
-        grmdm = 0x0461;     // un-buffered mode, packet w/ sync word detection
-        // 0 00 00 1 000 11 0 00 0 1
-        //   |  |  | |   |  +--------> CRC off
-        //   |  |  | |   +-----------> sync word: 32 MSB bits of SYNC_WORD
-        //   |  |  | +---------------> 0 preamble bytes of 01010101
-        //   |  |  +-----------------> packet mode
-        //   |  +--------------------> un-buffered mode
-        //   +-----------------------> sync error bits: 0
+    cc_set(IOCFG, (GIO_CLK_16M << 3) | (GIO_FIFO_FULL << 9));
 
-    } else if (mode == MOD_BT_LOW_ENERGY) {
-        mdmctrl = 0x0040;   // 250 kHz frequency deviation
-        grmdm = 0x0561;     // un-buffered mode, packet w/ sync word detection
-        // 0 00 00 1 010 11 0 00 0 1
-        //   |  |  | |   |  +--------> CRC off
-        //   |  |  | |   +-----------> sync word: 32 MSB bits of SYNC_WORD
-        //   |  |  | +---------------> 2 preamble bytes of 01010101
-        //   |  |  +-----------------> packet mode
-        //   |  +--------------------> un-buffered mode
-        //   +-----------------------> sync error bits: 0
-    } else {
-        /* oops */
-        return;
+    while ((cc_get(FSMSTATE) & 0x1f) != STATE_STROBE_FS_ON);
+
+    cc_strobe(STX);
+
+    // put the packet into the FIFO
+    for (int i = 0; i < len; i += 16) {
+        while (gpio_get(GPIOA, PIN_GIO6)); // wait for the FIFO to drain (FIFO_FULL false)
+        int ttmp = len - i;
+        if (ttmp > 16)
+            ttmp = 16;
+        cc_fifo_write(ttmp, txbuf + i);
     }
 
-    // Bluetooth-like modulation
-    cc_set(MANAND,  0x7fff);
-    cc_set(LMTST,   0x2b22);    // LNA and receive mixers test register
+    cc_set(IOCFG, (GIO_CLK_16M << 3) | (GIO_LOCK_STATUS << 9));
 
-    cc_set(MDMTST0, 0x124b);    // cc_set(MDMTST0, 0x134b);    // no PRNG
-    // 1      2      4b
-    // 00 0 1 0 0 10 01001011
-    //    | | | | |  +---------> AFC_DELTA = ??
-    //    | | | | +------------> AFC settling = 4 pairs (8 bit preamble)
-    //    | | | +--------------> no AFC adjust on packet
-    //    | | +----------------> do not invert data
-    //    | +------------------> TX IF freq 1 0Hz
-    //    +--------------------> PRNG off
-    //
-    // ref: CC2400 datasheet page 67
-    // AFC settling explained page 41/42
-
-    cc_set(GRMDM,   grmdm);
-
-    cc_set(SYNCL,   sync & 0xffff);
-    cc_set(SYNCH,   (sync >> 16) & 0xffff);
-}
-
-void cc_set_channel(u32 channel)
-{
-
-
-}
-
-/* start un-buffered rx */
-void cc_rx_mode(int m, int channel)
-{
-    if (m == MOD_BT_BASIC_RATE) {
-        cc_set(MANAND,  0x7fff);
-        cc_set(LMTST,   0x2b22);
-        cc_set(MDMTST0, 0x134b); // without PRNG
-        cc_set(GRMDM,   0x0101); // un-buffered mode, GFSK
-        cc_set(FSDIV,   channel - 1); // 1 MHz IF
-        cc_set(MDMCTRL, 0x0029); // 160 kHz frequency deviation
-    } else if (m == MOD_BT_LOW_ENERGY) {
-        cc_set(MANAND,  0x7fff);
-        cc_set(LMTST,   0x2b22);
-        cc_set(MDMTST0, 0x134b); // without PRNG
-        cc_set(GRMDM,   0x0101); // un-buffered mode, GFSK
-        cc_set(FSDIV,   channel - 1); // 1 MHz IF
-        cc_set(MDMCTRL, 0x0040); // 250 kHz frequency deviation
-    } else {
-        /* oops */
-        return;
-    }
-
-    cc_strobe(SXOSCON);
-    while (!(cc_status() & XOSC16M_STABLE));
+    while ((cc_get(FSMSTATE) & 0x1f) != STATE_STROBE_TX_OFF);
 
     cc_strobe(SFSON);
-    wait_fslock();
-    cc_strobe(SRX);
-    PAEN_SET();
-    HGM_SET();
-
-    cc_debug("cchip rx mode\n");
+    //wait_fslock();
 }
-
-void cc_specan_mode(void)
-{
-    cc_set(MANAND,  0x7fff);
-    cc_set(LMTST,   0x2b22);
-    cc_set(MDMTST0, 0x134b); // without PRNG
-    cc_set(GRMDM,   0x0101); // un-buffered mode, GFSK
-    cc_set(MDMCTRL, 0x0029); // 160 kHz frequency deviation
-    //FIXME maybe set RSSI.RSSI_FILT
-
-    cc_strobe(SXOSCON);
-    while (!(cc_status() & XOSC16M_STABLE));
-
-    cc_strobe(SRFOFF);
-    wait_fsunlock();
-    PAEN_SET();
-    HGM_SET();
-
-    cc_debug("cchip entry specan mode\n");
-}
-
-/* specan stuff */
-volatile u16 low_freq = 2400;
-volatile u16 high_freq = 2483;
-
-void cc_specan_date(u8 *buf, int len)
-{
-    static int f = 2400;
-    int i = 0;
-
-    //cc_debug("get_specan\n");
-
-     while(len > 0) {
-        len -= 2;
-        cc_set(FSDIV, f - 1);
-        cc_strobe(SFSON);
-        wait_fslock();
-        cc_strobe(SRX);
-
-        {
-            u32 k;
-            for (k = 0; k < 30000; k++) { /* Wait a bit. */
-                __asm__("nop");
-            }
-        }
-
-        buf[i++] = f - low_freq;
-        buf[i++] = cc_get(RSSI) >> 8;
-
-        {
-            char t = (char)buf[i-1];
-            t *= -1;
-            //cc_puthex(t, 2); cc_putchar('\n');cc_putchar('\r');
-        }
-
-        f += 1;
-        if (f > high_freq) f = low_freq;
-
-        cc_strobe(SRFOFF);
-        wait_fsunlock();
-    }
-}
-
-#endif

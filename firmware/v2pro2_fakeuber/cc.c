@@ -523,6 +523,11 @@ static void le_transmit(u32 aa, u8 len, u8 *data)
 
     len += 4; // include the AA in len
 
+    // 6b 7d 91 71 6b 33 42 a4 ba bb c7 71 9d 20 50 f6 5f fd
+    printf("whiten:");
+    for (u32 i = 0; i < len; i++)
+        printf("%x ", txbuf[i]);
+
     // Bluetooth-like modulation
     cc_set(MANAND,  0x7fff);
     cc_set(LMTST,   0x2b22);    // LNA and receive mixers test register
@@ -678,9 +683,11 @@ void ble_adv(void)
     adv_ind[adv_ind_len+1] = (calc_crc >>  8) & 0xff;
     adv_ind[adv_ind_len+2] = (calc_crc >> 16) & 0xff;
 
+    //printf("crc %x\n", calc_crc);
+
     // spam advertising packets
     //while (requested_mode == MODE_BT_SLAVE_LE) {
-        le_transmit(0x8e89beaa, adv_ind_len+3, adv_ind);
+        le_transmit(0x8e89bed6, adv_ind_len+3, adv_ind);
         //msleep(100);
     //}
 }

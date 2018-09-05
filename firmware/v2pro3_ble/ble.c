@@ -237,7 +237,7 @@ static void ble_reset(void)
     le_set_access_address(0x8e89bed6);     // 0x8e89bed6 advertising channel access address
     le.crc_init  = 0x555555;               // advertising channel CRCInit
     le.crc_init_reversed = 0xAAAAAA;
-    le.crc_verify = 0;
+    le.crc_verify = 1;
     le.last_packet = 0;
 
     le.link_state = LINK_INACTIVE;
@@ -260,8 +260,6 @@ static void ble_reset(void)
     le.win_size_update = 0;
     le.win_offset_update = 0;
 }
-
-
 
 static u8 btle_channel_index(u8 channel) {
     u8 idx;
@@ -364,6 +362,7 @@ void ble_process(void)
         count = clkn + 100;
     }
 
+#if 0   // test rx
     if (ble_packet_len < 4) {
         return;
     }
@@ -438,6 +437,59 @@ CLEFIFO:
     cc_clean_fifo();
     spi_set_nss_low(SPI3);
     cx_strobe(SRX);
+
+#else   // test tx
+
+    u8 adv_ind[] = {
+        // LL header
+        0x00, 0x09,
+        // advertising address
+        0x6, 0x5, 0x4, 0x3, 0x2, 0x1,
+        // advertising data
+        0xa2, 0xa1, 0xa5,
+        // CRC (calc)
+        0xff, 0xff, 0xff,
+    };
+
+    u32 aa = 0x8e89bed6;
+
+    u8 adv_len = sizeof(adv_ind);
+
+    u32 calc_crc = btle_crcgen_lut(0xAAAAAA, adv_ind, sizeof(adv_ind) - 3);
+    adv_ind[adv_len-3] = (calc_crc >>  0) & 0xff;
+    adv_ind[adv_len-2] = (calc_crc >>  8) & 0xff;
+    adv_ind[adv_len-1] = (calc_crc >> 16) & 0xff;
+
+    //printf("crc %x\n", calc_crc);
+
+    u8 txbuf[64];
+    u32 *ptx = (u32 *)txbuf;
+    u32 *padv = (u32 *)adv_ind;
+
+    ptx[0] = rev(rbit(aa));
+
+    //u32 v = rev(rxp[i]);
+    //packet[i+1] = rbit(v) ^ whit[i];
+    const u32 *whit = whitening_word[btle_channel_index(channel-2402)];
+    for (int i = 0; i < (adv_len+3)/4; i++) {
+        u32 v = padv[i] ^ whit[i];
+        ptx[i+1] = rev(rbit(v));
+    }
+
+    adv_len += 4;
+
+    // 6b 7d 91 71 6b 33 42 a4 ba bb c7 71 9d 20 50 f6 5f fd
+    printf("whiten:");
+    for (u32 i = 0; i < adv_len; i++)
+        printf("%x ", txbuf[i]);
+
+    while(1) {
+        delay_ms(500);
+        rf_transfer(adv_len, txbuf);
+        printf("send ADV\n");
+    }
+
+#endif
 }
 
 void ble_init(void)
@@ -448,9 +500,12 @@ void ble_init(void)
 
     ble_reset();
 
-    rf_init(MOD_BT_LOW_ENERGY, rbit(le.access_address), channel);
+    rf_init(MOD_BT_LOW_ENERGY);
 
-    kputs("bleX\n");
+#if 0           // test rx
+    kputs("bleR\n");
+
+    rf_rxmode(rbit(le.access_address), channel);
 
     cc_clean_fifo();
 
@@ -460,37 +515,11 @@ void ble_init(void)
 
     spi_set_nss_low(SPI3);
 
-#if 0
-    while (0) {
-        const u32 *whit = whitening_word[btle_channel_index(channel-2402)];
-        u32 packet[48/4+1] = { 0, };
-        u8 *p = (u8 *)packet;
+#else
+    kputs("bleT\n");
 
-        if (ble_packet_len > 16) {
-            cx_strobe(SFSON);
-            cc_clean_fifo();
-            ble_packet_len = 0;
-            spi_set_nss_high(SPI3);
+    rf_txmode(rbit(le.access_address), channel);
 
-            // unwhiten the rest of the packet
-            for (int i = 0; i < 16; i += 4) {
-                uint32_t v = rxbuf1[i+0] << 24
-                           | rxbuf1[i+1] << 16
-                           | rxbuf1[i+2] << 8
-                           | rxbuf1[i+3] << 0;
-                packet[i/4] = rbit(v) ^ whit[i/4];
-            }
-
-            kputc(':');
-            for (int i= 0; i < 16; i++) {
-                kputhex(p[i], 2);
-            }
-            kputc('\n');
-
-            cx_strobe(SRX);
-            spi_set_nss_low(SPI3);
-        }
-    }
 #endif
 }
 
