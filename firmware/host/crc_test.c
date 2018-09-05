@@ -5,6 +5,8 @@ typedef unsigned short u16;
 typedef unsigned char u8;
 typedef unsigned long int u64;
 
+// CRC /////////////////////////////////////////////////////////////////////
+
 u32 btle_crc_lut[256] = {
     0x000000, 0x01b4c0, 0x036980, 0x02dd40, 0x06d300, 0x0767c0, 0x05ba80, 0x040e40,
     0x0da600, 0x0c12c0, 0x0ecf80, 0x0f7b40, 0x0b7500, 0x0ac1c0, 0x081c80, 0x09a840,
@@ -98,17 +100,31 @@ static u32 btle_calc_crc(u32 crc_init, u8 *data, int len)
     return state;
 }
 
+// whiten /////////////////////////////////////////////////////////////////////
+
+void dump_whiten_bit(u8 idx)
+{
+    u8 pos = idx | 0x40;
+    for (int i = 0; i < 1000; i++) {
+        if (((idx | 0x40) == pos) && i) return;
+        printf("%x[%3d/%3d],\n", pos & 1, pos, i);
+        //printf("%x,", pos & 1, pos);
+        if (pos & 1) {
+            pos ^= 0x8;
+            pos |= 0x80;
+        }
+        pos >>= 1;
+    }
+}
 
 extern unsigned char txt[1056];
 
 int main()
 {
 	printf("%x %x\n", btle_calc_crc(0x555555, txt, 1000), btle_crcgen_lut(0x555555, txt, 1000));
-	
+    
+    dump_whiten_bit(0);
 }
-
-
-
 
 
 
