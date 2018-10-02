@@ -145,5 +145,6 @@ void rf_init(int m);
 void rf_rxmode(u32 sync, u32 channel);
 void rf_txmode(u32 sync, u32 channel);
 void rf_transfer(u32 len, u8 *txbuf);
+void rf_autofreq(void);
 
 #endif /* __CC_H */

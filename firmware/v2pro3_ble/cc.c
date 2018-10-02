@@ -237,6 +237,7 @@ void rf_init(int m)
         mdmctrl = 0x0029;   // 160 kHz frequency deviation
     } else if (m == MOD_BT_LOW_ENERGY) {
         mdmctrl = 0x0040;   // 250 kHz frequency deviation
+        mdmctrl |= ((-2 & 0x3f) << 7);  // automatic frequency control
     } else {
         /* oops */
         return;
@@ -279,10 +280,9 @@ static void rf_setting(u32 sync, u32 channel, u16 mdmtst0, u16 grmdm)
     //cc_putchar('@'); cc_puthex(cc_get(FSMSTATE) & 0x1f, 2);
 
     while ((cc_get(FSMSTATE) & 0x1f) != STATE_STROBE_FS_ON) {
-        cc_putchar('@');
     }
 
-    cc_putchar('@'); cc_puthex(cc_get(FSMSTATE) & 0x1f, 2);
+    cc_puthex(cc_get(FSMSTATE) & 0x1f, 2);
 }
 
 void rf_rxmode(u32 sync, u32 channel)
@@ -374,3 +374,11 @@ void rf_transfer(u32 len, u8 *txbuf)
     cc_strobe(SFSON);
     //wait_fslock();
 }
+
+void rf_autofreq(void)
+{
+    printf("FREQEST %d\n", (signed char)(cc_get(FREQEST)>>8));
+
+}
+
+

@@ -237,7 +237,7 @@ static void ble_reset(void)
     le_set_access_address(0x8e89bed6);     // 0x8e89bed6 advertising channel access address
     le.crc_init  = 0x555555;               // advertising channel CRCInit
     le.crc_init_reversed = 0xAAAAAA;
-    le.crc_verify = 1;
+    le.crc_verify = 0;
     le.last_packet = 0;
 
     le.link_state = LINK_INACTIVE;
@@ -390,6 +390,8 @@ void ble_process(void)
     u32 len = (p[5] & 0x3f) + 2;    // PDU length
 
     printf("len %d %d %d\n", ble_packet_len, p[5] & 0x3f, len);
+
+    rf_autofreq();
 
     // transfer the minimum number of bytes from the CC2400
     // this allows us enough time to resume RX for subsequent packets on the same channel
