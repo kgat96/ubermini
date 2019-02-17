@@ -65,9 +65,6 @@ extern volatile u16 clk100ns_offset;
 void ble_init(void);
 void ble_process(void);
 
-
-
-
 /* efficiently reverse the bits of a 32-bit word */
 __inline static u32 rbit(u32 value)
 {

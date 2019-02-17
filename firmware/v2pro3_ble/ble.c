@@ -210,17 +210,6 @@ le_state_t le = {
     .last_packet = 0,
 };
 
-u8 adv_ind[] = {
-    // LL header
-    0x00, 0x09,
-    // advertising address
-    0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6,
-    // advertising data
-    0xa2, 0xa1, 0xa5,
-    // CRC (calc)
-    0xff, 0xff, 0xff,
-};
-
 static void le_set_access_address(u32 aa)
 {
     u32 aa_rev;
@@ -444,20 +433,22 @@ CLEFIFO:
 
     u8 adv_ind[] = {
         // LL header
-        0x00, 0x09,
+        0x00, 0xff,
         // advertising address
-        0x6, 0x5, 0x4, 0x3, 0x2, 0x1,
+        0x66, 0x55, 0x0, 0x56, 0x34, 0x12,
         // advertising data
-        0xa2, 0xa1, 0xa5,
+        0x02, 0x01, 0x06,
+        0x04, 0x08, 'K','K','S',
         // CRC (calc)
         0xff, 0xff, 0xff,
     };
 
     u32 aa = 0x8e89bed6;
 
-    u8 adv_len = sizeof(adv_ind);
+    u32 adv_len = sizeof(adv_ind);
 
-    u32 calc_crc = btle_crcgen_lut(0xAAAAAA, adv_ind, sizeof(adv_ind) - 3);
+    adv_ind[1] = adv_len - 5;
+    u32 calc_crc = btle_crcgen_lut(0xAAAAAA, adv_ind, adv_len - 3);
     adv_ind[adv_len-3] = (calc_crc >>  0) & 0xff;
     adv_ind[adv_len-2] = (calc_crc >>  8) & 0xff;
     adv_ind[adv_len-1] = (calc_crc >> 16) & 0xff;
@@ -473,7 +464,7 @@ CLEFIFO:
     //u32 v = rev(rxp[i]);
     //packet[i+1] = rbit(v) ^ whit[i];
     const u32 *whit = whitening_word[btle_channel_index(channel-2402)];
-    for (int i = 0; i < (adv_len+3)/4; i++) {
+    for (u32 i = 0; i < (adv_len+3)/4; i++) {
         u32 v = padv[i] ^ whit[i];
         ptx[i+1] = rev(rbit(v));
     }
@@ -482,13 +473,15 @@ CLEFIFO:
 
     // 6b 7d 91 71 6b 33 42 a4 ba bb c7 71 9d 20 50 f6 5f fd
     printf("whiten:");
-    for (u32 i = 0; i < adv_len; i++)
+    for (u32 i = 0; i < adv_len; i++) {
+        //txbuf[i] = 0xff;
         printf("%x ", txbuf[i]);
+    }
 
     while(1) {
-        delay_ms(500);
+        delay_ms(300);
         rf_transfer(adv_len, txbuf);
-        printf("send ADV\n");
+        printf("send ADVx\n");
     }
 
 #endif

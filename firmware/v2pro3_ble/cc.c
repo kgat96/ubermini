@@ -72,6 +72,7 @@ static void cc_fifo_write(u8 len, u8 *data)
             MOSI_CLR();
         reg <<= 1;
         SCLK_SET();
+        __asm__("nop");__asm__("nop");__asm__("nop");
         SCLK_CLR();
     }
 
@@ -84,17 +85,17 @@ static void cc_fifo_write(u8 len, u8 *data)
                 MOSI_CLR();
             temp <<= 1;
             SCLK_SET();
+            __asm__("nop");__asm__("nop");__asm__("nop");
             SCLK_CLR();
         }
     }
 
     // this is necessary to clock in the last byte
-    for (i = 0; i < 8; ++i) {
-        SCLK_SET();
-        SCLK_CLR();
-    }
+    //for (i = 0; i < 8; ++i) {
+    //    SCLK_SET();
+    //    SCLK_CLR();
+    //}
 
-    __asm__("nop");__asm__("nop");__asm__("nop");
     __asm__("nop");__asm__("nop");__asm__("nop");
 
     /* end transaction by raising CSN */
@@ -237,7 +238,7 @@ void rf_init(int m)
         mdmctrl = 0x0029;   // 160 kHz frequency deviation
     } else if (m == MOD_BT_LOW_ENERGY) {
         mdmctrl = 0x0040;   // 250 kHz frequency deviation
-        mdmctrl |= ((-2 & 0x3f) << 7);  // automatic frequency control
+        //mdmctrl |= ((-2 & 0x3f) << 7);  // automatic frequency control
     } else {
         /* oops */
         return;
@@ -359,13 +360,18 @@ void rf_transfer(u32 len, u8 *txbuf)
     cc_strobe(STX);
 
     // put the packet into the FIFO
-    for (int i = 0; i < len; i += 16) {
+    for (u32 i = 0; i < len; i += 16) {
         while (gpio_get(GPIOA, PIN_GIO6)); // wait for the FIFO to drain (FIFO_FULL false)
-        int ttmp = len - i;
+        u32 ttmp = len - i;
         if (ttmp > 16)
             ttmp = 16;
         cc_fifo_write(ttmp, txbuf + i);
     }
+
+    //while(0) {
+    //    while (gpio_get(GPIOA, PIN_GIO6));
+    //    cc_fifo_write(16, txbuf);
+    //}
 
     cc_set(IOCFG, (GIO_CLK_16M << 3) | (GIO_LOCK_STATUS << 9));
 
