@@ -130,8 +130,6 @@ static u8 cc_strobe(u8 reg)
     return cc_spi(8, reg);
 }
 
-u8 cx_strobe(u8 reg);
-
 u8 cx_strobe(u8 reg)
 {
     return cc_spi(8, reg);
@@ -283,7 +281,7 @@ static void rf_setting(u32 sync, u32 channel, u16 mdmtst0, u16 grmdm)
     while ((cc_get(FSMSTATE) & 0x1f) != STATE_STROBE_FS_ON) {
     }
 
-    cc_puthex(cc_get(FSMSTATE) & 0x1f, 2);
+    //cc_puthex(cc_get(FSMSTATE) & 0x1f, 2);
 }
 
 void rf_rxmode(u32 sync, u32 channel)
@@ -357,8 +355,6 @@ void rf_transfer(u32 len, u8 *txbuf)
 
     while ((cc_get(FSMSTATE) & 0x1f) != STATE_STROBE_FS_ON);
 
-    cc_strobe(STX);
-
     // put the packet into the FIFO
     for (u32 i = 0; i < len; i += 16) {
         while (gpio_get(GPIOA, PIN_GIO6)); // wait for the FIFO to drain (FIFO_FULL false)
@@ -366,6 +362,8 @@ void rf_transfer(u32 len, u8 *txbuf)
         if (ttmp > 16)
             ttmp = 16;
         cc_fifo_write(ttmp, txbuf + i);
+
+        if (!i) cc_strobe(STX);
     }
 
     //while(0) {
@@ -384,7 +382,10 @@ void rf_transfer(u32 len, u8 *txbuf)
 void rf_autofreq(void)
 {
     printf("FREQEST %d\n", (signed char)(cc_get(FREQEST)>>8));
-
 }
 
-
+void cc_clean_fifo(void)
+{
+    while (SPI3_SR & SPI_SR_RXNE)
+        {SPI2_DR = SPI3_DR;};
+}

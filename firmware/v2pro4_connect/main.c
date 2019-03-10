@@ -153,32 +153,40 @@ static void spi_setup(void)
      //SPI3_CR2 |= 1;           // RX dma mode
 }
 
-#define CLK100NS (3125*(clkn & 0xfffff) + timer_get_counter(TIM2))
-
 static void tim_setup(void)
 {
-    /* Enable TIM2 clock. */
-    rcc_periph_clock_enable(RCC_TIM2);
+#if 1
+    /* master/slave mode */
+    rcc_periph_clock_enable(RCC_TIM3);  /* Enable TIM3 clock. */
+    nvic_enable_irq(NVIC_TIM3_IRQ);     /* Enable TIM3 interrupt. */
+    timer_reset(TIM3);                  /* Reset TIM3 peripheral. */
+    timer_set_mode(TIM3, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
 
-    /* Enable TIM2 interrupt. */
-    nvic_enable_irq(NVIC_TIM2_IRQ);
+    timer_set_prescaler(TIM3, 5);       // rcc_apb1_frequency(42MHz) * 2 / (5 + 1) = 14MHz
+    timer_disable_preload(TIM3);        /* Enable preload. */
+    timer_continuous_mode(TIM3);        /* Continous mode. */
+    timer_set_period(TIM3, 4374);       // 312.5us / (1/14MHz) = 14 * 312.5
 
-    /* Reset TIM2 peripheral. */
-    timer_reset(TIM2);
+    /* Counter enable. */
+    timer_enable_counter(TIM3);
+    /* Enable commutation interrupt. */
+    timer_enable_irq(TIM3, TIM_DIER_UIE);
+#endif
+
+    ////////////////////////////////////////////////
+
+    rcc_periph_clock_enable(RCC_TIM2);  /* Enable TIM2 clock. */
+    nvic_enable_irq(NVIC_TIM2_IRQ);     /* Enable TIM2 interrupt. */
+    timer_reset(TIM2);                  /* Reset TIM2 peripheral. */
 
     timer_set_mode(TIM2, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
 
-    //timer_set_prescaler(TIM2, ((rcc_apb1_frequency * 2) / 100000) - 0);
-    timer_set_prescaler(TIM2, 0);   // rcc_apb1_frequency(42MHz) * 2 / (1) = 84MHz
-
-    /* Enable preload. */
-    timer_disable_preload(TIM2);
-
-    /* Continous mode. */
-    timer_continuous_mode(TIM2);
+    timer_set_prescaler(TIM2, 84-1);    // rcc_apb1_frequency(42MHz) * 2 / (84) = 1MHz
+    timer_disable_preload(TIM2);        /* Enable preload. */
+    timer_continuous_mode(TIM2);        /* Continous mode. */
 
     /* Period. */
-    timer_set_period(TIM2, 83);     // 1us / (1/84MHz) = 1 * 84
+    timer_set_period(TIM2, 1000000);
 
     /* Disable outputs. */
     timer_disable_oc_output(TIM2, TIM_OC1);
@@ -201,16 +209,99 @@ static void tim_setup(void)
     timer_enable_irq(TIM2, TIM_DIER_CC1IE);
 #endif
     /* ---- */
-
-    /* ARR reload enable. */
-    timer_disable_preload(TIM2);
+    /* Enable commutation interrupt. */
+    //timer_enable_irq(TIM2, TIM_DIER_UIE);
 
     /* Counter enable. */
     timer_enable_counter(TIM2);
-
-    /* Enable commutation interrupt. */
-    timer_enable_irq(TIM2, TIM_DIER_UIE);
 }
+
+int main(void)
+{
+    gpio_setup();
+
+    usart_setup();
+
+    kputs("\nubermini RUN\n");
+
+    printf("system uart output\n");
+
+    cc_reset();
+
+    cc_init();
+
+    delay(); // why ???
+
+    /* Enable external high-speed oscillator 16MHz. */
+    rcc_osc_bypass_enable(RCC_HSE);
+    rcc_clock_setup_hse_3v3(&rcc_hse_16mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
+    rcc_periph_clock_enable(RCC_OTGFS);
+
+    /* Setup USART1 parameters. */
+    usart_set_baudrate(USART1, 2000000);
+
+    LED1_CLR();LED2_CLR();LED3_CLR();LED4_CLR();
+
+    kputs("system clock init done!\n");
+
+    tim_setup();
+    spi_setup();
+
+    spi_enable(SPI3);
+    cc_clean_fifo();
+
+    ble_init();
+
+    while (1) {
+        ble_process();
+    }
+
+    return 0;
+}
+
+static volatile u32 tim2_count = 0;
+
+void tim_count_us(u32 n);
+u32 tim_get_count(void);
+
+void tim_count_us(u32 n)
+{
+    tim2_count = n;
+}
+
+u32 tim_get_count(void)
+{
+    return tim2_count;
+}
+
+/* 1us */
+void tim2_isr(void)
+{
+    if (TIM_SR(TIM2) & TIM_SR_UIF) {
+        TIM_SR(TIM2) = ~TIM_SR_UIF;
+        //kputc('#');
+        if (tim2_count) tim2_count--;
+    }
+}
+
+/* 312.5us */
+void tim3_isr(void)
+{
+    if (TIM_SR(TIM3) & TIM_SR_UIF) {
+        TIM_SR(TIM3) = ~TIM_SR_UIF;
+        //kputc('*');
+        clk3125n ++;
+    }
+}
+
+void spi3_isr(void)
+{
+    while (SPI3_SR & SPI_SR_RXNE) {
+        ble_rxpacket[ble_packet_len++] = SPI3_DR;
+    }
+}
+
+#if 0
 
 /* DMA buffers */
 #define DMA_SIZE        50
@@ -251,68 +342,6 @@ static void dma_setup(void)
     dma_enable_stream(UES_DMA_CONUR, UES_DMA_STREAM);
 }
 
-int main(void)
-{
-    gpio_setup();
-
-    usart_setup();
-
-    kputs("\nubermini RUN\n");
-
-    printf("system uart output\n");
-
-    cc_reset();
-
-    cc_init();
-
-    delay(); // why ???
-
-    /* Enable external high-speed oscillator 16MHz. */
-    rcc_osc_bypass_enable(RCC_HSE);
-    rcc_clock_setup_hse_3v3(&rcc_hse_16mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
-
-    rcc_periph_clock_enable(RCC_OTGFS);
-
-    /* Setup USART1 parameters. */
-    usart_set_baudrate(USART1, 2000000);
-
-    LED1_CLR();LED2_CLR();LED3_CLR();LED4_CLR();
-
-    kputs("system clock init done!\n");
-
-    tim_setup();
-
-    spi_setup();
-
-    //dma_setup();              // BLE mode use spi interrupt receive data
-
-    ble_init();
-
-    while (1) {
-        ble_process();
-    }
-
-//    while(1) {
-//        delay_ms(1000);
-//        LED1_TOG();
-//        //UART_TOG();
-//    }
-
-    return 0;
-}
-
-/* clkn_high is incremented each time CLK100NS rolls over */
-void tim2_isr(void)
-{
-    if (TIM_SR(TIM2) & TIM_SR_UIF) {
-        /* Clear compare interrupt flag. */
-        TIM_SR(TIM2) = ~TIM_SR_UIF;
-        //LED4_TOG();
-        //UART_TOG();
-        clkn++;
-    }
-}
-
 /*
  * The active buffer is the one with an active DMA transfer.
  * The idle buffer is the one we can read/write between transfers.
@@ -339,18 +368,5 @@ void dma1_stream0_isr(void)
     }
 }
 
-void cc_clean_fifo(void)
-{
-    while (SPI3_SR & SPI_SR_RXNE)
-        {SPI2_DR = SPI3_DR;};
-}
+#endif
 
-void spi3_isr(void)
-{
-    while (SPI3_SR & SPI_SR_RXNE) {
-        //kputc('|');
-        //kputc(SPI3_DR);
-        rxbuf1[ble_packet_len++] = SPI3_DR;
-        //UART_TOG();
-    }
-}

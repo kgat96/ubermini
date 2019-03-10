@@ -309,6 +309,7 @@ void tim2_isr(void)
         TIM_SR(TIM2) = ~TIM_SR_UIF;
         //LED4_TOG();
         //UART_TOG();
+        kputc('|');
         clkn++;
     }
 }

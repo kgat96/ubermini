@@ -140,11 +140,14 @@ extern volatile u16 high_freq;
 
 void cc_init(void);
 void cc_reset(void);
+u8 cx_strobe(u8 reg);
 
 void rf_init(int m);
 void rf_rxmode(u32 sync, u32 channel);
 void rf_txmode(u32 sync, u32 channel);
 void rf_transfer(u32 len, u8 *txbuf);
 void rf_autofreq(void);
+
+void cc_clean_fifo(void);
 
 #endif /* __CC_H */
