@@ -373,20 +373,21 @@ static void adv_packet_send(u32 channel)
 
     adv_len += 4;
 
+#if 0
     // 6b 7d 91 71 6b 33 42 a4 ba bb c7 71 9d 20 50 f6 5f fd
     printf("whiten:");
     for (u32 i = 0; i < adv_len; i++) {
         //txbuf[i] = 0xff;
         printf("%x ", advbuf[i]);
     }
+#endif
 
     rf_transfer(adv_len, advbuf);
 }
 
-
-
-void tim_count_us(u32 n);
-u32 tim_get_count(void);
+u32 tim2_jiffies(u32 n);
+int tim2_before(u32 t);
+int tim2_after(u32 t);
 
 const u16 advchannel = 2426; // 2.426G
 
@@ -394,14 +395,17 @@ void ble_process(void)
 {
     switch (le.link_state) {
     case LINK_SEND_ADV: {
+        printf("tx adv packet\n");
+
         rf_txmode(rbit(le.access_address), advchannel);
         adv_packet_send(advchannel);
 
         rf_rxmode(rbit(le.access_address), advchannel);
         spi_set_nss_low(SPI3);
         cx_strobe(SRX);
-        tim_count_us(300);      // receive packet 300us
-        while (tim_get_count()){
+
+        u32 to = tim2_jiffies(600);      // receive packet 300us
+        while (tim2_before(to)){
             if (ble_packet_len > 12) {
                 u32 packet[48/4+1];
                 u8 *p = (u8 *)packet;
@@ -418,14 +422,20 @@ void ble_process(void)
                 }
                 kputc('\n');
 
+                break;
             }
         }
 
+        spi_set_nss_high(SPI3);
+        cc_clean_fifo();
+        ble_packet_len = 0;
+
+        cx_strobe(SFSON);                   // goto FS_ON
+
         } break;
-
-
     }
 
+    delay_ms(500);
 
 //    while(1) {
 //        delay_ms(300);
@@ -434,31 +444,23 @@ void ble_process(void)
 //    }
 }
 
-
-
 void ble_init(void)
 {
-    volatile u16 channel = 2426;
+    //volatile u16 channel = 2426;
 
     ble_packet_len = 0;
     ble_reset();
     rf_init(MOD_BT_LOW_ENERGY);
 
-
-
 #if 0           // test rx
     kputs("bleR\n");
     rf_rxmode(rbit(le.access_address), channel);
-
-
     cx_strobe(SRX);
-
 #else
     //kputs("bleT\n");
     //rf_txmode(rbit(le.access_address), channel);
 #endif
 }
-
 
 #if 0   // test rx
     if (ble_packet_len < 4) {

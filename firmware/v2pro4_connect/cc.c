@@ -351,19 +351,26 @@ void rf_txmode(u32 sync, u32 channel)
 
 void rf_transfer(u32 len, u8 *txbuf)
 {
-    cc_set(IOCFG, (GIO_CLK_16M << 3) | (GIO_FIFO_FULL << 9));
-
+    cc_set(IOCFG, (GIO_CLK_16M << 3) | (GIO_FIFO_EMPTY << 9));
     while ((cc_get(FSMSTATE) & 0x1f) != STATE_STROBE_FS_ON);
 
-    // put the packet into the FIFO
-    for (u32 i = 0; i < len; i += 16) {
-        while (gpio_get(GPIOA, PIN_GIO6)); // wait for the FIFO to drain (FIFO_FULL false)
-        u32 ttmp = len - i;
-        if (ttmp > 16)
-            ttmp = 16;
-        cc_fifo_write(ttmp, txbuf + i);
+    len += 1;           // send 1 empty byte
 
-        if (!i) cc_strobe(STX);
+    if (len <= 32) {
+        cc_fifo_write(len , txbuf);
+        cc_strobe(STX);
+    } else {
+        cc_fifo_write(32 , txbuf);
+        cc_strobe(STX);
+        // put the packet into the FIFO
+        for (u32 i = 32; i < len; i += 16) {
+            u32 ttmp = len - i;
+            if (ttmp > 16)
+                ttmp = 16;
+
+            while (!gpio_get(GPIOA, PIN_GIO6));
+            cc_fifo_write(ttmp, txbuf + i);
+        }
     }
 
     //while(0) {
@@ -372,9 +379,7 @@ void rf_transfer(u32 len, u8 *txbuf)
     //}
 
     cc_set(IOCFG, (GIO_CLK_16M << 3) | (GIO_LOCK_STATUS << 9));
-
-    while ((cc_get(FSMSTATE) & 0x1f) != STATE_STROBE_TX_OFF);
-
+    while ((cc_get(FSMSTATE) & 0x1f) == STATE_STROBE_TX);
     cc_strobe(SFSON);
     //wait_fslock();
 }

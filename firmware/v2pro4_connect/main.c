@@ -18,6 +18,7 @@
 #include <libopencm3/stm32/spi.h>
 
 #include <libopencm3/stm32/dma.h>
+#include <libopencm3/stm32/wwdg.h>
 
 //#include <errno.h>
 //#include <stdio.h>
@@ -186,7 +187,7 @@ static void tim_setup(void)
     timer_continuous_mode(TIM2);        /* Continous mode. */
 
     /* Period. */
-    timer_set_period(TIM2, 1000000);
+    timer_set_period(TIM2, 0xffffffff);
 
     /* Disable outputs. */
     timer_disable_oc_output(TIM2, TIM_OC1);
@@ -218,6 +219,8 @@ static void tim_setup(void)
 
 int main(void)
 {
+    WWDG_CR = 0;
+
     gpio_setup();
 
     usart_setup();
@@ -259,45 +262,71 @@ int main(void)
     return 0;
 }
 
-static volatile u32 tim2_count = 0;
+/*
+ * Check at compile time that something is of a particular type.
+ * Always evaluates to 1 so you may use it easily in comparisons.
+ */
+#define typeof __typeof__
+#define typecheck(type,x) \
+({  type __dummy; \
+    typeof(x) __dummy2; \
+    (void)(&__dummy == &__dummy2); \
+    1; \
+})
 
-void tim_count_us(u32 n);
-u32 tim_get_count(void);
+#define time_after(a,b)     \
+        (typecheck(u32, a) && \
+         typecheck(u32, b) && \
+         ((int)((b) - (a)) < 0))
+#define time_before(a,b)    time_after(b,a)
 
-void tim_count_us(u32 n)
+u32 tim2_jiffies(u32 n);
+int tim2_before(u32 t);
+int tim2_after(u32 t);
+
+u32 tim2_jiffies(u32 n)
 {
-    tim2_count = n;
+    u32 t = TIM2_CNT;
+    return t + n;
 }
 
-u32 tim_get_count(void)
+int tim2_before(u32 t)
 {
-    return tim2_count;
+    return time_before((u32)TIM2_CNT, t);
+}
+
+int tim2_after(u32 t)
+{
+    return time_after((u32)TIM2_CNT, t);
 }
 
 /* 1us */
 void tim2_isr(void)
 {
+    //kputc('#');
     if (TIM_SR(TIM2) & TIM_SR_UIF) {
         TIM_SR(TIM2) = ~TIM_SR_UIF;
-        //kputc('#');
-        if (tim2_count) tim2_count--;
+
     }
 }
 
 /* 312.5us */
 void tim3_isr(void)
 {
+    //kputc('-');
     if (TIM_SR(TIM3) & TIM_SR_UIF) {
         TIM_SR(TIM3) = ~TIM_SR_UIF;
-        //kputc('*');
         clk3125n ++;
     }
 }
 
 void spi3_isr(void)
 {
+    //kputc('*');
     while (SPI3_SR & SPI_SR_RXNE) {
-        ble_rxpacket[ble_packet_len++] = SPI3_DR;
+        ble_rxpacket[ble_packet_len] = SPI3_DR;
+        if (ble_packet_len < 1023)
+            ble_packet_len++;
     }
 }
 
