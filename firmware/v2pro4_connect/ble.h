@@ -49,7 +49,7 @@ enum hop_mode {
 };
 
 extern volatile u32 ble_packet_len;
-extern volatile u8 ble_rxpacket[1024];
+extern volatile u8 ble_rxpacket[128];
 extern volatile u32 clk3125n;
 
 extern volatile u32 clkn;

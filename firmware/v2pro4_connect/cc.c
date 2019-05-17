@@ -36,6 +36,7 @@ static u32 cc_spi(u8 len, u32 data)
 {
     u32 msb = 1 << (len - 1);
     /* start transaction by dropping CSN */
+#if 0
     CSN_CLR();
     while (len--) {
         if (data & msb) {
@@ -52,6 +53,26 @@ static u32 cc_spi(u8 len, u32 data)
     }
     /* end transaction by raising CSN */
     CSN_SET();
+#endif
+
+    GPIO_BSRR(GPIOD) = (PIN_CSN << 16);     // CSN_CLR();
+    while (len--) {
+        if (data & msb) {
+            GPIO_BSRR(GPIOC) = PIN_MOSI;    // MOSI_SET();
+        } else {
+            GPIO_BSRR(GPIOC) = (PIN_MOSI << 16);
+        }
+        data <<= 1;
+        GPIO_BSRR(GPIOC) = PIN_SCLK;         // SCLK_SET();
+        __asm__("nop");__asm__("nop");__asm__("nop");
+        if (GPIO_IDR(GPIOC) & PIN_MISO) {    // MISO()
+            data |= 1;
+        }
+        GPIO_BSRR(GPIOC) = (PIN_SCLK << 16);
+    }
+    /* end transaction by raising CSN */
+    GPIO_BSRR(GPIOD) = PIN_CSN;             // CSN_SET();
+
     return data;
 }
 
@@ -255,6 +276,11 @@ void rf_init(int m)
     cc_set(INT, 20);                // FIFO_THRESHOLD: 20 bytes
     cc_set(MDMCTRL, mdmctrl);
 
+    //cc_set(MDMTST0, 0x124b);
+    //u32 sync = rbit(0x8e89bed6);
+    //cc_set(SYNCL,   sync & 0xffff);
+    //cc_set(SYNCH,   (sync >> 16) & 0xffff);
+
     PAEN_SET();
     HGM_SET();
 }
@@ -278,8 +304,7 @@ static void rf_setting(u32 sync, u32 channel, u16 mdmtst0, u16 grmdm)
     //cc_puthex(cc_status(), 2);
     //cc_putchar('@'); cc_puthex(cc_get(FSMSTATE) & 0x1f, 2);
 
-    while ((cc_get(FSMSTATE) & 0x1f) != STATE_STROBE_FS_ON) {
-    }
+    while ((cc_get(FSMSTATE) & 0x1f) != STATE_STROBE_FS_ON);
 
     //cc_puthex(cc_get(FSMSTATE) & 0x1f, 2);
 }
@@ -288,11 +313,11 @@ void rf_rxmode(u32 sync, u32 channel)
 {
     u16 mdmtst0, grmdm;
 
-    mdmtst0 = 0x124b;           // cc_set(MDMTST0, 0x134b);    // no PRNG
+    mdmtst0 = 0x164b;           // cc_set(MDMTST0, 0x134b);    // no PRNG
     // 1      2      4b
     // 00 0 1 0 0 10 01001011
-    //    | | | | |  +---------> AFC_DELTA = ??
-    //    | | | | +------------> AFC settling = 4 pairs (8 bit preamble)
+    //    | | | | |  +---------> AFC_DELTA = 0x4b default
+    //    | | | | +------------> AFC settling = 4 pairs
     //    | | | +--------------> no AFC adjust on packet
     //    | | +----------------> do not invert data
     //    | +------------------> TX IF freq 1 0Hz
@@ -301,8 +326,8 @@ void rf_rxmode(u32 sync, u32 channel)
     // ref: CC2400 datasheet page 67
     // AFC settling explained page 41/42
 
-    grmdm = 0x0561;
-    // 0 00 00 1 010 11 0 00 0 1
+    grmdm = 0x6561;
+    // 0 11 00 1 010 11 0 00 0 1
     //                         +-> TX_GAUSSIAN_FILTER
     //                     +-----> NRZ
     //                       +---> FSK/GFSK
@@ -311,7 +336,7 @@ void rf_rxmode(u32 sync, u32 channel)
     //   |  |  | +---------------> 2 preamble bytes of 01010101
     //   |  |  +-----------------> packet mode
     //   |  +--------------------> 0: Un-buffered mode 1: Buffered mode
-    //   +-----------------------> sync error bits: 0
+    //   +-----------------------> RX sync error bits: 3
 
     rf_setting(sync, channel-1, mdmtst0, grmdm);
 }
@@ -320,17 +345,17 @@ void rf_txmode(u32 sync, u32 channel)
 {
     u16 mdmtst0, grmdm;
 
-    mdmtst0 = 0x134b;
-    // 00 0 1 0 0 11 01001011
-    //    | | | | |  +---------> AFC_DELTA = ??
-    //    | | | | +------------> AFC settling = 8 pairs (16 bit preamble)
+    mdmtst0 = 0x164b;
+    // 00 0 1 0 1 10 01001011
+    //    | | | | |  +---------> AFC_DELTA = 0x4b default
+    //    | | | | +------------> AFC settling = 4 pairs
     //    | | | +--------------> no AFC adjust on packet
     //    | | +----------------> do not invert data
     //    | +------------------> TX IF freq 1 0Hz
     //    +--------------------> PRNG off
 
-    grmdm = 0x0c01;
-    // 0 00 01 1 000 00 0 00 0 1
+    grmdm = 0x6c01;
+    // 0 11 01 1 000 00 0 00 0 1
     //                         +-> TX_GAUSSIAN_FILTER
     //                     +-----> NRZ
     //                       +---> FSK/GFSK
@@ -339,12 +364,12 @@ void rf_txmode(u32 sync, u32 channel)
     //   |  |  | +---------------> 0 preamble bytes
     //   |  |  +-----------------> packet mode
     //   |  +--------------------> 0: Un-buffered mode 1: Buffered mode
-    //   +-----------------------> sync error bits: 0
+    //   +-----------------------> RX sync error bits: 3
 
-    if (sync & 1)
-        sync = 0xaaaa0000;
-    else
-        sync = 0x55550000;
+    //if (sync & 1)
+    //    sync = 0xaaaa0000;
+    //else
+    //    sync = 0x55550000;
 
     rf_setting(sync, channel, mdmtst0, grmdm);
 }
@@ -380,7 +405,8 @@ void rf_transfer(u32 len, u8 *txbuf)
 
     cc_set(IOCFG, (GIO_CLK_16M << 3) | (GIO_LOCK_STATUS << 9));
     while ((cc_get(FSMSTATE) & 0x1f) == STATE_STROBE_TX);
-    cc_strobe(SFSON);
+    cc_strobe(SRFOFF);
+
     //wait_fslock();
 }
 

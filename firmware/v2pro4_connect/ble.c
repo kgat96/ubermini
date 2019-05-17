@@ -10,6 +10,8 @@
 
 #include <string.h>
 
+#include <libopencm3/stm32/timer.h>
+
 #include "config.h"
 #include "cc.h"
 #include "uart.h"
@@ -17,6 +19,28 @@
 
 void delay_us(u32 us);
 void delay_ms(u32 us);
+
+//0x40, 0xb2, 0xbc, 0xc3, 0x1f, 0x37, 0x4a, 0x5f, 0x85,
+//0xf6, 0x9c, 0x9a, 0xc1, 0xd6, 0xc5, 0x44, 0x20, 0x59,
+//0xde, 0xe1, 0x8f, 0x1b, 0xa5, 0xaf, 0x42, 0x7b, 0x4e,
+//0xcd, 0x60, 0xeb, 0x62, 0x22, 0x90, 0x2c, 0xef, 0xf0,
+//0xc7, 0x8d, 0xd2, 0x57, 0xa1, 0x3d, 0xa7, 0x66, 0xb0,
+//0x75, 0x31, 0x11, 0x48, 0x96, 0x77, 0xf8, 0xe3, 0x46,
+//0xe9, 0xab, 0xd0, 0x9e, 0x53, 0x33, 0xd8, 0xba, 0x98,
+//0x08, 0x24, 0xcb, 0x3b, 0xfc, 0x71, 0xa3, 0xf4, 0x55,
+//0x68, 0xcf, 0xa9, 0x19, 0x6c, 0x5d, 0x4c, 0x04, 0x92,
+//0xe5, 0x1d, 0xfe, 0xb8, 0x51, 0xfa, 0x2a, 0xb4, 0xe7,
+//0xd4, 0x0c, 0xb6, 0x2e, 0x26, 0x02, 0xc9, 0xf2, 0x0e,
+//0x7f, 0xdc, 0x28, 0x7d, 0x15, 0xda, 0x73, 0x6a, 0x06,
+//0x5b, 0x17, 0x13, 0x81, 0x64, 0x79, 0x87, 0x3f, 0x6e,
+//0x94, 0xbe, 0x0a, 0xed, 0x39, 0x35, 0x83, 0xad, 0x8b, 0x89,
+
+//static const u32 whitening[40] = {
+//        0x40, 0x89, 0xd2, 0x1b, 0x64, 0xad, 0xf6, 0x3f, 0x08, 0xc1,
+//        0x9a, 0x53, 0x2c, 0xe5, 0xbe, 0x77, 0xd0, 0x19, 0x42, 0x8b,
+//        0xf4, 0x3d, 0x66, 0xaf, 0x98, 0x51, 0x0a, 0xc3, 0xbc, 0x75,
+//        0x2e, 0xe7, 0x60, 0xa9, 0xf2, 0x3b, 0x44, 0x8d, 0xd6, 0x1f,
+//};
 
 static const u32 whitening_word[40][12] = {
     { 0xc3bcb240, 0x5f4a371f, 0x9a9cf685, 0x44c5d6c1, 0xe1de5920, 0xafa51b8f,
@@ -160,10 +184,28 @@ static u32 btle_crcgen_lut(u32 crc_init, u8 *data, int len)
 typedef enum {
     LINK_INACTIVE,
     LINK_SEND_ADV,
+    LINK_SCAN_RSP,
     LINK_LISTENING,
     LINK_CONN_PENDING,
     LINK_CONNECTED,
 } link_state_t;
+
+typedef enum {
+    LL_CONNECTION_UPDATE_REQ,
+    LL_CHANNEL_MAP_REQ,
+    LL_TERMINATE_IND,
+    LL_ENC_REQ,
+    LL_ENC_RSP,
+    LL_START_ENC_REQ,
+    LL_START_ENC_RSP,
+    LL_UNKNOWN_RSP,
+    LL_FEATURE_REQ,
+    LL_FEATURE_RSP,
+    LL_PAUSE_ENC_REQ,
+    LL_PAUSE_ENC_RSP,
+    LL_VERSION_IND,
+    LL_REJECT_IND,
+} ll_control_opcodes_t;
 
 typedef struct _le_state_t {
     u32 access_address;         // Access Address to filter by
@@ -177,14 +219,16 @@ typedef struct _le_state_t {
 
     u8 channel_idx;             // current channel index
     u8 channel_increment;       // amount to hop
+    u8 sn;
+    u8 nesn;
 
     u32 conn_epoch;             // reference time for the start of the connection
     u16 volatile interval_timer;// number of intervals remaining before next hop
     u16 conn_interval;          // connection-specific hop interval
     u16 volatile conn_count;    // number of intervals since the start of the connection
 
-    u8 win_size;                // window size (max packets per connection)
-    u16 win_offset;             // offset of first window from start of connection
+    u32 win_size;                // window size (max packets per connection)
+    u32 win_offset;              // offset of first window from start of connection
 
     int update_pending;         // whether a connection update is pending
     u16 update_instant;         // the connection count when the update takes effect
@@ -195,6 +239,9 @@ typedef struct _le_state_t {
     u8 target[6];               // target MAC for connection following (byte order reversed)
     int target_set;             // whether a target has been set (default: false)
     u32 last_packet;            // when was the last packet received
+
+    u32 tx_interval;
+    u32 rx_interval;
 } le_state_t;
 
 le_state_t le;
@@ -239,6 +286,21 @@ static void ble_reset(void)
     le.win_offset_update = 0;
 }
 
+static u16 btle_channel_index_to_phys(u8 idx) {
+    u16 phys;
+    if (idx < 11)
+        phys = 2404 + 2 * idx;
+    else if (idx < 37)
+        phys = 2428 + 2 * (idx - 11);
+    else if (idx == 37)
+        phys = 2402;
+    else if (idx == 38)
+        phys = 2426;
+    else
+        phys = 2480;
+    return phys;
+}
+
 static u8 btle_channel_index(u8 channel)
 {
     u8 idx;
@@ -256,107 +318,66 @@ static u8 btle_channel_index(u8 channel)
     return idx;
 }
 
+static u16 btle_next_hop(le_state_t *lee)
+{
+    u16 phys = btle_channel_index_to_phys(lee->channel_idx);
+    lee->channel_idx = (lee->channel_idx + lee->channel_increment) % 37;
+    return phys;
+}
+
+static int btle_crc_verify(u8 *p, u32 len)
+{
+    u32 calc_crc = btle_crcgen_lut(le.crc_init_reversed, p + 4, len);
+    u32 wire_crc = (p[4+len+2] << 16)
+                 | (p[4+len+1] << 8)
+                 | (p[4+len+0] << 0);
+
+    return (calc_crc == wire_crc);
+}
+
 volatile u32 ble_packet_len = 0;
-volatile u8 ble_rxpacket[1024];
+volatile u8 ble_rxpacket[128];
 volatile u32 clk3125n = 0;
 
-static void packet_process(u8 *packet)
-{
-#define ADV_ADDRESS_IDX     0
-#define HEADER_IDX          4
-#define DATA_LEN_IDX        5
-#define DATA_START_IDX      6
-
-    //u8 header = packet[HEADER_IDX];
-    u8 *data_len = &packet[DATA_LEN_IDX];
-    //u8 *data = &packet[DATA_START_IDX];
-
-    //printf("pkt %x %d\n", packet[4], packet[DATA_LEN_IDX] & 0x3f);
-
-    if (le.link_state == LINK_LISTENING) {
-        u8 pkt_type = packet[4] & 0x0F;
-        if (pkt_type == 0x05) {
-            u16 conn_interval;
-
-            // ignore packets with incorrect length
-            if (*data_len != 34)
-                return;
-
-            // conn interval must be [7.5 ms, 4.0s] in units of 1.25 ms
-            conn_interval = (packet[29] << 8) | packet[28];
-            if (conn_interval < 6 || conn_interval > 3200)
-                return;
-
-            // This is a connect packet
-            // if we have a target, see if InitA or AdvA matches
-            if (le.target_set &&
-                memcmp(le.target, &packet[6], 6) &&  // Target address doesn't match Initiator.
-                memcmp(le.target, &packet[12], 6)) {  // Target address doesn't match Advertiser.
-                return;
-            }
-
-            le.link_state = LINK_CONN_PENDING;
-            le.crc_verify = 0; // we will drop many packets if we attempt to filter by CRC
-
-            int i = 0;
-            u32 tmp = 0;
-
-            for (i = 0; i < 4; ++i)
-                tmp |= packet[18+i] << (i*8);
-
-            le_set_access_address(tmp);
-
-#define CRC_INIT (2+4+6+6+4)
-            le.crc_init = (packet[CRC_INIT+2] << 16)
-                        | (packet[CRC_INIT+1] << 8)
-                        |  packet[CRC_INIT+0];
-            le.crc_init_reversed = rbit(le.crc_init);
-
-#define WIN_SIZE (2+4+6+6+4+3)
-            le.win_size = packet[WIN_SIZE];
-
-#define WIN_OFFSET (2+4+6+6+4+3+1)
-            le.win_offset = packet[WIN_OFFSET];
-
-#define CONN_INTERVAL (2+4+6+6+4+3+1+2)
-            le.conn_interval = (packet[CONN_INTERVAL+1] << 8)
-                             |  packet[CONN_INTERVAL+0];
-
-#define CHANNEL_INC (2+4+6+6+4+3+1+2+2+2+2+5)
-            le.channel_increment = packet[CHANNEL_INC] & 0x1f;
-            le.channel_idx = le.channel_increment;
-
-            // Hop to the initial channel immediately
-            //do_hop = 1;
-        }
-    }
-}
+#define ADV_IND             0
+#define ADV_DIRECT_IND      1
+#define ADV_NONCONN_IND     2
+#define SCAN_REQ            3
+#define SCAN_RSP            4
+#define CONNECT_REQ         5
+#define ADV_SCAN_IND        6
 
 static u8 adv_packet[] = {
     // LL header
-    0x00, 0xff,
+    0, 0xff,
     // advertising address
     0x66, 0x55, 0x0, 0x56, 0x34, 0x12,
     // advertising data
     0x02, 0x01, 0x06,
+
     0x04, 0x08, 'K','K','S',
     // CRC (calc)
     0xff, 0xff, 0xff,
 };
 
+#define BT_ADDR     (&adv_packet[2])
 
-static void adv_packet_send(u32 channel)
+u32 tim2_jiffies(u32 n);
+int tim2_before(u32 t);
+int tim2_after(u32 t);
+
+static void adv_packet_send(u32 channel, u8 type)
 {
     u8 advbuf[64];
     u32 aa = 0x8e89bed6;
     u32 adv_len = sizeof(adv_packet);
 
+    adv_packet[0] = type;
     adv_packet[1] = adv_len - 5;
     u32 calc_crc = btle_crcgen_lut(0xAAAAAA, adv_packet, adv_len - 3);
     adv_packet[adv_len-3] = (calc_crc >>  0) & 0xff;
     adv_packet[adv_len-2] = (calc_crc >>  8) & 0xff;
     adv_packet[adv_len-1] = (calc_crc >> 16) & 0xff;
-
 
     u32 *ptx = (u32 *)advbuf;
     u32 *padv = (u32 *)adv_packet;
@@ -382,14 +403,47 @@ static void adv_packet_send(u32 channel)
     }
 #endif
 
+    while (tim2_before(le.tx_interval));
+
     rf_transfer(adv_len, advbuf);
 }
 
-u32 tim2_jiffies(u32 n);
-int tim2_before(u32 t);
-int tim2_after(u32 t);
+static void ll_send_empty(void)
+{
+    //rf_txmode(rbit(le.access_address), advchannel);
+    //adv_packet_send(advchannel, ADV_IND);
+
+
+}
+
+static void ll_control_packet(u8 *p, u32 len)
+{
+    ll_control_opcodes_t op;
+
+    //u8 llid = p[4] & 3;
+    u8 NESN = p[4] & BIT(2);
+    u8 SN = p[4] & BIT(3);
+
+    if (le.nesn != SN) {    // master 重发包 ?
+        printf("master resend packet %d !\n", le.nesn);
+        return;
+    }
+
+    le.nesn = !le.nesn;
+
+    switch (op) {
+    case LL_VERSION_IND:
+        break;
+
+
+    default:
+        break;
+    }
+}
 
 const u16 advchannel = 2426; // 2.426G
+
+const u32 bletunit = (1.25*1000);
 
 void ble_process(void)
 {
@@ -398,26 +452,166 @@ void ble_process(void)
         printf("tx adv packet\n");
 
         rf_txmode(rbit(le.access_address), advchannel);
-        adv_packet_send(advchannel);
+        adv_packet_send(advchannel, ADV_IND);
+        le.tx_interval = tim2_jiffies(500000);  // next tx time
 
         rf_rxmode(rbit(le.access_address), advchannel);
         spi_set_nss_low(SPI3);
         cx_strobe(SRX);
 
-        u32 to = tim2_jiffies(600);      // receive packet 300us
+        u32 to = tim2_jiffies(500);             // receive packet 500us
         while (tim2_before(to)){
-            if (ble_packet_len > 12) {
+            if (ble_packet_len > 16) {          // > 16bytes
                 u32 packet[48/4+1];
                 u8 *p = (u8 *)packet;
                 u32 *rxp = (u32 *)ble_rxpacket;
                 packet[0] = le.access_address;
+                le.tx_interval = tim2_jiffies(150);  // update next tx time
+
                 const u32 *whit = whitening_word[btle_channel_index(advchannel-2402)];
-                for (int i = 0; i < 3; i+= 1) {
+                for (int i = 0; i < 4; i++) {       // > 16bytes
                     u32 v = rev(rxp[i]);
                     packet[i+1] = rbit(v) ^ whit[i];
                 }
 
-                for (u32 i= 0; i < 16; i++) {
+                if (!memcmp(p+12, BT_ADDR, 6)) {
+                    memcpy(le.target, p+12, 6);
+                    switch(p[4] & 0xf) {
+                    case SCAN_REQ:
+                        le.link_state = LINK_SCAN_RSP;
+                        break;
+                    case CONNECT_REQ:
+                        while(ble_packet_len < 40);
+
+                        for (int i = 4; i < (40/4); i++) {   // > 40bytes
+                              u32 v = rev(rxp[i]);
+                              packet[i+1] = rbit(v) ^ whit[i];
+                        }
+
+                        u32 pdu_len = (p[5] & 0x3f) + 2;    // PDU length
+                        if (!btle_crc_verify(p, pdu_len)) {
+                            printf("CONNECT_REQ CRC error\n");
+                            break;
+                        }
+
+                        le.link_state = LINK_CONN_PENDING;
+
+                        u32 access_address = 0;
+                        #define ACCESS_ADDR_DFF     (4+2+6+6)
+                        for (u32 i = 0; i < 4; ++i)
+                            access_address |= p[ACCESS_ADDR_DFF+i] << (i*8);
+
+                        le_set_access_address(access_address);
+
+                        #define CRC_INIT            (4+2+6+6+4)
+                        le.crc_init = (p[CRC_INIT+2] << 16)
+                                    | (p[CRC_INIT+1] << 8)
+                                    |  p[CRC_INIT+0];
+                        le.crc_init &= 0xffffff;
+                        le.crc_init_reversed = rbit(le.crc_init) >> 8;
+
+                        #define WIN_SIZE            (4+2+6+6+4+3)
+                        le.win_size = p[WIN_SIZE];
+
+                        #define WIN_OFFSET          (4+2+6+6+4+3+1)
+                        le.win_offset = p[WIN_OFFSET];
+
+                        #define CONN_INTERVAL       (4+2+6+6+4+3+1+2)
+                        le.conn_interval = (p[CONN_INTERVAL+1] << 8)
+                                             | p[CONN_INTERVAL+0];
+
+                        #define CHANNEL_INC         (4+2+6+6+4+3+1+2+2+2+2+5)
+                        le.channel_increment = p[CHANNEL_INC] & 0x1f;
+                        le.channel_idx = le.channel_increment;
+
+                        printf("  -> CONNECT_ReQ\n");
+                        printf("%x %x\n", le.access_address, le.synch);
+                        printf("%x %x\n", le.crc_init, le.crc_init_reversed);
+                        printf("%x %x\n", le.win_size, le.win_offset);
+                        printf("%x %x\n", le.conn_interval, le.channel_increment);
+
+                        le.conn_interval *= bletunit;
+                        le.win_size *= bletunit;
+                        le.win_offset = (le.win_offset + 1) * bletunit;
+
+                        le.rx_interval = tim2_jiffies(le.win_offset);     // us
+                        break;
+                    }
+                }
+
+#if 0
+                for (u32 i= 0; i < 20; i++) {
+                    printf("%x ", p[i]);
+                }
+                kputc('\n');
+#endif
+                break;  // break while (tim2_before(to))
+            }
+        }
+
+        spi_set_nss_high(SPI3);
+        cc_clean_fifo();
+        ble_packet_len = 0;
+        cx_strobe(SRFOFF);
+
+        //if (le.link_state == LINK_SEND_ADV)
+        //    delay_ms(500);
+
+        } break;
+    case LINK_SCAN_RSP: {
+        rf_txmode(rbit(le.access_address), advchannel);
+        adv_packet_send(advchannel, SCAN_RSP);
+        le.link_state = LINK_SEND_ADV;
+        //delay_ms(500);
+        printf("  -> SCAN_RSP\n");
+        le.tx_interval = tim2_jiffies(500000);    // next tx time
+
+        } break;
+    case LINK_CONN_PENDING: {
+        u16 channel = btle_next_hop(&le);
+        rf_rxmode(rbit(le.access_address), channel);
+        spi_set_nss_low(SPI3);
+
+        //printf("  -> CONNECT_REQ\n");
+        while(tim2_before(le.rx_interval));
+        le.rx_interval = tim2_jiffies(le.conn_interval);
+
+        cx_strobe(SRX);
+        u32 to = tim2_jiffies(le.win_size);     // receive packet le.win_size
+        while (tim2_before(to)){
+            if (ble_packet_len > 4) {           // > 4bytes (PDU header)
+                u32 packet[48/4+1];
+                u8 *p = (u8 *)packet;
+                u32 *rxp = (u32 *)ble_rxpacket;
+                packet[0] = le.access_address;
+                le.tx_interval = tim2_jiffies(150);         // update next tx time
+
+                const u32 *whit = whitening_word[btle_channel_index(channel-2402)];
+                for (int i = 0; i < 1; i++) {               // > 4bytes
+                    u32 v = rev(rxp[i]);
+                    packet[i+1] = rbit(v) ^ whit[i];
+                }
+
+                u32 pdu_len = (p[5] & 0x1f) + 2;             // PDU length
+                while(ble_packet_len < (pdu_len + 2 + 3));  // whit all data
+
+                if (!btle_crc_verify(p, pdu_len)) {
+                    printf("LINK_CONN_PENDING CRC error\n");
+                    break;
+                }
+
+                u8 llid = p[4] & 3;
+                switch(llid) {
+                case 3:                             //LL control PDU
+                    ll_control_packet(p, pdu_len);
+                    break;
+                case 1:
+                case 2:                             //L2CAP
+
+                    break;
+                }
+
+                for (u32 i= 0; i < 12; i++) {
                     printf("%x ", p[i]);
                 }
                 kputc('\n');
@@ -429,13 +623,13 @@ void ble_process(void)
         spi_set_nss_high(SPI3);
         cc_clean_fifo();
         ble_packet_len = 0;
-
-        cx_strobe(SFSON);                   // goto FS_ON
+        cx_strobe(SRFOFF);
 
         } break;
+    default:
+        break;
     }
 
-    delay_ms(500);
 
 //    while(1) {
 //        delay_ms(300);
@@ -461,83 +655,3 @@ void ble_init(void)
     //rf_txmode(rbit(le.access_address), channel);
 #endif
 }
-
-#if 0   // test rx
-    if (ble_packet_len < 4) {
-        return;
-    }
-
-    le.link_state = LINK_LISTENING;
-
-    u32 packet[48/4+1] = { 0, };
-    u8 *p = (u8 *)packet;
-    u32 *rxp = (u32 *)rxbuf1;
-
-    packet[0] = le.access_address;
-
-    const u32 *whit = whitening_word[btle_channel_index(channel-2402)];
-    for (int i = 0; i < 1; i+= 1) {
-        //u32 v = rxbuf1[i+0] << 24
-        //        | rxbuf1[i+1] << 16
-        //        | rxbuf1[i+2] << 8
-        //        | rxbuf1[i+3] << 0;
-        u32 v = rev(rxp[i]);
-        packet[i+1] = rbit(v) ^ whit[i];
-    }
-
-    // Preamble     Access Address  PDU                 CRC
-    // (1 octet)    (4 octets)      (2 to 39 octets)    (3 octets)
-    u32 len = (p[5] & 0x3f) + 2;    // PDU length
-
-    printf("len %d %d %d\n", ble_packet_len, p[5] & 0x3f, len);
-
-    rf_autofreq();
-
-    // transfer the minimum number of bytes from the CC2400
-    // this allows us enough time to resume RX for subsequent packets on the same channel
-
-    while (ble_packet_len < (len+4+3)); // pdu + access addr + crc
-
-    //cc_SRFoff();
-    //cc_clean_fifo();
-    //spi_disable(SPI3);
-
-    spi_set_nss_high(SPI3);
-    cx_strobe(SFSON);                   // goto FS_ON
-
-    // unwhiten the rest of the packet
-    for (int i = 1; i < 11; i += 1) {
-        //uint32_t v = rxbuf1[i+0] << 24
-        //           | rxbuf1[i+1] << 16
-        //           | rxbuf1[i+2] << 8
-        //           | rxbuf1[i+3] << 0;
-        u32 v = rev(rxp[i]);
-        packet[i+1] = rbit(v) ^ whit[i];
-    }
-
-    if (le.crc_verify) {
-        u32 calc_crc = btle_crcgen_lut(le.crc_init_reversed, p + 4, len);
-        u32 wire_crc = (p[4+len+2] << 16)
-                     | (p[4+len+1] << 8)
-                     | (p[4+len+0] << 0);
-        //printf("crc ? %x %x\n", calc_crc, wire_crc);
-        if (calc_crc != wire_crc) { // skip packets with a bad CRC
-            //printf("crc err %x %x\n", calc_crc, wire_crc);
-            goto CLEFIFO;
-        }
-    }
-
-    for (u32 i= 0; i < (len + 4 + 3); i++) {
-        printf("%x ", p[i]);
-    }
-    kputc('\n');
-
-    //packet_process((u8 *)packet);
-
-CLEFIFO:
-    ble_packet_len = 0;
-    cc_clean_fifo();
-    spi_set_nss_low(SPI3);
-    cx_strobe(SRX);
-
-#endif

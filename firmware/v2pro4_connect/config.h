@@ -36,7 +36,9 @@ typedef volatile unsigned long int vu64;
 
 #define NULL ((void *)0)
 
-#define UNUSED(x) (void)(x)
+#define UNUSED(x)   (void)(x)
+
+#define BIT(n)      (0x1U << (n))
 
 #define PIN_MOSI    GPIO11      /* Pc.11  */
 #define PIN_MISO    GPIO10      /* Pc.10  */

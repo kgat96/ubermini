@@ -156,7 +156,7 @@ static void spi_setup(void)
 
 static void tim_setup(void)
 {
-#if 1
+#if 0
     /* master/slave mode */
     rcc_periph_clock_enable(RCC_TIM3);  /* Enable TIM3 clock. */
     nvic_enable_irq(NVIC_TIM3_IRQ);     /* Enable TIM3 interrupt. */
@@ -188,6 +188,7 @@ static void tim_setup(void)
 
     /* Period. */
     timer_set_period(TIM2, 0xffffffff);
+    TIM2_CNT = 0xffffffff - 10;         // the first time interrupt have bug ???
 
     /* Disable outputs. */
     timer_disable_oc_output(TIM2, TIM_OC1);
@@ -306,7 +307,7 @@ void tim2_isr(void)
     //kputc('#');
     if (TIM_SR(TIM2) & TIM_SR_UIF) {
         TIM_SR(TIM2) = ~TIM_SR_UIF;
-
+        UART_TOG();
     }
 }
 
@@ -325,7 +326,7 @@ void spi3_isr(void)
     //kputc('*');
     while (SPI3_SR & SPI_SR_RXNE) {
         ble_rxpacket[ble_packet_len] = SPI3_DR;
-        if (ble_packet_len < 1023)
+        if (ble_packet_len < (sizeof(ble_rxpacket)-1))
             ble_packet_len++;
     }
 }
